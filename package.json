@@ -1,0 +1,45 @@
+{
+  "name": "exercise-2dplatforming",
+  "version": "1.0.0",
+  "description": "2D platformer physics with slopes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "predeploy": "webpack",
+    "deploy": "gh-pages -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mlevesque/Exercise-2DPlatforming.git"
+  },
+  "author": "Michael Levesque",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mlevesque/Exercise-2DPlatforming/issues"
+  },
+  "homepage": "https://github.com/mlevesque/Exercise-2DPlatforming#readme",
+  "dependencies": {
+    "@types/jest": "^25.1.3",
+    "@types/node": "^13.7.4",
+    "@types/react": "^16.9.22",
+    "@types/react-dom": "^16.9.5",
+    "@types/react-redux": "^7.1.7",
+    "html-webpack-plugin": "^3.2.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-redux": "^7.2.0",
+    "redux": "^4.0.5",
+    "redux-saga": "^1.1.3"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "css-loader": "^3.4.2",
+    "file-loader": "^5.1.0",
+    "gh-pages": "^2.2.0",
+    "redux-devtools": "^3.5.0",
+    "style-loader": "^1.1.3",
+    "typescript": "^3.8.2",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
+  }
+}
