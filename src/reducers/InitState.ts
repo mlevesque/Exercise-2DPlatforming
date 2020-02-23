@@ -2,6 +2,7 @@ import { IMainState } from "../model/IMainState";
 import { InputType } from "../model/input.model";
 
 export const InitState: IMainState = {
+    loading: false,
     input: {
         [InputType.Left]: {previous: false, current: false},
         [InputType.Right]: {previous: false, current: false},
@@ -11,4 +12,5 @@ export const InitState: IMainState = {
         width: 640,
         height: 480,
     },
+    map: null,
 }

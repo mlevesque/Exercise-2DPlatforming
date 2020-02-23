@@ -8,7 +8,8 @@ import allReducers from "./reducers/main.reducer";
 import { InitState } from "./reducers/InitState";
 import { setupInputListener } from "./logic/input.logic";
 import { gameloopInitSaga, initiateGameUpdates } from "./logic/gameloop.logic";
-import { fork } from "redux-saga/effects";
+import { fork, call } from "redux-saga/effects";
+import { loadLevelSaga } from "./logic/load.logic";
 
 // setup redux
 const sagaMiddleware = createSagaMiddleware();
@@ -28,7 +29,9 @@ setupInputListener(store, "keyup", false);
 
 // Setup game updates
 function* rootSaga() {
+    yield fork(loadLevelSaga, "map_01.json");
     yield fork(gameloopInitSaga);
 }
 sagaMiddleware.run(rootSaga);
 initiateGameUpdates(store);
+
