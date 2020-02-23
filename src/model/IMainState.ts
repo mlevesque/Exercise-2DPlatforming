@@ -1,3 +1,5 @@
+import { IInputActions } from "./input.model";
+
 export interface IMainState {
-    // Redux Store stuff goes here
+    input: IInputActions;
 }

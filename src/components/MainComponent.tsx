@@ -1,10 +1,12 @@
 import React from "react";
+import { InputTest } from "./InputTestComponent";
 
 export class MainComponent extends React.Component {
     render() {
         return (
             <div>
-                Hello world!
+                <div>Hello world!</div>
+                <InputTest></InputTest>
             </div>
         )
     }
