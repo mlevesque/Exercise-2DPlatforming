@@ -3,6 +3,7 @@ import { createUpdateInputAction } from "../actions/input.actions";
 import { GameAction, createGameUpdateAction } from "../actions/game.actions";
 import { Store, AnyAction } from "redux";
 import { renderSaga } from "./render.logic";
+import { updateSaga } from "./update.logic";
 
 let prevTimestamp: number = 0;
 export function initiateGameUpdates(store: Store<any, AnyAction>) {
@@ -15,8 +16,10 @@ export function initiateGameUpdates(store: Store<any, AnyAction>) {
     window.requestAnimationFrame(update);
 }
 
-function* gameloopUpdateSaga() {
+function* gameloopUpdateSaga(action: AnyAction) {
+    const deltaT: number = action.payload;
     yield put(createUpdateInputAction());
+    yield call(updateSaga, deltaT);
     yield call(renderSaga);
 }
 
