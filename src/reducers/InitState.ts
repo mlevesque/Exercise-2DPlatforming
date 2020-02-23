@@ -7,4 +7,8 @@ export const InitState: IMainState = {
         [InputType.Right]: {previous: false, current: false},
         [InputType.Jump]: {previous: false, current: false},
     },
+    camera: {
+        width: 640,
+        height: 480,
+    },
 }

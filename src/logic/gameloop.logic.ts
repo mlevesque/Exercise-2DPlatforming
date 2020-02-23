@@ -1,7 +1,8 @@
-import { put, takeEvery } from "redux-saga/effects";
+import { put, takeEvery, call } from "redux-saga/effects";
 import { createUpdateInputAction } from "../actions/input.actions";
 import { GameAction, createGameUpdateAction } from "../actions/game.actions";
 import { Store, AnyAction } from "redux";
+import { renderSaga } from "./render.logic";
 
 let prevTimestamp: number = 0;
 export function initiateGameUpdates(store: Store<any, AnyAction>) {
@@ -16,6 +17,7 @@ export function initiateGameUpdates(store: Store<any, AnyAction>) {
 
 function* gameloopUpdateSaga() {
     yield put(createUpdateInputAction());
+    yield call(renderSaga);
 }
 
 export function* gameloopInitSaga() {
