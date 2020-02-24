@@ -57,8 +57,8 @@ export function normalize(v: IVector): IVector {
 }
 
 export function normal(v: IVector): IVector {
-    return {
-        x: -v.y,
-        y: v.x
-    }
+    return normalize({
+        x: v.y,
+        y: -v.x
+    });
 }

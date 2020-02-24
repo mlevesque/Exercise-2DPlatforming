@@ -1,10 +1,12 @@
-import { IMapSchema, getEntityJsonData } from "../assets/json/jsonSchemas";
+import { IMapSchema, getEntityJsonData, IMapCollisionSchema } from "../assets/json/jsonSchemas";
 import { createSetLoadingFlagAction } from "../actions/loading.action";
 import { put } from "redux-saga/effects";
 import { IMap } from "../model/map.model";
 import { createSetMapAction, createClearMapAction } from "../actions/map.actions";
 import { IEntity, EntityType, EntityAnimation, buildEntity } from "../model/entity.model";
 import { createSetEntitiesCollectionAction, createSetPlayerAction, createClearEntitiesAction } from "../actions/entities.actions";
+import { ICollisionSegment, createSegment } from "../model/collisions.model";
+import { createSetStaticCollisionsAction } from "../actions/collisions.action";
 
 /**
  * Returns if an image element with the given image name has already been loaded and attached to the page.
@@ -72,7 +74,22 @@ function lazyLoadImages(imageNames: string[]): Promise<any> {
 }
 
 /**
- * Returns an entity state for the player from the given map schema data.
+ * Builds and returns a collection of collisions from the given map data.
+ * @param map 
+ */
+function buildCollisionsCollection(map: IMapSchema): ICollisionSegment[] {
+    if (map && map.collisions) {
+        return map.collisions.map((collision: IMapCollisionSchema) => {
+            return createSegment({x: collision.x1, y: collision.y1}, {x: collision.x2, y: collision.y2});
+        });
+    }
+    else {
+        return [];
+    }
+}
+
+/**
+ * Returns an entity state for the player from the given map data.
  * @param map 
  */
 function buildPlayer(map: IMapSchema): IEntity {
@@ -85,7 +102,7 @@ function buildPlayer(map: IMapSchema): IEntity {
 }
 
 /**
- * Builds and returns a list of entity states from the given map schema data.
+ * Builds and returns a list of entity states from the given map data.
  * @param map 
  */
 function buildEntityCollection(map: IMapSchema): IEntity[] {
@@ -124,6 +141,10 @@ export function* loadLevelSaga(levelFile: string) {
         tiles: data.map,
     };
     yield put(createSetMapAction(map));
+
+    // build collisions
+    let collisions = buildCollisionsCollection(data);
+    yield put(createSetStaticCollisionsAction(collisions));
 
     // load images
     promise = lazyLoadImages(getImagesToLoad(data));

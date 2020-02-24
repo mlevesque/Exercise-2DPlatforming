@@ -5,6 +5,7 @@ import { cameraReducer } from './camera.reducer';
 import { loadingReducer } from './loading.reducer';
 import { mapReducer } from './map.reducer';
 import { entitiesReducer, playerReducer } from './entities.reducer';
+import { staticCollisionsReducer } from './collisions.reducer';
 
 const allReducers = combineReducers<IMainState>({
     loading: loadingReducer,
@@ -14,6 +15,7 @@ const allReducers = combineReducers<IMainState>({
     camera: cameraReducer,
 
     map: mapReducer,
+    staticCollisions: staticCollisionsReducer,
 
     player: playerReducer,
     entities: entitiesReducer,

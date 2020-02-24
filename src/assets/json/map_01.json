@@ -21,5 +21,8 @@
         "position": {"x": 320, "y": 100},
         "flip": false
     },
-    "entities": []
+    "entities": [],
+    "collisions": [
+        {"x1": 64, "y1": 320, "x2": 576, "y2": 320}
+    ]
 }

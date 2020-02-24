@@ -4,6 +4,8 @@ import { getFullStateSelector } from "./selectors";
 import { IMap } from "../model/map.model";
 import { getGameConfig, IEntitySchema, getEntityJsonData } from "../assets/json/jsonSchemas";
 import { IEntity } from "../model/entity.model";
+import { IPoint, zeroVector, scale } from "../model/geometry.model";
+import { ICollisionSegment } from "../model/collisions.model";
 
 function getImage(imageName: string): HTMLImageElement {
     return document.getElementById(imageName) as HTMLImageElement;
@@ -12,6 +14,60 @@ function getImage(imageName: string): HTMLImageElement {
 function renderLoading(ctx: CanvasRenderingContext2D, width: number, height: number): void {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, width, height);
+}
+
+function renderArrow(ctx: CanvasRenderingContext2D, from: IPoint, to: IPoint, radius: number): void {
+	let x_center = to.x;
+	let y_center = to.y;
+	let angle;
+	let x;
+	let y;
+
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+    
+    ctx.beginPath();
+	angle = Math.atan2(to.y - from.y, to.x - from.x)
+	x = radius * Math.cos(angle) + x_center;
+	y = radius * Math.sin(angle) + y_center;
+	ctx.moveTo(x, y);
+	angle += (1.0/3.0) * (2 * Math.PI)
+	x = radius * Math.cos(angle) + x_center;
+	y = radius * Math.sin(angle) + y_center;
+	ctx.lineTo(x, y);
+	angle += (1.0/3.0) * (2 * Math.PI)
+	x = radius *Math.cos(angle) + x_center;
+	y = radius *Math.sin(angle) + y_center;
+	ctx.lineTo(x, y);
+	ctx.closePath();
+	ctx.fill();
+}
+
+function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment): void {
+    ctx.save();
+    ctx.translate(segment.start.x, segment.start.y);
+
+    // render segment
+    ctx.fillStyle = "red";
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    renderArrow(ctx, zeroVector(), segment.segment, 5);
+
+    // render normal
+    ctx.fillStyle = "green";
+    ctx.strokeStyle = "green";
+    ctx.lineWidth = 1;
+    renderArrow(ctx, zeroVector(), scale(20, segment.normal), 5);
+
+    ctx.restore();
+}
+
+function renderMapCollisions(ctx: CanvasRenderingContext2D, collisions: ICollisionSegment[]): void {
+    collisions.forEach((segment) => {
+        renderSegment(ctx, segment);
+    })
 }
 
 function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
@@ -66,7 +122,7 @@ function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity, drawCollis
 }
 
 function render(ctx: CanvasRenderingContext2D, width: number, height: number, state: IMainState): void {
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "white";
     ctx.fillRect(0, 0, width, height);
 
     renderTiles(ctx, state.map);
@@ -76,6 +132,8 @@ function render(ctx: CanvasRenderingContext2D, width: number, height: number, st
     state.entities.forEach((entity: IEntity) => {
         renderEntity(ctx, entity, true);
     });
+
+    renderMapCollisions(ctx, state.staticCollisions);
 }
 
 export function* renderSaga() {

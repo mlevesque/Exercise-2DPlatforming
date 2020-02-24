@@ -12,6 +12,13 @@ export interface IImagesSchema {
     [id: string]: string;
 }
 
+export interface IMapCollisionSchema {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+}
+
 export interface IMapSchema {
     tileset: string;
     map: number[][];
@@ -23,6 +30,7 @@ export interface IMapSchema {
         type: EntityType;
         position: IPoint;
     }[];
+    collisions: IMapCollisionSchema[]
 }
 
 export interface IAnimationSchema {
