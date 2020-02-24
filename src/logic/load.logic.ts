@@ -2,9 +2,9 @@ import { IMapSchema, getEntityJsonData } from "../assets/json/jsonSchemas";
 import { createSetLoadingFlagAction } from "../actions/loading.action";
 import { put } from "redux-saga/effects";
 import { IMap } from "../model/map.model";
-import { createSetMapAction } from "../actions/map.actions";
+import { createSetMapAction, createClearMapAction } from "../actions/map.actions";
 import { IEntity, EntityType, EntityAnimation } from "../model/entity.model";
-import { createSetEntitiesCollectionAction, createSetPlayerAction } from "../actions/entities.actions";
+import { createSetEntitiesCollectionAction, createSetPlayerAction, createClearEntitiesAction } from "../actions/entities.actions";
 
 /**
  * Returns if an image element with the given image name has already been loaded and attached to the page.
@@ -120,6 +120,10 @@ function buildEntityCollection(map: IMapSchema): IEntity[] {
 export function* loadLevelSaga(levelFile: string) {
     // indicate that we are loading
     yield put(createSetLoadingFlagAction(true));
+
+    // clear old level data
+    yield put(createClearMapAction());
+    yield put(createClearEntitiesAction());
 
     // load map data
     let promise = import(

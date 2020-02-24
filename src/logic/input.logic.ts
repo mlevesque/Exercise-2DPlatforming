@@ -3,6 +3,9 @@ import { createSetInputAction } from "../actions/input.actions";
 import { InputType, IInputActions } from "../model/input.model";
 import { IEntity, EntityAnimation } from "../model/entity.model";
 import { changeAnimationOnEntity } from "./animation.logic";
+import { loadLevelSaga } from "./load.logic";
+import { call, select, fork } from "redux-saga/effects";
+import { getLoadingSelector, getInputActionsSelector } from "./selectors";
 
 /**
  * Returns if a given input key is currently down.
@@ -66,6 +69,9 @@ export function setupInputListener(store: Store<any, AnyAction>, eventType: stri
                 store.dispatch(createSetInputAction(InputType.Right, keyState));
                 e.preventDefault();
                 break;
+            case "Escape":
+                store.dispatch(createSetInputAction(InputType.Reset, keyState));
+                break;
         }
     });
 }
@@ -77,6 +83,12 @@ export function setupInputListener(store: Store<any, AnyAction>, eventType: stri
  * @param inputActions Recorded input actions from the redux store.
  */
 export function* updatePlayerActions(deltaT: number, player: IEntity, inputActions: IInputActions) {
+    // don't do player input if scene is loading
+    let loading = yield select(getLoadingSelector);
+    if (loading) {
+        return;
+    }
+
     let goLeft = isKeyDown(InputType.Left, inputActions);
     let goRight = isKeyDown(InputType.Right, inputActions);
 
@@ -90,5 +102,17 @@ export function* updatePlayerActions(deltaT: number, player: IEntity, inputActio
     }
     else {
         changeAnimationOnEntity(player, EntityAnimation.Idle, false);
+    }
+}
+
+/**
+ * Generator function for performing input checks before all other updates happen. This is in place so that the player
+ * can press a key to reset the scene.
+ * @param deltaT 
+ * @param inputActions 
+ */
+export function* preUpdateInput(deltaT: number, inputActions: IInputActions) {
+    if (isKeyPressed(InputType.Reset, inputActions)) {
+        yield fork(loadLevelSaga, "map_01.json");
     }
 }

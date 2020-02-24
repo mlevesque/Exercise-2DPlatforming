@@ -1,6 +1,6 @@
 import { IMainState } from "../model/IMainState";
 import { select } from "redux-saga/effects";
-import { getFullState } from "./selectors";
+import { getFullStateSelector } from "./selectors";
 import { IMap } from "../model/map.model";
 import { getGameConfig, IEntitySchema, getEntityJsonData } from "../assets/json/jsonSchemas";
 import { IEntity } from "../model/entity.model";
@@ -74,7 +74,7 @@ function render(ctx: CanvasRenderingContext2D, width: number, height: number, st
 export function* renderSaga() {
     const canvas = <HTMLCanvasElement>document.getElementById("gameView");
     const ctx = canvas.getContext("2d");
-    const state: IMainState = yield select(getFullState);
+    const state: IMainState = yield select(getFullStateSelector);
 
     if (state.loading) {
         renderLoading(ctx, canvas.width, canvas.height);

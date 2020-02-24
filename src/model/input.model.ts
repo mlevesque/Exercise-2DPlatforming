@@ -2,6 +2,7 @@ export enum InputType {
     Left = "Left",
     Right = "Right",
     Jump = "Jump",
+    Reset = "Reset",
 }
 
 interface IInputSet {

@@ -1,16 +1,19 @@
-import { getCopiedEntities, getCopiedPlayer, getInputActions } from "./selectors";
+import { getCopiedEntitiesSelector, getCopiedPlayerSelector, getInputActionsSelector } from "./selectors";
 import { select, put, call } from "redux-saga/effects";
 import { createSetEntitiesCollectionAction, createSetPlayerAction } from "../actions/entities.actions";
 import { updateAnimations } from "./animation.logic";
-import { updatePlayerActions } from "./input.logic";
+import { updatePlayerActions, preUpdateInput } from "./input.logic";
 
 export function* updateSaga(deltaT: number) {
+    // check for reset input
+    let inputActions = yield select(getInputActionsSelector);
+    yield call(preUpdateInput, deltaT, inputActions);
+
     // we make a copy of all entities to update on
-    let entityCollectionCopy = yield select(getCopiedEntities);
-    let player = yield select(getCopiedPlayer);
+    let entityCollectionCopy = yield select(getCopiedEntitiesSelector);
+    let player = yield select(getCopiedPlayerSelector);
 
     // player input
-    let inputActions = yield select(getInputActions);
     yield call(updatePlayerActions, deltaT, player, inputActions);
 
     // animation
