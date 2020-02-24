@@ -21,19 +21,21 @@ export interface IMapSchema {
     }[];
 }
 
+export interface IAnimationSchema {
+    loops: boolean;
+    slices: {
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+        t: number;
+    }[];
+}
+
 export interface IEntitySchema {
     spritesheet: string;
     animations: {
-        [id: string]: {
-            loops: boolean;
-            slices: {
-                x: number;
-                y: number;
-                w: number;
-                h: number;
-                t: number;
-            }[];
-        };
+        [id: string]: IAnimationSchema;
     };
 }
 

@@ -17,7 +17,7 @@ export const InitState: IMainState = {
     entities: [
         {
             type: EntityType.Player,
-            currentAnimation: EntityAnimation.Idle,
+            currentAnimation: EntityAnimation.Walk,
             currentFrame: 0,
             elapsedTime: 0,
             position: {

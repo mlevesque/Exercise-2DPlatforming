@@ -7,7 +7,7 @@ export function entitiesReducer(state: IEntity[] = InitState.entities, action: A
     let newState: IEntity[];
     switch (action.type) {
         case EntitiesAction.Set:
-            return state.map((entity: IEntity) => {
+            return action.payload.map((entity: IEntity) => {
                 return Object.assign({}, entity);
             });
         case EntitiesAction.Clear:
