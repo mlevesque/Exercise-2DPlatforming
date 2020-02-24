@@ -34,7 +34,7 @@ function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
     });
 }
 
-function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity): void {
+function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity, drawCollision: boolean): void {
     let entityData: IEntitySchema = getEntityJsonData(entity.type);
     let spriteSheet: HTMLImageElement = document.getElementById(entityData.spritesheet) as HTMLImageElement;
     let animation = entityData.animations[entity.currentAnimation];
@@ -55,6 +55,13 @@ function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity): void {
         animation.w,                                        // destination width
         animation.h                                         // destination height
     );
+    if (drawCollision) {
+        let collision = entityData.collision;
+        ctx.fillStyle = "blue";
+        ctx.beginPath();
+        ctx.arc(collision.floorPoint.x, collision.floorPoint.y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+    }
     ctx.restore();
 }
 
@@ -64,10 +71,10 @@ function render(ctx: CanvasRenderingContext2D, width: number, height: number, st
 
     renderTiles(ctx, state.map);
     if (state.player) {
-        renderEntity(ctx, state.player);
+        renderEntity(ctx, state.player, true);
     }
     state.entities.forEach((entity: IEntity) => {
-        renderEntity(ctx, entity);
+        renderEntity(ctx, entity, true);
     });
 }
 

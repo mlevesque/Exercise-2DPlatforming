@@ -37,12 +37,17 @@ export interface IAnimationSchema {
     intervals: number[];
 }
 
+export interface IEntityCollisionSchema {
+    floorPoint: IPoint;
+}
+
 export interface IEntitySchema {
     spritesheet: string;
     animations: {
         [id: string]: IAnimationSchema;
     };
     speed: number;
+    collision: IEntityCollisionSchema;
 }
 
 export function getGameConfig(): IGameConfigSchema {

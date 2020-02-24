@@ -12,5 +12,8 @@
             "intervals": [30, 30, 30, 30, 30, 30, 30, 30, 30]
         }
     },
-    "speed": 300
+    "speed": 300,
+    "collision": {
+        "floorPoint": {"x": 0, "y": 48}
+    }
 }
