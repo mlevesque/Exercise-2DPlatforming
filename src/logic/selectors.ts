@@ -1,5 +1,5 @@
 import { IMainState } from "../model/IMainState";
-import { IEntity, copyEntity } from "../model/entity.model";
+import { IEntity, copyEntity, EntityType } from "../model/entity.model";
 import { IInputActions } from "../model/input.model";
 
 export function getFullStateSelector(state: IMainState): IMainState {
@@ -29,6 +29,6 @@ export function getCopiedEntitiesSelector(state: IMainState): ICopiedEntityColle
     return {
         allEntities: allEntities,
         entityMap: entityMap,
-        player: allEntities.length > 0 && allEntities[0].id == state.playerId ? allEntities[0] : null
+        player: allEntities.length > 0 && allEntities[0].type == EntityType.Player ? allEntities[0] : null
     }
 }

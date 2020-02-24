@@ -10,6 +10,5 @@ export interface IMainState {
     camera: ICamera;
     map: IMap;
     staticCollisions: ICollisionSegment[];
-    playerId: string;
     entities: IEntity[];
 }

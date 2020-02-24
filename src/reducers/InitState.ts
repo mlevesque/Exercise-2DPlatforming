@@ -15,6 +15,5 @@ export const InitState: IMainState = {
     },
     map: null,
     staticCollisions: [],
-    playerId: "",
     entities: []
 }

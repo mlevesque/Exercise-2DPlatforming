@@ -4,7 +4,7 @@ import { put } from "redux-saga/effects";
 import { IMap } from "../model/map.model";
 import { createSetMapAction, createClearMapAction } from "../actions/map.actions";
 import { IEntity, EntityType, EntityAnimation, buildEntity } from "../model/entity.model";
-import { createSetEntitiesCollectionAction, createSetPlayerIdAction, createClearEntitiesAction } from "../actions/entities.actions";
+import { createSetEntitiesCollectionAction, createClearEntitiesAction } from "../actions/entities.actions";
 import { ICollisionSegment, createSegment } from "../model/collisions.model";
 import { createSetStaticCollisionsAction } from "../actions/collisions.action";
 
@@ -143,9 +143,6 @@ export function* loadLevelSaga(levelFile: string) {
     // populate entities
     let entities = buildEntityCollection(data);
     yield put(createSetEntitiesCollectionAction(entities));
-    if (entities.length > 0 && entities[0].type == EntityType.Player) {
-        yield put(createSetPlayerIdAction(entities[0].id));
-    }
 
     // indicate that loading has finished
     yield put(createSetLoadingFlagAction(false));
