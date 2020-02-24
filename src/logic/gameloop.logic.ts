@@ -18,9 +18,9 @@ export function initiateGameUpdates(store: Store<any, AnyAction>) {
 
 function* gameloopUpdateSaga(action: AnyAction) {
     const deltaT: number = action.payload;
-    yield put(createUpdateInputAction());
     yield call(updateSaga, deltaT);
     yield call(renderSaga);
+    yield put(createUpdateInputAction());
 }
 
 export function* gameloopInitSaga() {
