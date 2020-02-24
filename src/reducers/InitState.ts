@@ -14,16 +14,6 @@ export const InitState: IMainState = {
         height: 480,
     },
     map: null,
-    entities: [
-        {
-            type: EntityType.Player,
-            currentAnimation: EntityAnimation.Walk,
-            currentFrame: 0,
-            elapsedTime: 0,
-            position: {
-                x: 200,
-                y: 100
-            }
-        }
-    ],
+    player: null,
+    entities: []
 }

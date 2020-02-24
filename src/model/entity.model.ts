@@ -13,6 +13,7 @@ export enum EntityAnimation {
 export interface IEntity {
     type: EntityType;
 
+    flip: boolean;
     currentAnimation: EntityAnimation;
     currentFrame: number;
     elapsedTime: number;

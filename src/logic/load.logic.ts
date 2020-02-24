@@ -3,6 +3,8 @@ import { createSetLoadingFlagAction } from "../actions/loading.action";
 import { put } from "redux-saga/effects";
 import { IMap } from "../model/map.model";
 import { createSetMapAction } from "../actions/map.actions";
+import { IEntity, EntityType, EntityAnimation } from "../model/entity.model";
+import { createSetEntitiesCollectionAction, createSetPlayerAction } from "../actions/entities.actions";
 
 /**
  * Returns if an image element with the given image name has already been loaded and attached to the page.
@@ -26,12 +28,16 @@ function getImagesToLoad(map: IMapSchema): string[] {
     }
 
     // get entity spritesheets
-    map.entities.forEach((entity) => {
-        let entityData = getEntityJsonData(entity.type);
+    let getEntityImage = (type: EntityType) => {
+        let entityData = getEntityJsonData(type);
         if (!isImageAlreadyLoaded(entityData.spritesheet)) {
             uniqueImages.add(entityData.spritesheet);
         }
-    });
+    }
+    if (map.player) {
+        getEntityImage(EntityType.Player);
+    }
+    map.entities.forEach((entry) => getEntityImage(entry.type));
 
     // return results
     return Array.from(uniqueImages.values());
@@ -66,6 +72,48 @@ function lazyLoadImages(imageNames: string[]): Promise<any> {
 }
 
 /**
+ * Returns an entity state for the player from the given map schema data.
+ * @param map 
+ */
+function buildPlayer(map: IMapSchema): IEntity {
+    if (map && map.player) {
+        return {
+            type: EntityType.Player,
+            flip: map.player.flip,
+            currentAnimation: EntityAnimation.Idle,
+            currentFrame: 0,
+            elapsedTime: 0,
+            position: Object.assign({}, map.player.position),
+        }
+    }
+    else {
+        return null;
+    }
+}
+
+/**
+ * Builds and returns a list of entity states from the given map schema data.
+ * @param map 
+ */
+function buildEntityCollection(map: IMapSchema): IEntity[] {
+    if (map && map.entities) {
+        return map.entities.map((entry): IEntity => {
+            return {
+                type: entry.type,
+                flip: false,
+                currentAnimation: EntityAnimation.Idle,
+                currentFrame: 0,
+                elapsedTime: 0,
+                position: Object.assign({}, entry.position),
+            }
+        })
+    }
+    else {
+        return [];
+    }
+}
+
+/**
  * Generator function for handling level loading, including loading all assets needed for the given level.
  * @param levelFile 
  */
@@ -88,9 +136,16 @@ export function* loadLevelSaga(levelFile: string) {
     yield put(createSetMapAction(map));
 
     // load images
-    const imagesToLoad = 
     promise = lazyLoadImages(getImagesToLoad(data));
     yield promise;
+
+    // populate entities
+    let entities = buildEntityCollection(data);
+    yield put(createSetEntitiesCollectionAction(entities));
+
+    // populate player
+    let player = buildPlayer(data);
+    yield put(createSetPlayerAction(player));
 
     // indicate that loading has finished
     yield put(createSetLoadingFlagAction(false));

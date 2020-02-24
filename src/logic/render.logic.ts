@@ -37,9 +37,25 @@ function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
 function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity): void {
     let entityData: IEntitySchema = getEntityJsonData(entity.type);
     let spriteSheet: HTMLImageElement = document.getElementById(entityData.spritesheet) as HTMLImageElement;
-    let slice = entityData.animations[entity.currentAnimation].slices[entity.currentFrame];
-    let pos = entity.position;
-    ctx.drawImage(spriteSheet, slice.x, slice.y, slice.w, slice.h, pos.x, pos.y, slice.w, slice.h);
+    let animation = entityData.animations[entity.currentAnimation];
+    ctx.save();
+    ctx.translate(
+        entity.position.x,
+        entity.position.y
+    );
+    ctx.scale(entity.flip ? -1 : 1, 1);
+    ctx.drawImage(
+        spriteSheet,                                        // image source
+        animation.x + entity.currentFrame * animation.w,    // source x
+        animation.y,                                        // source y
+        animation.w,                                        // source width
+        animation.h,                                        // source height
+        -animation.offX,                                    // destination x
+        -animation.offY,                                    // destination y
+        animation.w,                                        // destination width
+        animation.h                                         // destination height
+    );
+    ctx.restore();
 }
 
 function render(ctx: CanvasRenderingContext2D, width: number, height: number, state: IMainState): void {
@@ -47,6 +63,9 @@ function render(ctx: CanvasRenderingContext2D, width: number, height: number, st
     ctx.fillRect(0, 0, width, height);
 
     renderTiles(ctx, state.map);
+    if (state.player) {
+        renderEntity(ctx, state.player);
+    }
     state.entities.forEach((entity: IEntity) => {
         renderEntity(ctx, entity);
     });

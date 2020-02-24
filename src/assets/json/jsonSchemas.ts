@@ -14,22 +14,26 @@ export interface IImagesSchema {
 export interface IMapSchema {
     tileset: string;
     map: number[][];
+    player: {
+        position: IPoint;
+        flip: boolean;
+    }
     entities: {
         type: EntityType;
         position: IPoint;
-        animation: EntityAnimation;
     }[];
 }
 
 export interface IAnimationSchema {
     loops: boolean;
-    slices: {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-        t: number;
-    }[];
+    frameCount: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    offX: number;
+    offY: number;
+    intervals: number[];
 }
 
 export interface IEntitySchema {

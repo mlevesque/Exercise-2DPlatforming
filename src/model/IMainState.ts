@@ -8,5 +8,6 @@ export interface IMainState {
     input: IInputActions;
     camera: ICamera;
     map: IMap;
+    player: IEntity;
     entities: IEntity[];
 }
