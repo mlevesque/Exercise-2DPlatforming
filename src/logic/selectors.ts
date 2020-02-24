@@ -21,5 +21,5 @@ export function getCopiedEntitiesSelector(state: IMainState): IEntity[] {
 }
 
 export function getCopiedPlayerSelector(state: IMainState): IEntity {
-    return copyEntity(state.player);
+    return state.player ? copyEntity(state.player) : null;
 }

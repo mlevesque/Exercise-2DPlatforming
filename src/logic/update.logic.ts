@@ -21,7 +21,9 @@ export function* updateSaga(deltaT: number) {
     yield call(updatePhysicsSaga, deltaT, player, entityCollectionCopy);
 
     // animation
-    yield call(updateAnimations, deltaT, [player]);
+    if (player) {
+        yield call(updateAnimations, deltaT, [player]);
+    }
     yield call(updateAnimations, deltaT, entityCollectionCopy);
 
     // we will then save the updated entities to the store

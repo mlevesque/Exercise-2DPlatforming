@@ -17,7 +17,9 @@ export function* updatePhysicsSaga(deltaT: number, player: IEntity, entities: IE
     let externalForces: IVector = cloneVector(config.gravity);
     let t = deltaT / 1000;
 
-    integrateEntityPositioning(t, player, externalForces);
+    if (player) {
+        integrateEntityPositioning(t, player, externalForces);
+    }
     entities.forEach((entity) => {
         integrateEntityPositioning(t, entity, externalForces);
     });
