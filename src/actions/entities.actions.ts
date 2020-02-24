@@ -3,7 +3,7 @@ import { AnyAction } from "redux";
 
 export enum EntitiesAction {
     SetCollection = "EntitiesAction.SetCollection",
-    SetPlayer = "EntitiesAction.SetPlayer",
+    SetPlayerId = "EntitiesAction.SetPlayerId",
     Clear = "EntitiesAction.Clear",
 }
 
@@ -11,8 +11,8 @@ export function createSetEntitiesCollectionAction(entities: IEntity[]): AnyActio
     return { type: EntitiesAction.SetCollection, payload: entities };
 }
 
-export function createSetPlayerAction(player: IEntity): AnyAction {
-    return { type: EntitiesAction.SetPlayer, payload: player };
+export function createSetPlayerIdAction(playerId: string): AnyAction {
+    return { type: EntitiesAction.SetPlayerId, payload: playerId };
 }
 
 export function createClearEntitiesAction(): AnyAction {

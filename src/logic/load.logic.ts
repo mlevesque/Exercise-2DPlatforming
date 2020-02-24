@@ -4,7 +4,7 @@ import { put } from "redux-saga/effects";
 import { IMap } from "../model/map.model";
 import { createSetMapAction, createClearMapAction } from "../actions/map.actions";
 import { IEntity, EntityType, EntityAnimation, buildEntity } from "../model/entity.model";
-import { createSetEntitiesCollectionAction, createSetPlayerAction, createClearEntitiesAction } from "../actions/entities.actions";
+import { createSetEntitiesCollectionAction, createSetPlayerIdAction, createClearEntitiesAction } from "../actions/entities.actions";
 import { ICollisionSegment, createSegment } from "../model/collisions.model";
 import { createSetStaticCollisionsAction } from "../actions/collisions.action";
 
@@ -89,31 +89,21 @@ function buildCollisionsCollection(map: IMapSchema): ICollisionSegment[] {
 }
 
 /**
- * Returns an entity state for the player from the given map data.
- * @param map 
- */
-function buildPlayer(map: IMapSchema): IEntity {
-    if (map && map.player) {
-        return buildEntity(EntityType.Player, map.player.flip, EntityAnimation.Idle, map.player.position);
-    }
-    else {
-        return null;
-    }
-}
-
-/**
  * Builds and returns a list of entity states from the given map data.
  * @param map 
  */
 function buildEntityCollection(map: IMapSchema): IEntity[] {
+    let results: IEntity[] = [];
+    if (map && map.player) {
+        results.push(buildEntity(EntityType.Player, map.player.flip, EntityAnimation.Idle, map.player.position));
+    }
     if (map && map.entities) {
-        return map.entities.map((entry): IEntity => {
-            return buildEntity(entry.type, false, EntityAnimation.Idle, entry.position);
-        })
+        results = results.concat(map.entities.map((entry): IEntity => {
+                return buildEntity(entry.type, false, EntityAnimation.Idle, entry.position);
+            })
+        );
     }
-    else {
-        return [];
-    }
+    return results;
 }
 
 /**
@@ -153,10 +143,9 @@ export function* loadLevelSaga(levelFile: string) {
     // populate entities
     let entities = buildEntityCollection(data);
     yield put(createSetEntitiesCollectionAction(entities));
-
-    // populate player
-    let player = buildPlayer(data);
-    yield put(createSetPlayerAction(player));
+    if (entities.length > 0 && entities[0].type == EntityType.Player) {
+        yield put(createSetPlayerIdAction(entities[0].id));
+    }
 
     // indicate that loading has finished
     yield put(createSetLoadingFlagAction(false));

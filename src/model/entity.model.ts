@@ -1,4 +1,5 @@
 import { IPoint, IVector } from "./geometry.model";
+import { Guid } from "guid-typescript";
 
 export enum EntityType {
     Player = "player",
@@ -11,6 +12,7 @@ export enum EntityAnimation {
 }
 
 export interface IEntity {
+    id: string;
     type: EntityType;
 
     flip: boolean;
@@ -26,6 +28,7 @@ export interface IEntity {
 
 export function buildEntity(type: EntityType, flip: boolean, animation: EntityAnimation, position: IPoint): IEntity {
     return {
+        id: Guid.create().toString(),
         type: type,
         flip: flip,
         currentAnimation: animation,

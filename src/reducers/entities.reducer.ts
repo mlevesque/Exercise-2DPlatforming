@@ -15,10 +15,10 @@ export function entitiesReducer(state: IEntity[] = InitState.entities, action: A
     return state;
 }
 
-export function playerReducer(state: IEntity = InitState.player, action: AnyAction): IEntity {
+export function playerReducer(state: string = InitState.playerId, action: AnyAction): string {
     switch (action.type) {
-        case EntitiesAction.SetPlayer:
-            return copyEntity(action.payload);
+        case EntitiesAction.SetPlayerId:
+            return action.payload;
         case EntitiesAction.Clear:
             return null;
     }

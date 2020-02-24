@@ -17,7 +17,7 @@ const allReducers = combineReducers<IMainState>({
     map: mapReducer,
     staticCollisions: staticCollisionsReducer,
 
-    player: playerReducer,
+    playerId: playerReducer,
     entities: entitiesReducer,
 });
 

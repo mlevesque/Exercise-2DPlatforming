@@ -14,12 +14,21 @@ export function getInputActionsSelector(state: IMainState): IInputActions {
     return state.input;
 }
 
-export function getCopiedEntitiesSelector(state: IMainState): IEntity[] {
-    return state.entities.map((entity: IEntity) => {
-        return copyEntity(entity);
-    });
+export interface ICopiedEntityCollection {
+    allEntities: IEntity[];
+    entityMap: Map<string, IEntity>;
+    player: IEntity;
 }
-
-export function getCopiedPlayerSelector(state: IMainState): IEntity {
-    return state.player ? copyEntity(state.player) : null;
+export function getCopiedEntitiesSelector(state: IMainState): ICopiedEntityCollection {
+    let entityMap = new Map<string, IEntity>();
+    let allEntities = state.entities.map((entity: IEntity) => {
+        let newEntity = copyEntity(entity);
+        entityMap.set(newEntity.id, newEntity);
+        return newEntity;
+    });
+    return {
+        allEntities: allEntities,
+        entityMap: entityMap,
+        player: allEntities.length > 0 && allEntities[0].id == state.playerId ? allEntities[0] : null
+    }
 }

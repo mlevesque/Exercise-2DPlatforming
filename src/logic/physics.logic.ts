@@ -12,14 +12,11 @@ export function integrateEntityPositioning(t: number, entity: IEntity, externalF
     entity.impulse = zeroVector();
 }
 
-export function* updatePhysicsSaga(deltaT: number, player: IEntity, entities: IEntity[]) {
+export function* updatePhysicsSaga(deltaT: number, entities: IEntity[]) {
     let config = getGameConfig();
     let externalForces: IVector = cloneVector(config.gravity);
     let t = deltaT / 1000;
 
-    if (player) {
-        integrateEntityPositioning(t, player, externalForces);
-    }
     entities.forEach((entity) => {
         integrateEntityPositioning(t, entity, externalForces);
     });

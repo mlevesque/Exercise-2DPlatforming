@@ -126,9 +126,6 @@ function render(ctx: CanvasRenderingContext2D, width: number, height: number, st
     ctx.fillRect(0, 0, width, height);
 
     renderTiles(ctx, state.map);
-    if (state.player) {
-        renderEntity(ctx, state.player, true);
-    }
     state.entities.forEach((entity: IEntity) => {
         renderEntity(ctx, entity, true);
     });
