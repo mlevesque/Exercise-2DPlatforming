@@ -2,7 +2,8 @@ import { IMainState } from "../model/IMainState";
 import { select } from "redux-saga/effects";
 import { getFullState } from "./selectors";
 import { IMap } from "../model/map.model";
-import { getGameConfig } from "../assets/json/jsonSchemas";
+import { getGameConfig, IEntitySchema, getEntityJsonData } from "../assets/json/jsonSchemas";
+import { IEntity } from "../model/entity.model";
 
 function getImage(imageName: string): HTMLImageElement {
     return document.getElementById(imageName) as HTMLImageElement;
@@ -33,11 +34,22 @@ function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
     });
 }
 
+function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity): void {
+    let entityData: IEntitySchema = getEntityJsonData(entity.type);
+    let spriteSheet: HTMLImageElement = document.getElementById(entityData.spritesheet) as HTMLImageElement;
+    let slice = entityData.animations[entity.currentAnimation].slices[entity.currentFrame];
+    let pos = entity.position;
+    ctx.drawImage(spriteSheet, slice.x, slice.y, slice.w, slice.h, pos.x, pos.y, slice.w, slice.h);
+}
+
 function render(ctx: CanvasRenderingContext2D, width: number, height: number, state: IMainState): void {
     ctx.fillStyle = "red";
     ctx.fillRect(0, 0, width, height);
 
     renderTiles(ctx, state.map);
+    state.entities.forEach((entity: IEntity) => {
+        renderEntity(ctx, entity);
+    });
 }
 
 export function* renderSaga() {

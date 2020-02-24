@@ -5,8 +5,8 @@ import { Store, AnyAction } from "redux";
 import { renderSaga } from "./render.logic";
 import { updateSaga } from "./update.logic";
 
-let prevTimestamp: number = 0;
 export function initiateGameUpdates(store: Store<any, AnyAction>) {
+    let prevTimestamp: number = 0;
     function update(timeStamp: number): void {
         let dt: number = timeStamp - prevTimestamp;
         store.dispatch(createGameUpdateAction(dt));

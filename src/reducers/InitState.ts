@@ -1,5 +1,6 @@
 import { IMainState } from "../model/IMainState";
 import { InputType } from "../model/input.model";
+import { EntityType, EntityAnimation } from "../model/entity.model";
 
 export const InitState: IMainState = {
     loading: false,
@@ -13,4 +14,16 @@ export const InitState: IMainState = {
         height: 480,
     },
     map: null,
+    entities: [
+        {
+            type: EntityType.Player,
+            currentAnimation: EntityAnimation.Idle,
+            currentFrame: 0,
+            elapsedTime: 0,
+            position: {
+                x: 200,
+                y: 100
+            }
+        }
+    ],
 }
