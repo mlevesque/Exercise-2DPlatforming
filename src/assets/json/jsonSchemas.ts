@@ -1,10 +1,11 @@
 import gameConfig from "./gameConfig.json";
 import entityPlayer from "./entityPlayer.json";
 import { EntityType, EntityAnimation } from "../../model/entity.model";
-import { IPoint } from "../../model/collisions.model.js";
+import { IPoint, IVector } from "../../model/geometry.model.js";
 
 export interface IGameConfigSchema {
     tileSize: number;
+    gravity: IVector;
 }
 
 export interface IImagesSchema {
@@ -41,6 +42,7 @@ export interface IEntitySchema {
     animations: {
         [id: string]: IAnimationSchema;
     };
+    speed: number;
 }
 
 export function getGameConfig(): IGameConfigSchema {

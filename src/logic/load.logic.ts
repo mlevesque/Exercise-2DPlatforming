@@ -3,7 +3,7 @@ import { createSetLoadingFlagAction } from "../actions/loading.action";
 import { put } from "redux-saga/effects";
 import { IMap } from "../model/map.model";
 import { createSetMapAction, createClearMapAction } from "../actions/map.actions";
-import { IEntity, EntityType, EntityAnimation } from "../model/entity.model";
+import { IEntity, EntityType, EntityAnimation, buildEntity } from "../model/entity.model";
 import { createSetEntitiesCollectionAction, createSetPlayerAction, createClearEntitiesAction } from "../actions/entities.actions";
 
 /**
@@ -77,14 +77,7 @@ function lazyLoadImages(imageNames: string[]): Promise<any> {
  */
 function buildPlayer(map: IMapSchema): IEntity {
     if (map && map.player) {
-        return {
-            type: EntityType.Player,
-            flip: map.player.flip,
-            currentAnimation: EntityAnimation.Idle,
-            currentFrame: 0,
-            elapsedTime: 0,
-            position: Object.assign({}, map.player.position),
-        }
+        return buildEntity(EntityType.Player, map.player.flip, EntityAnimation.Idle, map.player.position);
     }
     else {
         return null;
@@ -98,14 +91,7 @@ function buildPlayer(map: IMapSchema): IEntity {
 function buildEntityCollection(map: IMapSchema): IEntity[] {
     if (map && map.entities) {
         return map.entities.map((entry): IEntity => {
-            return {
-                type: entry.type,
-                flip: false,
-                currentAnimation: EntityAnimation.Idle,
-                currentFrame: 0,
-                elapsedTime: 0,
-                position: Object.assign({}, entry.position),
-            }
+            return buildEntity(entry.type, false, EntityAnimation.Idle, entry.position);
         })
     }
     else {

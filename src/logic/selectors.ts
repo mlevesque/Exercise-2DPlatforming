@@ -1,6 +1,5 @@
 import { IMainState } from "../model/IMainState";
-import { IEntity } from "../model/entity.model";
-import { copyEntity } from "./util.logic";
+import { IEntity, copyEntity } from "../model/entity.model";
 import { IInputActions } from "../model/input.model";
 
 export function getFullStateSelector(state: IMainState): IMainState {

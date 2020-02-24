@@ -1,8 +1,7 @@
-import { IEntity } from "../model/entity.model";
+import { IEntity, copyEntity } from "../model/entity.model";
 import { InitState } from "./InitState";
 import { AnyAction } from "redux";
 import { EntitiesAction } from "../actions/entities.actions";
-import { copyEntity } from "../logic/util.logic";
 
 export function entitiesReducer(state: IEntity[] = InitState.entities, action: AnyAction): IEntity[] {
     switch (action.type) {

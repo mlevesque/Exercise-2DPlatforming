@@ -3,6 +3,7 @@ import { select, put, call } from "redux-saga/effects";
 import { createSetEntitiesCollectionAction, createSetPlayerAction } from "../actions/entities.actions";
 import { updateAnimations } from "./animation.logic";
 import { updatePlayerActions, preUpdateInput } from "./input.logic";
+import { updatePhysicsSaga } from "./physics.logic";
 
 export function* updateSaga(deltaT: number) {
     // check for reset input
@@ -15,6 +16,9 @@ export function* updateSaga(deltaT: number) {
 
     // player input
     yield call(updatePlayerActions, deltaT, player, inputActions);
+
+    // physics
+    yield call(updatePhysicsSaga, deltaT, player, entityCollectionCopy);
 
     // animation
     yield call(updateAnimations, deltaT, [player]);

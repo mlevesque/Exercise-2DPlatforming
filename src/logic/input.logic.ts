@@ -1,11 +1,13 @@
 import { AnyAction, Store } from "redux";
 import { createSetInputAction } from "../actions/input.actions";
 import { InputType, IInputActions } from "../model/input.model";
-import { IEntity, EntityAnimation } from "../model/entity.model";
+import { IEntity, EntityAnimation, EntityType } from "../model/entity.model";
 import { changeAnimationOnEntity } from "./animation.logic";
 import { loadLevelSaga } from "./load.logic";
 import { call, select, fork } from "redux-saga/effects";
 import { getLoadingSelector, getInputActionsSelector } from "./selectors";
+import { applyImpulseToEntity, clearImpulseOnEntity } from "./entity.logic";
+import { getEntityJsonData } from "../assets/json/jsonSchemas";
 
 /**
  * Returns if a given input key is currently down.
@@ -89,19 +91,23 @@ export function* updatePlayerActions(deltaT: number, player: IEntity, inputActio
         return;
     }
 
+    let playerData = getEntityJsonData(EntityType.Player);
     let goLeft = isKeyDown(InputType.Left, inputActions);
     let goRight = isKeyDown(InputType.Right, inputActions);
 
     if (goLeft && !goRight) {
         player.flip = true;
         changeAnimationOnEntity(player, EntityAnimation.Walk, false);
+        applyImpulseToEntity(player, {x: -playerData.speed, y: 0});
     }
     else if (goRight && !goLeft) {
         player.flip = false;
         changeAnimationOnEntity(player, EntityAnimation.Walk, false);
+        applyImpulseToEntity(player, {x: playerData.speed, y: 0});
     }
     else {
         changeAnimationOnEntity(player, EntityAnimation.Idle, false);
+        clearImpulseOnEntity(player);
     }
 }
 
