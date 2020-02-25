@@ -112,12 +112,12 @@ export function* updatePlayerActions(deltaT: number, player: IEntity, inputActio
 }
 
 /**
- * Generator function for performing input checks before all other updates happen. This is in place so that the player
+ * Generator function for performing input checks after all other updates happen. This is in place so that the player
  * can press a key to reset the scene.
  * @param deltaT 
  * @param inputActions 
  */
-export function* preUpdateInput(deltaT: number, inputActions: IInputActions) {
+export function* postUpdateInput(deltaT: number, inputActions: IInputActions) {
     if (isKeyPressed(InputType.Reset, inputActions)) {
         yield fork(loadLevelSaga, "map_01.json");
     }

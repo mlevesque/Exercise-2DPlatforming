@@ -1,9 +1,10 @@
-import { put, takeEvery, call } from "redux-saga/effects";
+import { put, takeEvery, call, select } from "redux-saga/effects";
 import { createUpdateInputAction } from "../actions/input.actions";
 import { GameAction, createGameUpdateAction } from "../actions/game.actions";
 import { Store, AnyAction } from "redux";
 import { renderSaga } from "./render.logic";
 import { updateSaga } from "./update.logic";
+import { getLoadingSelector } from "./selectors";
 
 export function initiateGameUpdates(store: Store<any, AnyAction>) {
     let prevTimestamp: number = 0;
@@ -17,9 +18,18 @@ export function initiateGameUpdates(store: Store<any, AnyAction>) {
 }
 
 function* gameloopUpdateSaga(action: AnyAction) {
-    const deltaT: number = action.payload;
-    yield call(updateSaga, deltaT);
+    // update
+    // only update when we are not loading
+    const loading = yield select(getLoadingSelector);
+    if (!loading) {
+        const deltaT: number = action.payload;
+        yield call(updateSaga, deltaT);
+    }
+
+    // render
     yield call(renderSaga);
+
+    // shift key input set flags from current to previous
     yield put(createUpdateInputAction());
 }
 
