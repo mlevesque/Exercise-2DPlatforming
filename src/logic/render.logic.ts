@@ -117,6 +117,10 @@ function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity, drawCollis
         ctx.beginPath();
         ctx.arc(collision.floorPoint.x, collision.floorPoint.y, 5, 0, 2 * Math.PI);
         ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(collision.ceilingPoint.x, collision.ceilingPoint.y, 5, 0, 2 * Math.PI);
+        ctx.fill();
     }
     ctx.restore();
 }

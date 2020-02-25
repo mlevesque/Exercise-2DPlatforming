@@ -1,54 +1,34 @@
 import { IEntity } from "../../model/entity.model";
 import { IVector } from "../../model/geometry.model";
 import { ICollisionSegment } from "../../model/collisions.model";
-import { isFloor } from "./util";
+import { isFloor, isCeiling } from "./util";
 
 export interface IResolver {
     addPotentialResolve(movementT: number, segmentT: number, collision: ICollisionSegment): void;
     shouldResolve(): boolean;
-    performResolve(entity: IEntity, movementVector: IVector): void;
+    performResolve(entity: IEntity, movementVector: IVector, resolveX: boolean, resolveY: boolean): void;
 }
 
 export class PointResolver implements IResolver {
     private _movementT: number;
     private _segmentT: number;
-    private _ceilingCollisions: ICollisionSegment;
-    private _floorCollisions: ICollisionSegment;
-
-    private setCollision(collision: ICollisionSegment): void {
-        if (collision) {
-            if (isFloor(collision)) {
-                this._floorCollisions = collision;
-            }
-            else {
-                this._ceilingCollisions = collision;
-            }
-        }
-    }
+    private _collision: ICollisionSegment;
 
     private clearCollisions(): void {
-        this._ceilingCollisions = null;
-        this._floorCollisions = null;
+        this._collision = null;
     }
 
     constructor() {
         this._movementT = 2;
         this._segmentT = 0;
-        this._ceilingCollisions = null;
-        this._floorCollisions = null;
+        this._collision = null;
     }
 
     addPotentialResolve(movementT: number, segmentT: number, collision: ICollisionSegment): void {
-        // if we have a *better* t value, then clear out the collisions we were previously storing
         if (movementT < this._movementT) {
-            this.clearCollisions();
-        }
-
-        // store resolve data if the movement t value is smaller than what we currently have
-        if (movementT <= this._movementT) {
             this._movementT = movementT;
-            this._segmentT = isFloor(collision) ? segmentT : this._segmentT;
-            this.setCollision(collision);
+            this._segmentT = this._segmentT;
+            this._collision = collision;
         }
     }
 
@@ -56,14 +36,18 @@ export class PointResolver implements IResolver {
         return this._movementT <= 1;
     }
 
-    performResolve(entity: IEntity, movementVector: IVector): void {
-        // set the y position for teh entity to the resolve point. x won't be touched here
-        entity.position.y = entity.prevPosition.y + this._movementT * movementVector.y;
+    performResolve(entity: IEntity, movementVector: IVector, resolveX: boolean, resolveY: boolean): void {
+        if (resolveY) {
+            entity.position.y = entity.prevPosition.y + this._movementT * movementVector.y;
+            if ((isFloor(this._collision) && entity.velocity.y > 0)
+                || (isCeiling(this._collision) && entity.velocity.y < 0)) {
+                entity.velocity.y = 0;
+            }
+        }
 
-        // affect y velocity
-        if ((this._ceilingCollisions && entity.velocity.y < 0)
-            || (this._floorCollisions && entity.velocity.y > 0)) {
-            entity.velocity.y = 0;
+        if (resolveX) {
+            entity.position.x = entity.prevPosition.x + this._movementT * movementVector.x;
+            entity.velocity.x = 0;
         }
     }
 }

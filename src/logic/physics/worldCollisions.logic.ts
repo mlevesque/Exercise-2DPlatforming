@@ -78,16 +78,21 @@ function performPointCollisions( movementRay: IRay,
 function updateEntity(entity: IEntity, staticCollisions: ICollisionSegment[]): void {
     const entityData = getEntityJsonData(entity.type);
 
-    // perform floor and ceiling checks
+    // perform floor checks
     let pointResolver = new PointResolver();
     const floorMovementRay = buildMovementChange(entity, entityData.collision.floorPoint);
-    const ceilingMovementRay = buildMovementChange(entity, entityData.collision.ceilingPoint);
     performPointCollisions(floorMovementRay, staticCollisions, pointResolver, true);
-    performPointCollisions(ceilingMovementRay, staticCollisions, pointResolver, false);
+    let wasFloorResolved = pointResolver.shouldResolve();
+    if (wasFloorResolved) {
+        pointResolver.performResolve(entity, floorMovementRay.v, false, true);
+    }
 
-    // resolve floor and ceiling
+    // perform ceiling checks
+    pointResolver = new PointResolver();
+    const ceilingMovementRay = buildMovementChange(entity, entityData.collision.ceilingPoint);
+    performPointCollisions(ceilingMovementRay, staticCollisions, pointResolver, false);
     if (pointResolver.shouldResolve()) {
-        pointResolver.performResolve(entity, floorMovementRay.v);
+        pointResolver.performResolve(entity, ceilingMovementRay.v, wasFloorResolved, !wasFloorResolved);
     }
 }
 
