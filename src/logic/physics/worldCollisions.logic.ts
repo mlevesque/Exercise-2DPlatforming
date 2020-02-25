@@ -1,9 +1,11 @@
 import { IEntity } from "../../model/entity.model";
-import { IVector, subtract, dot, IRay, createRay, cross, negate, add, position, zeroVector } from "../../model/geometry.model";
+import { IVector, subtract, dot, IRay, createRay, cross, negate, add } from "../../model/geometry.model";
 import { ICollisionSegment } from "../../model/collisions.model";
 import { getStaticCollisions } from "../selectors";
 import { select } from "redux-saga/effects";
 import { getEntityJsonData } from "../../assets/json/jsonSchemas";
+import { ISegmentTypeCheck, isFloor, isCeiling } from "./util";
+import { PointResolver, IResolver } from "./resolvers";
 
 /*
     NOTES
@@ -33,8 +35,8 @@ function buildMovementChange(entity: IEntity, refPoint: IVector): IRay {
     return createRay(pos.x, pos.y, dist.x, dist.y);
 }
 
-function shouldConsiderSegment(movementRay: IRay, segment: ICollisionSegment): boolean {
-    return dot(movementRay.v, segment.normal) >= 0;
+function shouldConsiderSegment(movementRay: IRay, segment: ICollisionSegment, typeCheck: ISegmentTypeCheck): boolean {
+    return typeCheck(segment) && dot(movementRay.v, segment.normal) >= 0;
 }
 
 function getTValues(movementRay: IRay, segmentRay: IRay): [number, number] {
@@ -50,35 +52,46 @@ function isTValueInRange(t: number): boolean {
     return t >= 0 && t <= 1;
 }
 
-function checkPointCollision(movementRay: IRay, segment: ICollisionSegment): number {
-    let result: number = NaN;
-    if (shouldConsiderSegment(movementRay, segment)) {
+function checkPointCollision(movementRay: IRay, segment: ICollisionSegment, forFloor: boolean): [number, number] {
+    let result: [number, number] = [NaN, NaN];
+    if (shouldConsiderSegment(movementRay, segment, forFloor ? isFloor : isCeiling)) {
         const tValues = getTValues(movementRay, segment.segment);
         if (isTValueInRange(tValues[0]) && isTValueInRange(tValues[1])) {
-            result = tValues[0];
+            result = tValues;
         }
     }
     return result;
 }
 
-function updateEntity(deltaT: number, entity: IEntity, staticCollisions: ICollisionSegment[]): void {
-    const entityData = getEntityJsonData(entity.type);
-    const movementRay = buildMovementChange(entity, entityData.collision.floorPoint as IVector);
-    let bestT:number = 2;
-    staticCollisions.forEach((segment) => {
-        const collisionT = checkPointCollision(movementRay, segment);
-        bestT = (!isNaN(collisionT) && collisionT < bestT) ? collisionT : bestT;
-    });
-    if (bestT <= 1) {
-        entity.position = {
-            x: entity.position.x,
-            y: subtract(position(movementRay, bestT), entityData.collision.floorPoint as IVector).y
+function performPointCollisions( movementRay: IRay, 
+                                 collisions: ICollisionSegment[], 
+                                 resolver: IResolver,
+                                 forFloor: boolean): void {
+    collisions.forEach((collision) => {
+        const tValues = checkPointCollision(movementRay, collision, forFloor);
+        if (!isNaN(tValues[0])) {
+            resolver.addPotentialResolve(tValues[0], tValues[1], collision);
         }
-        entity.velocity = zeroVector();
+    });
+}
+
+function updateEntity(entity: IEntity, staticCollisions: ICollisionSegment[]): void {
+    const entityData = getEntityJsonData(entity.type);
+
+    // perform floor and ceiling checks
+    let pointResolver = new PointResolver();
+    const floorMovementRay = buildMovementChange(entity, entityData.collision.floorPoint);
+    const ceilingMovementRay = buildMovementChange(entity, entityData.collision.ceilingPoint);
+    performPointCollisions(floorMovementRay, staticCollisions, pointResolver, true);
+    performPointCollisions(ceilingMovementRay, staticCollisions, pointResolver, false);
+
+    // resolve floor and ceiling
+    if (pointResolver.shouldResolve()) {
+        pointResolver.performResolve(entity, floorMovementRay.v);
     }
 }
 
 export function* performWorldCollisionsSaga(deltaT: number, entities: IEntity[]) {
     let staticCollisions: ICollisionSegment[] = yield select(getStaticCollisions);
-    entities.forEach((entity) => updateEntity(deltaT, entity, staticCollisions));
+    entities.forEach((entity) => updateEntity(entity, staticCollisions));
 }

@@ -47,6 +47,7 @@ export interface IAnimationSchema {
 
 export interface IEntityCollisionSchema {
     floorPoint: IVector;
+    ceilingPoint: IVector;
 }
 
 export interface IEntitySchema {

@@ -14,6 +14,7 @@
     },
     "speed": 300,
     "collision": {
-        "floorPoint": {"x": 0, "y": 48}
+        "floorPoint": {"x": 0, "y": 48},
+        "ceilingPoint": {"x": 0, "y": -48}
     }
 }
