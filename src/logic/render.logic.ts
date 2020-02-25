@@ -70,6 +70,31 @@ function renderMapCollisions(ctx: CanvasRenderingContext2D, collisions: ICollisi
     })
 }
 
+function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IEntity): void {
+    const entityData: IEntitySchema = getEntityJsonData(entity.type);
+    let collision = entityData.collision;
+
+    ctx.save();
+    ctx.translate(
+        entity.position.x,
+        entity.position.y
+    );
+    ctx.scale(entity.flip ? -1 : 1, 1);
+
+    // draw floor point
+    ctx.fillStyle = "blue";
+    ctx.beginPath();
+    ctx.arc(collision.floorPoint.x, collision.floorPoint.y, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // draw ceiling point
+    ctx.beginPath();
+    ctx.arc(collision.ceilingPoint.x, collision.ceilingPoint.y, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.restore();
+}
+
 function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
     // get tileset image
     let image = getImage(map.tileset);
@@ -90,7 +115,7 @@ function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
     });
 }
 
-function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity, drawCollision: boolean): void {
+function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity): void {
     let entityData: IEntitySchema = getEntityJsonData(entity.type);
     let spriteSheet: HTMLImageElement = document.getElementById(entityData.spritesheet) as HTMLImageElement;
     let animation = entityData.animations[entity.currentAnimation];
@@ -111,17 +136,6 @@ function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity, drawCollis
         animation.w,                                        // destination width
         animation.h                                         // destination height
     );
-    if (drawCollision) {
-        let collision = entityData.collision;
-        ctx.fillStyle = "blue";
-        ctx.beginPath();
-        ctx.arc(collision.floorPoint.x, collision.floorPoint.y, 5, 0, 2 * Math.PI);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(collision.ceilingPoint.x, collision.ceilingPoint.y, 5, 0, 2 * Math.PI);
-        ctx.fill();
-    }
     ctx.restore();
 }
 
@@ -129,12 +143,17 @@ function render(ctx: CanvasRenderingContext2D, width: number, height: number, st
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, width, height);
 
+    // render scene
     renderTiles(ctx, state.map);
     state.entities.forEach((entity: IEntity) => {
-        renderEntity(ctx, entity, true);
+        renderEntity(ctx, entity);
     });
 
+    // render debug stuff
     renderMapCollisions(ctx, state.staticCollisions);
+    state.entities.forEach((entity: IEntity) => {
+        renderEntityCollisions(ctx, entity);
+    });
 }
 
 export function* renderSaga() {
