@@ -20,14 +20,14 @@ export function initiateGameUpdates(store: Store<any, AnyAction>) {
 function* gameloopUpdateSaga(action: AnyAction) {
     // update
     // only update when we are not loading
+    const deltaT: number = action.payload;
     const loading = yield select(getLoadingSelector);
     if (!loading) {
-        const deltaT: number = action.payload;
         yield call(updateSaga, deltaT);
     }
 
     // render
-    yield call(renderSaga);
+    yield call(renderSaga, deltaT);
 
     // shift key input set flags from current to previous
     yield put(createUpdateInputAction());

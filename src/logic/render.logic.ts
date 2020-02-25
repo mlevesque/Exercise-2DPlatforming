@@ -95,6 +95,12 @@ function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IEntity):
     ctx.restore();
 }
 
+function renderFrameRate(ctx: CanvasRenderingContext2D, deltaT: number): void {
+    ctx.font = "16px sans-serif";
+    ctx.fillStyle = "black";
+    ctx.fillText((1000/deltaT).toFixed(0), ctx.canvas.width - 30, 16);
+}
+
 function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
     // get tileset image
     let image = getImage(map.tileset);
@@ -139,7 +145,7 @@ function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity): void {
     ctx.restore();
 }
 
-function render(ctx: CanvasRenderingContext2D, width: number, height: number, state: IMainState): void {
+function render(ctx: CanvasRenderingContext2D, width: number, height: number, deltaT: number, state: IMainState): void {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, width, height);
 
@@ -154,9 +160,10 @@ function render(ctx: CanvasRenderingContext2D, width: number, height: number, st
     state.entities.forEach((entity: IEntity) => {
         renderEntityCollisions(ctx, entity);
     });
+    renderFrameRate(ctx, deltaT);
 }
 
-export function* renderSaga() {
+export function* renderSaga(deltaT: number) {
     const canvas = <HTMLCanvasElement>document.getElementById("gameView");
     const ctx = canvas.getContext("2d");
     const state: IMainState = yield select(getFullStateSelector);
@@ -165,6 +172,6 @@ export function* renderSaga() {
         renderLoading(ctx, canvas.width, canvas.height);
     }
     else {
-        render(ctx, canvas.width, canvas.height, state);
+        render(ctx, canvas.width, canvas.height, deltaT, state);
     }
 }
