@@ -1,9 +1,9 @@
-import { IEntity } from "../model/entity.model";
-import { IVector, subtract, dot, IRay, createRay, cross, negate, add, position } from "../model/geometry.model";
-import { ICollisionSegment } from "../model/collisions.model";
-import { getStaticCollisions } from "./selectors";
+import { IEntity } from "../../model/entity.model";
+import { IVector, subtract, dot, IRay, createRay, cross, negate, add, position, zeroVector } from "../../model/geometry.model";
+import { ICollisionSegment } from "../../model/collisions.model";
+import { getStaticCollisions } from "../selectors";
 import { select } from "redux-saga/effects";
-import { getEntityJsonData } from "../assets/json/jsonSchemas";
+import { getEntityJsonData } from "../../assets/json/jsonSchemas";
 
 /*
     NOTES
@@ -70,7 +70,11 @@ function updateEntity(deltaT: number, entity: IEntity, staticCollisions: ICollis
         bestT = (!isNaN(collisionT) && collisionT < bestT) ? collisionT : bestT;
     });
     if (bestT <= 1) {
-        entity.position = subtract(position(movementRay, bestT), entityData.collision.floorPoint as IVector);
+        entity.position = {
+            x: entity.position.x,
+            y: subtract(position(movementRay, bestT), entityData.collision.floorPoint as IVector).y
+        }
+        entity.velocity = zeroVector();
     }
 }
 

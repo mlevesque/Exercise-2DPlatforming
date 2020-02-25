@@ -1,6 +1,6 @@
-import { IEntity } from "../model/entity.model";
-import { IVector, add, scale, cloneVector, zeroVector } from "../model/geometry.model";
-import { getGameConfig } from "../assets/json/jsonSchemas";
+import { IEntity } from "../../model/entity.model";
+import { IVector, add, scale, cloneVector, zeroVector } from "../../model/geometry.model";
+import { getGameConfig } from "../../assets/json/jsonSchemas";
 
 export function integrateEntityPositioning(t: number, entity: IEntity, externalForces: IVector) {
     // integrate

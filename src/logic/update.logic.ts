@@ -3,8 +3,8 @@ import { select, put, call } from "redux-saga/effects";
 import { createSetEntitiesCollectionAction } from "../actions/entities.actions";
 import { updateAnimations } from "./animation.logic";
 import { updatePlayerActions, preUpdateInput } from "./input.logic";
-import { updateMovementSaga } from "./movement.logic";
-import { performWorldCollisionsSaga } from "./worldCollisions.logic";
+import { updateMovementSaga } from "./physics/movement.logic";
+import { performWorldCollisionsSaga } from "./physics/worldCollisions.logic";
 
 export function* updateSaga(deltaT: number) {
     // check for reset input
