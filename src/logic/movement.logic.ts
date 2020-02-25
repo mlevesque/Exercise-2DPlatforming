@@ -12,7 +12,7 @@ export function integrateEntityPositioning(t: number, entity: IEntity, externalF
     entity.impulse = zeroVector();
 }
 
-export function* updatePhysicsSaga(deltaT: number, entities: IEntity[]) {
+export function* updateMovementSaga(deltaT: number, entities: IEntity[]) {
     let config = getGameConfig();
     let externalForces: IVector = cloneVector(config.gravity);
     let t = deltaT / 1000;

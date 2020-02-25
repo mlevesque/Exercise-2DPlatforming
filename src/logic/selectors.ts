@@ -1,6 +1,7 @@
 import { IMainState } from "../model/IMainState";
 import { IEntity, copyEntity, EntityType } from "../model/entity.model";
 import { IInputActions } from "../model/input.model";
+import { ICollisionSegment } from "../model/collisions.model";
 
 export function getFullStateSelector(state: IMainState): IMainState {
     return state;
@@ -12,6 +13,10 @@ export function getLoadingSelector(state: IMainState): boolean {
 
 export function getInputActionsSelector(state: IMainState): IInputActions {
     return state.input;
+}
+
+export function getStaticCollisions(state: IMainState): ICollisionSegment[] {
+    return state.staticCollisions;
 }
 
 export interface ICopiedEntityCollection {

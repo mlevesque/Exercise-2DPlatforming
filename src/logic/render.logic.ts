@@ -4,7 +4,7 @@ import { getFullStateSelector } from "./selectors";
 import { IMap } from "../model/map.model";
 import { getGameConfig, IEntitySchema, getEntityJsonData } from "../assets/json/jsonSchemas";
 import { IEntity } from "../model/entity.model";
-import { IPoint, zeroVector, scale } from "../model/geometry.model";
+import { zeroVector, scale, IVector } from "../model/geometry.model";
 import { ICollisionSegment } from "../model/collisions.model";
 
 function getImage(imageName: string): HTMLImageElement {
@@ -16,7 +16,7 @@ function renderLoading(ctx: CanvasRenderingContext2D, width: number, height: num
     ctx.fillRect(0, 0, width, height);
 }
 
-function renderArrow(ctx: CanvasRenderingContext2D, from: IPoint, to: IPoint, radius: number): void {
+function renderArrow(ctx: CanvasRenderingContext2D, from: IVector, to: IVector, radius: number): void {
 	let x_center = to.x;
 	let y_center = to.y;
 	let angle;
@@ -47,13 +47,13 @@ function renderArrow(ctx: CanvasRenderingContext2D, from: IPoint, to: IPoint, ra
 
 function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment): void {
     ctx.save();
-    ctx.translate(segment.start.x, segment.start.y);
+    ctx.translate(segment.segment.p.x, segment.segment.p.y);
 
     // render segment
     ctx.fillStyle = "red";
     ctx.strokeStyle = "red";
     ctx.lineWidth = 2;
-    renderArrow(ctx, zeroVector(), segment.segment, 5);
+    renderArrow(ctx, zeroVector(), segment.segment.v, 5);
 
     // render normal
     ctx.fillStyle = "green";

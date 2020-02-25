@@ -1,7 +1,7 @@
 import gameConfig from "./gameConfig.json";
 import entityPlayer from "./entityPlayer.json";
 import { EntityType, EntityAnimation } from "../../model/entity.model";
-import { IPoint, IVector } from "../../model/geometry.model.js";
+import { IVector } from "../../model/geometry.model.js";
 
 export interface IGameConfigSchema {
     tileSize: number;
@@ -23,12 +23,12 @@ export interface IMapSchema {
     tileset: string;
     map: number[][];
     player: {
-        position: IPoint;
+        position: IVector;
         flip: boolean;
     }
     entities: {
         type: EntityType;
-        position: IPoint;
+        position: IVector;
     }[];
     collisions: IMapCollisionSchema[]
 }
@@ -46,7 +46,7 @@ export interface IAnimationSchema {
 }
 
 export interface IEntityCollisionSchema {
-    floorPoint: IPoint;
+    floorPoint: IVector;
 }
 
 export interface IEntitySchema {
