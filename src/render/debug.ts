@@ -79,6 +79,16 @@ export function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IE
     ctx.arc(collision.ceilingPoint.x, collision.ceilingPoint.y, 5, 0, 2 * Math.PI);
     ctx.fill();
 
+    // draw collision sides
+    ctx.strokeStyle = "green";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(collision.halfWidth, collision.ceilingPoint.y);
+    ctx.lineTo(collision.halfWidth, collision.floorPoint.y);
+    ctx.moveTo(-collision.halfWidth, collision.ceilingPoint.y);
+    ctx.lineTo(-collision.halfWidth, collision.floorPoint.y);
+    ctx.stroke();
+
     ctx.restore();
 }
 

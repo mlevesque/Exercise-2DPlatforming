@@ -48,8 +48,8 @@ export interface IAnimationSchema {
 export interface IEntityCollisionSchema {
     floorPoint: IVector;
     ceilingPoint: IVector;
+    halfWidth: number;
 }
-
 export interface IEntitySchema {
     spritesheet: string;
     animations: {
