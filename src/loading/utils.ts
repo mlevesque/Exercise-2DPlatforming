@@ -1,7 +1,8 @@
-import { IMapSchema, getEntityJsonData, IMapCollisionSchema } from "../utils/jsonSchemas";
+import { IMapSchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { ICollisionSegment, createSegment } from "../physics/CollisionSegment";
 import { EntityType, IEntity, EntityAnimation } from "../redux/state";
 import { buildEntity } from "../utils/creation";
+import { createVector, IVector, getEndOfRay, areVectorsEqual } from "../utils/geometry";
 
 /**
  * Returns if an image element with the given image name has already been loaded and attached to the page.
@@ -68,15 +69,54 @@ export function lazyLoadImages(imageNames: string[]): Promise<any> {
     )
 }
 
+export function areSegmentsConnected(segment1: ICollisionSegment, segment2: ICollisionSegment): boolean {
+    return segment1.id != segment2.id && areVectorsEqual(getEndOfRay(segment1.segment), segment2.segment.p);
+}
+
+export function linkCollisions(segment1: ICollisionSegment, segment2: ICollisionSegment): void {
+    segment1.nextSegment = segment2.id;
+    segment2.prevSegment = segment1.id;
+}
+
 /**
  * Builds and returns a collection of collisions from the given map data.
  * @param map 
  */
 export function buildCollisionsCollection(map: IMapSchema): ICollisionSegment[] {
     if (map && map.collisions) {
-        return map.collisions.map((collision: IMapCollisionSchema) => {
-            return createSegment({x: collision.x1, y: collision.y1}, {x: collision.x2, y: collision.y2});
+        let results: ICollisionSegment[] = [];
+        let p: IVector = null;
+        let firstSegment: ICollisionSegment;
+        let lastSegment: ICollisionSegment;
+        map.collisions.forEach((collision) => {
+            if (!collision) {
+                if (areSegmentsConnected(lastSegment, firstSegment)) {
+                    linkCollisions(lastSegment, firstSegment);
+                }
+                p = null;
+                firstSegment = null;
+                lastSegment = null;
+            }
+
+            else if (!p) {
+                p = createVector(collision.x, collision.y);
+            }
+
+            else {
+                let nextPos = createVector(collision.x, collision.y);
+                let nextSegment = createSegment(p, nextPos);
+                if (lastSegment) {
+                    linkCollisions(lastSegment, nextSegment);
+                }
+                lastSegment = nextSegment;
+                p = nextPos;
+                if (!firstSegment) {
+                    firstSegment = lastSegment;
+                }
+                results.push(nextSegment);
+            }
         });
+        return results;
     }
     else {
         return [];

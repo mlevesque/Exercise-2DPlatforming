@@ -8,7 +8,7 @@ export interface IMainState {
     input: IInputActions;
     camera: ICamera;
     map: IMap;
-    staticCollisions: ICollisionSegment[];
+    staticCollisions: ICollisionMap;
     entities: IEntity[];
 }
 
@@ -40,6 +40,12 @@ export interface ICamera {
 export interface IMap {
     tileset: string;
     tiles: number[][];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Collisions
+export interface ICollisionMap {
+    [id: string]: ICollisionSegment;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

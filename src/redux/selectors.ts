@@ -1,4 +1,4 @@
-import { IMainState, IInputActions, IEntity, EntityType } from "./state";
+import { IMainState, IInputActions, IEntity, EntityType, ICollisionMap } from "./state";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { copyEntity } from "../utils/creation";
 
@@ -14,8 +14,8 @@ export function getInputActionsSelector(state: IMainState): IInputActions {
     return state.input;
 }
 
-export function getStaticCollisions(state: IMainState): ICollisionSegment[] {
-    return state.staticCollisions;
+export function getStaticCollisions(state: IMainState): Map<string, ICollisionSegment> {
+    return new Map<string, ICollisionSegment>(Object.entries(state.staticCollisions));
 }
 
 export interface ICopiedEntityCollection {

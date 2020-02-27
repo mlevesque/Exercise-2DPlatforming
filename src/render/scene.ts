@@ -2,6 +2,7 @@ import { IMainState, IEntity } from "../redux/state";
 import { renderTiles } from "./world";
 import { renderEntity } from "./entities";
 import { renderMapCollisions, renderEntityCollisions, renderFrameRate } from "./debug";
+import { ICollisionSegment } from "../physics/CollisionSegment";
 
 export function renderLoading(ctx: CanvasRenderingContext2D, width: number, height: number): void {
     ctx.fillStyle = "black";
@@ -19,7 +20,7 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
     });
 
     // render debug stuff
-    renderMapCollisions(ctx, state.staticCollisions);
+    renderMapCollisions(ctx, new Map<string, ICollisionSegment>(Object.entries(state.staticCollisions)));
     state.entities.forEach((entity: IEntity) => {
         renderEntityCollisions(ctx, entity);
     });

@@ -83,3 +83,4 @@ export function createShiftedRay(ray: IRay, shiftBy: IVector): IRay {
     return createRayPV(newPos.x, newPos.y, ray.v.x, ray.v.y);
 }
 export function isParallel(a: IVector, b: IVector): boolean {return isPracticallyZero(cross(a, b))}
+export function areVectorsEqual(a: IVector, b: IVector): boolean {return a.x == b.x && a.y == b.y}

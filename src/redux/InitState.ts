@@ -13,6 +13,6 @@ export const InitState: IMainState = {
         height: 480,
     },
     map: null,
-    staticCollisions: [],
+    staticCollisions: {},
     entities: []
 }

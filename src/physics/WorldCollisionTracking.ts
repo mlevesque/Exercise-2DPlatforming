@@ -43,6 +43,29 @@ export class WorldCollisionTracker {
     }
 
     /**
+     * Internal setting of potential collision.
+     * @param t 
+     * @param pathIndex 
+     * @param collisionRay 
+     * @param collisionId 
+     * @param isFloor 
+     */
+    private setPotentialCollision( t: number, 
+                                   pathIndex: number, 
+                                   collisionRay: IRay, 
+                                   collisionId: string, 
+                                   isFloor: boolean): void {
+        if (t < this._bestT) {
+            this._bestT = t;
+            this._bestPathIndex = pathIndex;
+            this._bestCollisionRay = collisionRay;
+            this._bestCollisionId = collisionId;
+            this._floorCollision = this._floorCollision || isFloor;
+            this._ceilingCollision = this._ceilingCollision || !isFloor;
+        }
+    }
+
+    /**
      * Constructor. The start and end params refer to the movement ray for an entity, from previous position to
      * current position.
      * @param start 
@@ -69,6 +92,7 @@ export class WorldCollisionTracker {
             return this._remainingMovementRay;
         }
     }
+    public get potentialCollisionRay(): IRay {return this._bestCollisionRay}
 
     /**
      * Returns the remaining movement ray with the offset applied. This is the part of the entity's movement that hasn't
@@ -120,14 +144,21 @@ export class WorldCollisionTracker {
      *      index of the part of the path that had collision.
      */
     public setPotentialSegmentCollision(t: number, collision: ICollisionSegment, pathIndex: number = -1): void {
-        if (t < this._bestT) {
-            this._bestT = t;
-            this._bestPathIndex = pathIndex;
-            this._bestCollisionRay = collision.segment;
-            this._bestCollisionId = collision.id;
-            this._floorCollision = this._floorCollision || isFloor(collision);
-            this._ceilingCollision = this._ceilingCollision || isCeiling(collision);
-        }
+        this.setPotentialCollision(t, pathIndex, collision.segment, collision.id, isFloor(collision));
+    }
+
+    /**
+     * Sets the given collision for a ledge if the given t value is smaller than the stored one. If it is, then this is
+     * considered the earliest collision found so far.
+     * @param t The t value where the collision along the remaining movement (or part of a resolve path) that the
+     *      collision ocurred. If this value is smaller than the stored t value, then this collison is stored.
+     * @param ledgeRay The generated ray for the ledge collision.
+     * @param isFloor Whether the ledge is a floor ledge or a ceiling ledge.
+     * @param pathIndex Optional. For collisions whose resolves should be along the resolve path, this refers to the
+     *      index of the part of the path that had collision.
+     */
+    public setPotentialLedgeCollision(t: number, ledgeRay: IRay, isFloor: boolean, pathIndex: number = -1): void {
+        this.setPotentialCollision(t, pathIndex, ledgeRay, "", isFloor);
     }
 
     /**

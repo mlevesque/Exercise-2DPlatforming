@@ -51,7 +51,7 @@ export function isMovingTowardSegment(movementDirection: IVector, segment: IColl
  * @param t 
  */
 export function isTValueInRange(t: number): boolean {
-    return t >= 0 && t <= 1;
+    return t >= -0.00000001 && t <= 1.00000001;
 }
 
 /**

@@ -51,7 +51,7 @@ function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment
     ctx.restore();
 }
 
-export function renderMapCollisions(ctx: CanvasRenderingContext2D, collisions: ICollisionSegment[]): void {
+export function renderMapCollisions(ctx: CanvasRenderingContext2D, collisions: Map<string, ICollisionSegment>): void {
     collisions.forEach((segment) => {
         renderSegment(ctx, segment);
     })

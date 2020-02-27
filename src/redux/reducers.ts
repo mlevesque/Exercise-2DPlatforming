@@ -1,5 +1,5 @@
 import { combineReducers, AnyAction } from "redux";
-import { IMainState, IInputActions, ICamera, IMap, IEntity } from "./state";
+import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap } from "./state";
 import { InitState } from "./InitState";
 import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction } from "./actionTypes";
 import { ICollisionSegment, cloneSegment } from "../physics/CollisionSegment";
@@ -64,15 +64,20 @@ export function mapReducer(state: IMap = InitState.map, action: AnyAction): IMap
     return state;
 }
 
-export function staticCollisionsReducer( state: ICollisionSegment[] = InitState.staticCollisions, 
-                                         action: AnyAction): ICollisionSegment[] {
+export function staticCollisionsReducer( state: ICollisionMap = InitState.staticCollisions, 
+                                         action: AnyAction): ICollisionMap {
+    let newMap: ICollisionMap;
     switch (action.type) {
         case CollisionsAction.SetStatic:
-            return action.payload.map((segment: ICollisionSegment) => {
-                return cloneSegment(segment);
+            newMap = {};
+            const arr: ICollisionSegment[] = action.payload;
+            arr.forEach((segment: ICollisionSegment) => {
+                const newSegment = cloneSegment(segment);
+                newMap[newSegment.id] = newSegment;
             });
+            return newMap;
         case CollisionsAction.Clear:
-            return [];
+            return {};
     }
     return state;
 }

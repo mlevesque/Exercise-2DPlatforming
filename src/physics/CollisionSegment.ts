@@ -16,6 +16,8 @@ export interface ICollisionSegment {
     segment: IRay;
     normal: IVector;
     length: number;
+    prevSegment: string;
+    nextSegment: string;
 }
 
 
@@ -34,7 +36,9 @@ export function createSegment(start: IVector, end: IVector): ICollisionSegment {
         id: Guid.create().toString(),
         segment: ray,
         normal: buildNormal(seg),
-        length: vectorLength(seg)
+        length: vectorLength(seg),
+        prevSegment: "",
+        nextSegment: ""
     }
 }
 
@@ -47,7 +51,9 @@ export function cloneSegment(segment: ICollisionSegment): ICollisionSegment {
         id: segment.id,
         segment: cloneRay(segment.segment),
         normal: cloneVector(segment.normal),
-        length: segment.length
+        length: segment.length,
+        prevSegment: segment.prevSegment,
+        nextSegment: segment.nextSegment
     }
 }
 

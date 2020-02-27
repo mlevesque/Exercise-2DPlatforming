@@ -1,10 +1,16 @@
-import { IEntity } from "../redux/state";
-import { IVector, IRay, createVector } from "../utils/geometry";
+import { IEntity, ICollisionMap } from "../redux/state";
+import { IVector, IRay, createVector, getEndOfRay, createRayPV } from "../utils/geometry";
 import { ICollisionSegment } from "./CollisionSegment";
 import { ISegmentTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMovingTowardSegment, 
     isTValueInRange } from "./util";
 import { getEntityJsonData } from "../utils/jsonSchemas";
 import { WorldCollisionTracker } from "./WorldCollisionTracking";
+
+export function buildLedgeRay(collisionRay: IRay, length: number, useEnd: boolean): IRay {
+    const pos = useEnd ? getEndOfRay(collisionRay) : collisionRay.p;
+    const len = (!useEnd && collisionRay.v.x > 0) || (useEnd && collisionRay.v.x < 0) ? -length : length;
+    return createRayPV(pos.x, pos.y, len, 0);
+}
 
 /**
  * Performs point collision checks against the given collisions, and updates the given collision tracker with the
@@ -17,7 +23,7 @@ import { WorldCollisionTracker } from "./WorldCollisionTracking";
  */
 export function performPointCollisions( movementRay: IRay,
                                         movementIndex: number,
-                                        collisions: ICollisionSegment[], 
+                                        collisions: Map<string, ICollisionSegment>, 
                                         collisionTracker: WorldCollisionTracker,
                                         typeCheck: ISegmentTypeCheck): void {
     collisions.forEach((collision) => {
@@ -47,7 +53,7 @@ export function performPointCollisions( movementRay: IRay,
  * @param surfaceTypeCheck 
  * @param initialResolveDirection 
  */
-export function buildPointCollisionResolvePath( collisions: ICollisionSegment[], 
+export function buildPointCollisionResolvePath( collisions: Map<string, ICollisionSegment>, 
                                                 collisionTracker: WorldCollisionTracker, 
                                                 surfaceTypeCheck: ISegmentTypeCheck, 
                                                 initialResolveDirection: IVector): void {
@@ -73,7 +79,7 @@ export function buildPointCollisionResolvePath( collisions: ICollisionSegment[],
  * @param collisionTracker 
  * @param surfaceTypeCheck 
  */
-export function performPointCollisionPathResolve( collisions: ICollisionSegment[],
+export function performPointCollisionPathResolve( collisions: Map<string, ICollisionSegment>,
                                                   collisionTracker: WorldCollisionTracker, 
                                                   surfaceTypeCheck: ISegmentTypeCheck): void {
     // we iterate through the parts of the resolve path, starting at the beginning of the entity movement path
@@ -95,7 +101,7 @@ export function performPointCollisionPathResolve( collisions: ICollisionSegment[
  * @param entity 
  * @param staticCollisions 
  */
-export function updateWorldCollisionsOnEntity(entity: IEntity, staticCollisions: ICollisionSegment[]): void {
+export function updateWorldCollisionsOnEntity(entity: IEntity, staticCollisions: Map<string, ICollisionSegment>): void {
     const entityData = getEntityJsonData(entity.type);
     let collisionTracker = new WorldCollisionTracker(entity.prevPosition, entity.position);
 
