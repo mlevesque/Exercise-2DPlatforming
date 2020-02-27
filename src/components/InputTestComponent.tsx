@@ -1,7 +1,6 @@
-import { IMainState } from "../model/IMainState";
-import { InputType } from "../model/input.model";
 import React, { ReactNode } from "react";
 import { connect } from "react-redux";
+import { IMainState, InputType } from "../redux/state";
 
 interface IInputTestProps {
     leftPrevious: boolean;

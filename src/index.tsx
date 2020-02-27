@@ -4,12 +4,12 @@ import { Provider } from 'react-redux';
 import { createStore, Store, applyMiddleware } from "redux";
 import MainComponent from "./components/MainComponent";
 import createSagaMiddleware from "@redux-saga/core";
-import allReducers from "./reducers/main.reducer";
-import { InitState } from "./reducers/InitState";
-import { setupInputListener } from "./logic/input.logic";
-import { gameloopInitSaga, initiateGameUpdates } from "./logic/gameloop.logic";
+import allReducers from "./redux/reducers";
+import { InitState } from "./redux/InitState";
 import { fork, call } from "redux-saga/effects";
-import { loadLevelSaga } from "./logic/load.logic";
+import { loadLevelSaga } from "./loading/updateSaga";
+import { setupInputListener } from "./input/setup";
+import { gameloopInitSaga, initiateGameUpdates } from "./gameloop";
 
 // setup redux
 const sagaMiddleware = createSagaMiddleware();
@@ -34,4 +34,3 @@ function* rootSaga() {
 }
 sagaMiddleware.run(rootSaga);
 initiateGameUpdates(store);
-

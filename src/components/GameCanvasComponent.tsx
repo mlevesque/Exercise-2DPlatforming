@@ -1,6 +1,6 @@
-import { IMainState } from "../model/IMainState"
 import React from "react"
 import { connect } from "react-redux"
+import { IMainState } from "../redux/state"
 
 interface ICanvasProps {
     width: number;
