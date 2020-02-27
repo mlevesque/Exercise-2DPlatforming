@@ -1,11 +1,21 @@
-import { IVector, cloneVector, subtract, IRay, createRay, cloneRay, normalize } from "../utils/geometry";
+import { IVector, 
+         cloneVector, 
+         subtract, 
+         IRay, 
+         cloneRay, 
+         normalize, 
+         createRayPV, 
+         vectorLength } from "../utils/geometry";
+import { Guid } from "guid-typescript";
 
 /**
  * Describes collision information for a single line segment. The normal represents which side is collidable.
  */
 export interface ICollisionSegment {
+    id: string;
     segment: IRay;
     normal: IVector;
+    length: number;
 }
 
 
@@ -19,10 +29,12 @@ export interface ICollisionSegment {
  */
 export function createSegment(start: IVector, end: IVector): ICollisionSegment {
     let seg = subtract(end, start);
-    let ray = createRay(start.x, start.y, seg.x, seg.y);
+    let ray = createRayPV(start.x, start.y, seg.x, seg.y);
     return {
+        id: Guid.create().toString(),
         segment: ray,
-        normal: buildNormal(seg)
+        normal: buildNormal(seg),
+        length: vectorLength(seg)
     }
 }
 
@@ -32,8 +44,10 @@ export function createSegment(start: IVector, end: IVector): ICollisionSegment {
  */
 export function cloneSegment(segment: ICollisionSegment): ICollisionSegment {
     return {
+        id: segment.id,
         segment: cloneRay(segment.segment),
-        normal: cloneVector(segment.normal)
+        normal: cloneVector(segment.normal),
+        length: segment.length
     }
 }
 
