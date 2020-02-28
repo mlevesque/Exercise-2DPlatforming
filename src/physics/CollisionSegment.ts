@@ -16,6 +16,8 @@ export interface ICollisionSegment {
     segment: IRay;
     normal: IVector;
     length: number;
+    startLedge: boolean;
+    endLedge: boolean;
     prevSegment: string;
     nextSegment: string;
 }
@@ -37,6 +39,8 @@ export function createSegment(start: IVector, end: IVector): ICollisionSegment {
         segment: ray,
         normal: buildNormal(seg),
         length: vectorLength(seg),
+        startLedge: true,
+        endLedge: true,
         prevSegment: "",
         nextSegment: ""
     }
@@ -52,6 +56,8 @@ export function cloneSegment(segment: ICollisionSegment): ICollisionSegment {
         segment: cloneRay(segment.segment),
         normal: cloneVector(segment.normal),
         length: segment.length,
+        startLedge: segment.startLedge,
+        endLedge: segment.endLedge,
         prevSegment: segment.prevSegment,
         nextSegment: segment.nextSegment
     }

@@ -2,7 +2,8 @@ import { IMapSchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { ICollisionSegment, createSegment } from "../physics/CollisionSegment";
 import { EntityType, IEntity, EntityAnimation } from "../redux/state";
 import { buildEntity } from "../utils/creation";
-import { createVector, IVector, getEndOfRay, areVectorsEqual } from "../utils/geometry";
+import { createVector, IVector, getEndOfRay, areVectorsEqual, dot, negate } from "../utils/geometry";
+import { isWall } from "../physics/util";
 
 /**
  * Returns if an image element with the given image name has already been loaded and attached to the page.
@@ -69,13 +70,64 @@ export function lazyLoadImages(imageNames: string[]): Promise<any> {
     )
 }
 
+/**
+ * Returns true if the end of the first given segment is positioned at the start of the second given segment.
+ * @param segment1 
+ * @param segment2 
+ */
 export function areSegmentsConnected(segment1: ICollisionSegment, segment2: ICollisionSegment): boolean {
     return segment1.id != segment2.id && areVectorsEqual(getEndOfRay(segment1.segment), segment2.segment.p);
 }
 
+/**
+ * Checks if the connected surface and wall segments form a ledge. A ledge is defined as if the surface segment is
+ * a floor or ceiling segment, the wall segment is a wall or is null, and if the wall segment goes in a direction
+ * opposite of the surface segment's normal.
+ * @param surfaceSegment 
+ * @param wallSegment 
+ */
+export function isLedgeSurfaceToWall(surfaceSegment: ICollisionSegment, wallSegment: ICollisionSegment): boolean {
+    // surface must exist and not be a wall
+    if (!surfaceSegment || isWall(surfaceSegment)) {
+        return false;
+    }
+
+    // if wall segment does not exist, then we have a ledge
+    if (!wallSegment) {
+        return true;
+    }
+
+    // if wall is not a wall, then this cannot be a ledge
+    if (!isWall(wallSegment)) {
+        return false;
+    }
+
+    // make sure that they are connected
+    if (surfaceSegment.nextSegment != wallSegment.id && surfaceSegment.prevSegment != wallSegment.id) {
+        return false;
+    }
+
+    // make sure that the wall is going in a direction opposite of the surface normal
+    let wallDirection = (surfaceSegment.nextSegment == wallSegment.id) 
+        ? wallSegment.segment.v : negate(wallSegment.segment.v);
+    return dot(wallDirection, surfaceSegment.normal) < 0;
+}
+
+/**
+ * Links the first segment to the second.
+ * @param segment1 
+ * @param segment2 
+ */
 export function linkCollisions(segment1: ICollisionSegment, segment2: ICollisionSegment): void {
-    segment1.nextSegment = segment2.id;
-    segment2.prevSegment = segment1.id;
+    if (segment1) {
+        segment1.nextSegment = segment2 ? segment2.id : "";
+        segment1.endLedge = isLedgeSurfaceToWall(segment1, segment2);
+    }
+
+    if (segment2) {
+        segment2.prevSegment = segment1 ? segment1.id : "";
+        segment2.startLedge = isLedgeSurfaceToWall(segment2, segment1);
+    }
 }
 
 /**
@@ -84,37 +136,28 @@ export function linkCollisions(segment1: ICollisionSegment, segment2: ICollision
  */
 export function buildCollisionsCollection(map: IMapSchema): ICollisionSegment[] {
     if (map && map.collisions) {
-        let results: ICollisionSegment[] = [];
-        let p: IVector = null;
-        let firstSegment: ICollisionSegment;
-        let lastSegment: ICollisionSegment;
-        map.collisions.forEach((collision) => {
-            if (!collision) {
-                if (areSegmentsConnected(lastSegment, firstSegment)) {
-                    linkCollisions(lastSegment, firstSegment);
-                }
-                p = null;
-                firstSegment = null;
-                lastSegment = null;
+        let results: ICollisionSegment[] = []
+        map.collisions.forEach((collisonSet) => {
+            // build segments from collision set
+            let setResults: ICollisionSegment[] = [];
+            let startPos: IVector = collisonSet.length > 0 ? createVector(collisonSet[0].x, collisonSet[0].y) : null;
+            let prevSegment: ICollisionSegment = null;
+            for (let i = 1; i < collisonSet.length; ++i) {
+                let endPos = createVector(collisonSet[i].x, collisonSet[i].y);
+                let segment = createSegment(startPos, endPos);
+                linkCollisions(prevSegment, segment);
+                setResults.push(segment);
+                startPos = endPos;
+                prevSegment = segment;
             }
 
-            else if (!p) {
-                p = createVector(collision.x, collision.y);
+            // link first and last segment
+            if (setResults.length > 0 && areSegmentsConnected(setResults[setResults.length-1], setResults[0])) {
+                linkCollisions(setResults[setResults.length-1], setResults[0]);
             }
 
-            else {
-                let nextPos = createVector(collision.x, collision.y);
-                let nextSegment = createSegment(p, nextPos);
-                if (lastSegment) {
-                    linkCollisions(lastSegment, nextSegment);
-                }
-                lastSegment = nextSegment;
-                p = nextPos;
-                if (!firstSegment) {
-                    firstSegment = lastSegment;
-                }
-                results.push(nextSegment);
-            }
+            // add this set to the main array
+            results = results.concat(setResults);
         });
         return results;
     }

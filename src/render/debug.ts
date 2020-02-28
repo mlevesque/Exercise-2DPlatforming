@@ -1,4 +1,4 @@
-import { IVector, zeroVector, scale } from "../utils/geometry";
+import { IVector, zeroVector, scale, createVector, add } from "../utils/geometry";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IEntity } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
@@ -48,6 +48,17 @@ function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment
     ctx.lineWidth = 1;
     renderArrow(ctx, zeroVector(), scale(20, segment.normal), 5);
 
+    // render ledges
+    ctx.fillStyle = "yellow";
+    ctx.strokeStyle = "yellow";
+    ctx.lineWidth = 1;
+    let direction = segment.segment.v.x > 0 ? -10 : 10;
+    if (segment.startLedge) {
+        renderArrow(ctx, zeroVector(), createVector(direction, 0), 3);
+    }
+    if (segment.endLedge) {
+        renderArrow(ctx, segment.segment.v, add(createVector(-direction, 0), segment.segment.v), 3);
+    }
     ctx.restore();
 }
 

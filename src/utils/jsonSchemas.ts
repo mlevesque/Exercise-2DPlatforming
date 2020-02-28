@@ -27,7 +27,7 @@ export interface IMapSchema {
         type: EntityType;
         position: IVector;
     }[];
-    collisions: IMapCollisionSchema[]
+    collisions: IMapCollisionSchema[][]
 }
 
 export interface IAnimationSchema {
