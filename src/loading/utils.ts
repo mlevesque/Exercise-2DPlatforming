@@ -1,6 +1,6 @@
 import { IMapSchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { ICollisionSegment, createSegment } from "../physics/CollisionSegment";
-import { EntityType, IEntity, EntityAnimation } from "../redux/state";
+import { EntityType, IEntity, EntityAnimation, ICollisionMap } from "../redux/state";
 import { buildEntity } from "../utils/creation";
 import { createVector, IVector, getEndOfRay, areVectorsEqual, dot, negate } from "../utils/geometry";
 import { isWall } from "../physics/util";
@@ -119,51 +119,53 @@ export function isLedgeSurfaceToWall(surfaceSegment: ICollisionSegment, wallSegm
  * @param segment2 
  */
 export function linkCollisions(segment1: ICollisionSegment, segment2: ICollisionSegment): void {
-    if (segment1) {
-        segment1.nextSegment = segment2 ? segment2.id : "";
-        segment1.endLedge = isLedgeSurfaceToWall(segment1, segment2);
-    }
-
-    if (segment2) {
-        segment2.prevSegment = segment1 ? segment1.id : "";
-        segment2.startLedge = isLedgeSurfaceToWall(segment2, segment1);
-    }
+    if (segment1) segment1.nextSegment = segment2 ? segment2.id : "";
+    if (segment2) segment2.prevSegment = segment1 ? segment1.id : "";
 }
 
 /**
  * Builds and returns a collection of collisions from the given map data.
  * @param map 
  */
-export function buildCollisionsCollection(map: IMapSchema): ICollisionSegment[] {
+export function buildCollisionsCollection(map: IMapSchema): Map<string, ICollisionSegment> {
+    // build all collisions
+    let results = new Map<string, ICollisionSegment>();
     if (map && map.collisions) {
-        let results: ICollisionSegment[] = []
         map.collisions.forEach((collisonSet) => {
             // build segments from collision set
             let setResults: ICollisionSegment[] = [];
             let startPos: IVector = collisonSet.length > 0 ? createVector(collisonSet[0].x, collisonSet[0].y) : null;
             let prevSegment: ICollisionSegment = null;
             for (let i = 1; i < collisonSet.length; ++i) {
+                // build collision
                 let endPos = createVector(collisonSet[i].x, collisonSet[i].y);
                 let segment = createSegment(startPos, endPos);
+
+                // connect to previous collision
                 linkCollisions(prevSegment, segment);
+
+                // add to set
                 setResults.push(segment);
+                results.set(segment.id, segment);
+
                 startPos = endPos;
                 prevSegment = segment;
             }
 
             // link first and last segment
-            if (setResults.length > 0 && areSegmentsConnected(setResults[setResults.length-1], setResults[0])) {
+            if (setResults.length > 1 && areSegmentsConnected(setResults[setResults.length-1], setResults[0])) {
                 linkCollisions(setResults[setResults.length-1], setResults[0]);
             }
-
-            // add this set to the main array
-            results = results.concat(setResults);
         });
-        return results;
     }
-    else {
-        return [];
-    }
+
+    // determine which segments have ledges
+    results.forEach((segment) => {
+        segment.startLedge = isLedgeSurfaceToWall(segment, results.get(segment.prevSegment));
+        segment.endLedge = isLedgeSurfaceToWall(segment, results.get(segment.nextSegment));
+    });
+
+    return results;
 }
 
 /**

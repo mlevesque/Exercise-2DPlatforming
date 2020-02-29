@@ -31,8 +31,8 @@ export function* loadLevelSaga(levelFile: string) {
     yield put(actionSetMap(map));
 
     // build collisions
-    let collisions = buildCollisionsCollection(data);
-    yield put(actionSetStaticCollisions(collisions));
+    let collisionsMap = buildCollisionsCollection(data);
+    yield put(actionSetStaticCollisions(collisionsMap));
 
     // load images
     promise = lazyLoadImages(getImagesToLoad(data));

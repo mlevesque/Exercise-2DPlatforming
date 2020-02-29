@@ -70,7 +70,7 @@ export function staticCollisionsReducer( state: ICollisionMap = InitState.static
     switch (action.type) {
         case CollisionsAction.SetStatic:
             newMap = {};
-            const arr: ICollisionSegment[] = action.payload;
+            const arr: Map<string, ICollisionSegment> = action.payload;
             arr.forEach((segment: ICollisionSegment) => {
                 const newSegment = cloneSegment(segment);
                 newMap[newSegment.id] = newSegment;

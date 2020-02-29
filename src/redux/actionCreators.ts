@@ -27,7 +27,7 @@ export function actionCameraResize(width: number, height: number): AnyAction {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Collisions
-export function actionSetStaticCollisions(collisions: ICollisionSegment[]): AnyAction {
+export function actionSetStaticCollisions(collisions: Map<string, ICollisionSegment>): AnyAction {
     return createAction(CollisionsAction.SetStatic, collisions);
 }
 export function actionClearCollisions(): AnyAction {

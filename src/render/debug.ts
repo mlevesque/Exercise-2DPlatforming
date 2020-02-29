@@ -2,6 +2,7 @@ import { IVector, zeroVector, scale, createVector, add } from "../utils/geometry
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IEntity } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
+import { isWall } from "../physics/util";
 
 function renderArrow(ctx: CanvasRenderingContext2D, from: IVector, to: IVector, radius: number): void {
 	let x_center = to.x;
@@ -37,8 +38,9 @@ function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment
     ctx.translate(segment.segment.p.x, segment.segment.p.y);
 
     // render segment
-    ctx.fillStyle = "red";
-    ctx.strokeStyle = "red";
+    let color = isWall(segment) ? "blue" : "red";
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     renderArrow(ctx, zeroVector(), segment.segment.v, 5);
 
