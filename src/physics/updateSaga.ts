@@ -5,7 +5,7 @@ import { integrateEntity } from "./integration";
 import { ICollisionSegment } from "./CollisionSegment";
 import { select } from "redux-saga/effects";
 import { getStaticCollisions } from "../redux/selectors";
-import { updateWorldCollisionsOnEntity } from "./worldCollisions";
+import { updateWorldCollisionsOnEntity } from "./worldCollisionChecks";
 
 export function* updateMovementSaga(deltaT: number, entities: IEntity[]) {
     let config = getGameConfig();
