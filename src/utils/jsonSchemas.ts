@@ -19,6 +19,10 @@ export interface IMapCollisionSchema {
 export interface IMapSchema {
     tileset: string;
     map: number[][];
+    partition: {
+        cellWidth: number;
+        cellHeight: number;
+    }
     player: {
         position: IVector;
         flip: boolean;
@@ -27,7 +31,7 @@ export interface IMapSchema {
         type: EntityType;
         position: IVector;
     }[];
-    collisions: IMapCollisionSchema[][]
+    collisions: IMapCollisionSchema[][];
 }
 
 export interface IAnimationSchema {

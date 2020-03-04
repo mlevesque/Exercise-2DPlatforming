@@ -1,9 +1,10 @@
-import { IMapSchema, getEntityJsonData } from "../utils/jsonSchemas";
+import { IMapSchema, getEntityJsonData, getGameConfig } from "../utils/jsonSchemas";
 import { ICollisionSegment, createSegment } from "../physics/CollisionSegment";
 import { EntityType, IEntity, EntityAnimation, ICollisionMap } from "../redux/state";
 import { buildEntity } from "../utils/creation";
 import { createVector, IVector, getEndOfRay, areVectorsEqual, dot, negate } from "../utils/geometry";
 import { isWall } from "../physics/util";
+import { WorldPartition } from "../physics/WorldPartition";
 
 /**
  * Returns if an image element with the given image name has already been loaded and attached to the page.
@@ -124,11 +125,23 @@ export function linkCollisions(segment1: ICollisionSegment, segment2: ICollision
 }
 
 /**
+ * Sets up world partition to the dimenions and cell size based on the map schema data.
+ * @param map 
+ */
+export function buildWorldPartition(map: IMapSchema): void {
+    const config = getGameConfig();
+    const height = map.map.length * config.tileSize;
+    const width = height > 0 ? map.map[0].length * config.tileSize : 0;
+    WorldPartition.getInstance().setupPartition(width, height, map.partition.cellWidth, map.partition.cellHeight);
+}
+
+/**
  * Builds and returns a collection of collisions from the given map data.
  * @param map 
  */
 export function buildCollisionsCollection(map: IMapSchema): Map<string, ICollisionSegment> {
     // build all collisions
+    let partition = WorldPartition.getInstance();
     let results = new Map<string, ICollisionSegment>();
     if (map && map.collisions) {
         map.collisions.forEach((collisonSet) => {
@@ -148,6 +161,10 @@ export function buildCollisionsCollection(map: IMapSchema): Map<string, ICollisi
                 setResults.push(segment);
                 results.set(segment.id, segment);
 
+                // add to partition
+                partition.addStaticCollision(segment);
+
+                // store for linkage to next segment
                 startPos = endPos;
                 prevSegment = segment;
             }

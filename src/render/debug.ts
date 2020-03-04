@@ -3,6 +3,7 @@ import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IEntity } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { isWall } from "../physics/util";
+import { WorldPartition } from "../physics/WorldPartition";
 
 function renderArrow(ctx: CanvasRenderingContext2D, from: IVector, to: IVector, radius: number): void {
 	let x_center = to.x;
@@ -103,6 +104,35 @@ export function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IE
     ctx.stroke();
 
     ctx.restore();
+}
+
+export function renderPartition(ctx: CanvasRenderingContext2D): void {
+    const partition = WorldPartition.getInstance();
+    const numRows = partition.numRows;
+    const numColumns = partition.numColumns;
+    const width = ctx.canvas.width;
+    const height = ctx.canvas.height;
+
+    ctx.strokeStyle = "grey";
+    ctx.lineWidth = 1;
+
+    // draw rows
+    for (let i = 0; i < numRows; ++i) {
+        const y = i * partition.cellHeight;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+    }
+
+    // draw columns
+    for (let i = 0; i < numColumns; ++i) {
+        const x = i * partition.cellWidth;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+    }
 }
 
 export function renderFrameRate(ctx: CanvasRenderingContext2D, deltaT: number): void {

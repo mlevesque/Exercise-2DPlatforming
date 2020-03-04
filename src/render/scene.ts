@@ -1,7 +1,7 @@
 import { IMainState, IEntity } from "../redux/state";
 import { renderTiles } from "./world";
 import { renderEntity } from "./entities";
-import { renderMapCollisions, renderEntityCollisions, renderFrameRate } from "./debug";
+import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPartition } from "./debug";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 
 export function renderLoading(ctx: CanvasRenderingContext2D, width: number, height: number): void {
@@ -24,5 +24,6 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
     state.entities.forEach((entity: IEntity) => {
         renderEntityCollisions(ctx, entity);
     });
+    renderPartition(ctx);
     renderFrameRate(ctx, deltaT);
 }

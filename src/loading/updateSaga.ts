@@ -2,7 +2,8 @@ import { put } from "redux-saga/effects";
 import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, actionSetEntitiesCollection } from "../redux/actionCreators";
 import { IMapSchema } from "../utils/jsonSchemas";
 import { IMap } from "../redux/state";
-import { buildCollisionsCollection, lazyLoadImages, getImagesToLoad, buildEntityCollection } from "./utils";
+import { buildCollisionsCollection, lazyLoadImages, getImagesToLoad, buildEntityCollection, buildWorldPartition } from "./utils";
+import { WorldPartition } from "../physics/WorldPartition";
 
 /**
  * Generator function for handling level loading, including loading all assets needed for the given level.
@@ -29,6 +30,9 @@ export function* loadLevelSaga(levelFile: string) {
         tiles: data.map,
     };
     yield put(actionSetMap(map));
+
+    // build partition
+    buildWorldPartition(data);
 
     // build collisions
     let collisionsMap = buildCollisionsCollection(data);
