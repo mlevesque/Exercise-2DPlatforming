@@ -1,8 +1,6 @@
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
-import { IVector, IRay, getEndOfRay, getPositionAlongRay, createRayPP, createShiftedRay, negate } 
-    from "../utils/geometry";
-import { calculateTCollisionValues, capT, getPointCollision, isTValueInRange, buildStartLedgeRay, buildEndLedgeRay, 
-    getLedgeData} from "./util";
+import { IVector, IRay, getEndOfRay, getPositionAlongRay, createRayPP, createRayPV } from "../utils/geometry";
+import { calculateTCollisionValues, capT, getPointCollision, isTValueInRange, getLedgeData } from "./util";
 import { CollisionType } from "./collisionType";
 
 /**
@@ -53,6 +51,7 @@ function addToResolvePath( collisionTracker: WorldCollisionTracker,
                            surfaceCollision: IRay, 
                            movementT: number, 
                            collisionType: CollisionType): number {
+    
     const resolveRay: IRay = {p: getEndOfRay(collisionTracker.currentMovement), v: resolveDirection};
     const resolvePairT: [number, number] = calculateTCollisionValues(surfaceCollision, resolveRay);
 
@@ -72,6 +71,10 @@ function addToResolvePath( collisionTracker: WorldCollisionTracker,
         remainingMovement
     );
 
+    if (collisionType.hasWallCollision()) {
+        const entry = collisionTracker.getPathEntryAtIndex(collisionTracker.currentResolvePath.length - 1);
+    }
+
     // return the t value from our resolve
     return t;
 }
@@ -84,23 +87,50 @@ function addToResolvePath( collisionTracker: WorldCollisionTracker,
  */
 function resolveToSegment(collisionTracker: WorldCollisionTracker, resolveDirection: IVector): void {
     // find the intersection from the resolve direction and the collision segment
-    const offsetSegment = collisionTracker.getCollisionSegmentWithOffset();
-    const data = collisionTracker.currentCollisionDetectionData;
+    const d = collisionTracker.currentCollisionDetectionData;
+    const offsetSegment = collisionTracker.getCollisionSegmentWithOffset(d.collisionSegment.segment, d.collisionType);
 
     // resolve the collision segment
     // this will return the t value location along the collision segment that can tell us if we resolved off the
     // edge of the segment
-    let t = addToResolvePath(collisionTracker, resolveDirection, offsetSegment, data.movementT, data.collisionType);
+    let t = addToResolvePath(collisionTracker, resolveDirection, offsetSegment, d.movementT, d.collisionType);
 
+    // if the resulting t value is within range of 0 and 1, then we have completed our resolve path
+    if (isTValueInRange(t, true)) {
+        collisionTracker.completePath();
+    }
     // if the resulting t value from our resolve is not in the range of 0 and 1, then we have leftover movement on
     // one end of the collision segment. Because of this, we may need to resolve to a ledge.
-    if (!isTValueInRange(t, true)) {
-        const ledgeInfo = getLedgeData(t, data.collisionSegment, collisionTracker.entityHalfWidth, offsetSegment);
+    else {
+        const ledgeInfo = getLedgeData(t, d.collisionSegment, collisionTracker.entityHalfWidth, offsetSegment);
 
         // if we have a ledge, then resolve to it
         if (!ledgeInfo[0].hasNoCollision()) {
             t = addToResolvePath(collisionTracker, resolveDirection, ledgeInfo[1], 0, ledgeInfo[0]);
         }
+    }
+}
+
+/**
+ * Performs collision resolve to segment ledges of the stored collision segment, resolving to the ledge surface first,
+ * then potentially resolving to the segment itself if there is remaining movement after the resolve.
+ * @param collisionTracker 
+ * @param resolveDirection 
+ */
+function resolveToSegmentLedge(collisionTracker: WorldCollisionTracker, resolveDirection: IVector): void {
+    // build ledge and offset it by the entity collision offset
+    const d = collisionTracker.currentCollisionDetectionData;
+    const offsetLedgeRay = collisionTracker.getCollisionSegmentWithOffset(d.collisionSegment.segment, d.collisionType);
+
+    // resolve to ledge
+    let t = addToResolvePath(collisionTracker, resolveDirection, offsetLedgeRay, d.movementT, d.collisionType);
+
+    // if resulting t goes beyond the ledge and towards the collision segment itself, then resolve to segment
+    if (t < 0) {
+        let collisionType = new CollisionType(d.collisionType.rawValue);
+        collisionType.unsetLedge();
+        const segmentOffset = collisionTracker.getCollisionSegmentWithOffset(d.collisionSegment.segment, collisionType);
+        t = addToResolvePath(collisionTracker, resolveDirection, segmentOffset, 0, collisionType);
     }
 
     // if the resulting t value is within range of 0 and 1, then we have completed our resolve path
@@ -110,35 +140,20 @@ function resolveToSegment(collisionTracker: WorldCollisionTracker, resolveDirect
 }
 
 /**
- * Performs collision resolve to segment ledges of the stored collision segment, resolving to the ledge surface first,
- * then potentially resolving to the segment itself if there is remaining movement after the resolve.
- * @param collisionData 
- * @param resolveDirection 
+ * Performs collision resolve to wall segments for the stored collision segment.
+ * @param collisionTracker 
  */
-function resolveToSegmentLedge(collisionData: WorldCollisionTracker, resolveDirection: IVector): void {
-    // build ledge and offset it by the entity collision offset
-    const data = collisionData.currentCollisionDetectionData;
-    const isStartLedge = data.collisionType.hasStartLedgeCollision();
-    const ledgeRay = isStartLedge 
-        ? buildStartLedgeRay(data.collisionSegment.segment, collisionData.entityHalfWidth)
-        : buildEndLedgeRay(data.collisionSegment.segment, collisionData.entityHalfWidth);
-    const offsetLedgeRay = createShiftedRay(ledgeRay, negate(collisionData.collisionOffset));
-
-    // resolve to ledge
-    let resultT = addToResolvePath(collisionData, resolveDirection, offsetLedgeRay, data.movementT, data.collisionType);
-
-    // if resulting t goes beyond the ledge and towards the collision segment itself, then resolve to segment
-    if (resultT < 0) {
-        let collisionType = new CollisionType(data.collisionType.rawValue);
-        collisionType.unsetLedge();
-        const segmentOffset = collisionData.getCollisionSegmentWithOffset();
-        resultT = addToResolvePath(collisionData, resolveDirection, segmentOffset, 0, collisionType);
-    }
-
-    // if the resulting t value is within range of 0 and 1, then we have completed our resolve path
-    if (isTValueInRange(resultT, true)) {
-        collisionData.completePath();
-    }
+function resolveToWallSegment(collisionTracker: WorldCollisionTracker): void {
+    const d = collisionTracker.currentCollisionDetectionData;
+    const movement = collisionTracker.currentMovement;
+    const offsetWall = collisionTracker.getCollisionSegmentWithOffset(d.collisionSegment.segment, d.collisionType);
+    collisionTracker.addToResolvePath(
+        {
+            ray: createRayPV(movement.p.x, movement.p.y, offsetWall.p.x - movement.p.x, movement.v.y),
+            type: d.collisionType
+        },
+        null
+    );
 }
 
 /**
@@ -148,7 +163,10 @@ function resolveToSegmentLedge(collisionData: WorldCollisionTracker, resolveDire
  */
 export function resolveWithExternalDirection(collisionTracker: WorldCollisionTracker, resolveDirection: IVector): void {
     const data = collisionTracker.currentCollisionDetectionData;
-    if (data.collisionType.hasLedgeCollison()) {
+    if (data.collisionType.hasWallCollision()) {
+        resolveToWallSegment(collisionTracker);
+    }
+    else if (data.collisionType.hasLedgeCollision()) {
         resolveToSegmentLedge(collisionTracker, resolveDirection);
     }
     else {

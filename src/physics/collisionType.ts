@@ -1,12 +1,23 @@
 /**
  * Series of bit flags indicating types of collision.
+ * Bits are set up so that a collision can be inclusively most of these types.
+ *  Bit locations: 1234 5678
+ *      1) Right Wall
+ *      2) Left Wall
+ *      3) Ceiling
+ *      4) Floor
+ *      5) Ceiling End Ledge
+ *      6) Ceiling Start Ledge
+ *      7) Floor End Ledge
+ *      8) Floor Start Ledge
  */
 export enum CollisionFlag {
     // individual classifications
     None                = 0x00,
     Floor               = 0x10,
     Ceiling             = 0x20,
-    Wall                = 0x40,
+    LeftWall            = 0x40,
+    RightWall           = 0x80,
     FloorStartLedge     = 0x11,
     FloorEndLedge       = 0x12,
     CeilingStartLedge   = 0x24,
@@ -44,9 +55,10 @@ export class CollisionType {
             elements.push("None");
         }
         else {
-            if (this.hasFloorCollison()) elements.push("Floor");
-            if (this.hasCeilingCollison()) elements.push("Ceiling");
-            if (this.hasWallCollison()) elements.push("Wall");
+            if (this.hasFloorCollision()) elements.push("Floor");
+            if (this.hasCeilingCollision()) elements.push("Ceiling");
+            if (this.hasLeftWallCollision()) elements.push("LeftWall");
+            if (this.hasRightWallCollision()) elements.push("RightWall");
             if (this.includesFlag(CollisionFlag.FloorStartLedge)) elements.push("FloorStartLedge");
             if (this.includesFlag(CollisionFlag.FloorEndLedge)) elements.push("FloorEndLedge");
             if (this.includesFlag(CollisionFlag.CeilingStartLedge)) elements.push("CeilingStartLedge");
@@ -74,18 +86,25 @@ export class CollisionType {
     /** Returns true if no bits are set. */
     hasNoCollision(): boolean {return this._value == CollisionFlag.None}
     /** Returns true if the floor bit is set. */
-    hasFloorCollison(): boolean {return this.includesFlag(CollisionFlag.Floor)}
+    hasFloorCollision(): boolean {return this.includesFlag(CollisionFlag.Floor)}
     /** Returns true if the ceiling bit is set. */
-    hasCeilingCollison(): boolean {return this.includesFlag(CollisionFlag.Ceiling)}
+    hasCeilingCollision(): boolean {return this.includesFlag(CollisionFlag.Ceiling)}
+    /** Returns true if the left wall bit is set. */
+    hasLeftWallCollision(): boolean {return this.includesFlag(CollisionFlag.LeftWall)}
+    /** Returns true if the right wall bit is set. */
+    hasRightWallCollision(): boolean {return this.includesFlag(CollisionFlag.RightWall)}
     /** Returns true if the wall bit is set. */
-    hasWallCollison(): boolean {return this.includesFlag(CollisionFlag.Wall)}
+    hasWallCollision(): boolean {
+        return this.includesFlag(CollisionFlag.LeftWall)
+            || this.includesFlag(CollisionFlag.RightWall);
+    }
     /** Returns true if any floor ledge bit is set. */
-    hasFloorLedgeCollison(): boolean {
+    hasFloorLedgeCollision(): boolean {
         return this.includesFlag(CollisionFlag.FloorStartLedge)
             || this.includesFlag(CollisionFlag.FloorEndLedge);
     }
     /** Returns true if any ceiling ledge bit is set. */
-    hasCeilingLedgeCollison(): boolean {
+    hasCeilingLedgeCollision(): boolean {
         return this.includesFlag(CollisionFlag.CeilingStartLedge)
             || this.includesFlag(CollisionFlag.CeilingEndLedge);
     }
@@ -98,7 +117,7 @@ export class CollisionType {
         return this.includesFlag(CollisionFlag.FloorEndLedge) || this.includesFlag(CollisionFlag.CeilingEndLedge);
     }
     /** Returns true if any ledge bit is set. */
-    hasLedgeCollison(): boolean {
+    hasLedgeCollision(): boolean {
         return this.includesFlag(CollisionFlag.FloorStartLedge)
             || this.includesFlag(CollisionFlag.FloorEndLedge)
             || this.includesFlag(CollisionFlag.CeilingStartLedge)
@@ -120,9 +139,7 @@ export class CollisionType {
     /**
      * Unsets all bits that indicate a ledge.
      */
-    unsetLedge(): void {
-        this.unsetFlag(CollisionFlag.AllLedges);
-    }
+    unsetLedge(): void {this.unsetFlag(CollisionFlag.AllLedges)}
 
     /**
      * Sets all bits from the given type to this type.

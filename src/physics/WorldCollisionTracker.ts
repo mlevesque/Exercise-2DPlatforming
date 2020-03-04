@@ -1,13 +1,14 @@
 import { ICollisionSegment } from "./CollisionSegment";
-import { IRay, IVector, getEndOfRay, createRayPP, zeroVector, subtract, isZeroVector, createRayPV, add } 
-    from "../utils/geometry";
+import { IRay, IVector, getEndOfRay, createRayPP, isZeroVector, createRayPV, add, createVector, negate,
+    createShiftedRay } from "../utils/geometry";
 import { CollisionType } from "./collisionType";
+import { buildStartLedgeRay, buildEndLedgeRay } from "./util";
 
 /**
  * Potential collision information to possibly be resolved.
  */
 export interface ICollisionDetectionData {
-    // t value along the movement ray where collision occurs. This will be between 0 and 1, inclusively
+    // t value along the movement ray where collision occurs. This should be between 0 and 1, inclusively
     movementT: number;
     // collision segment that had the collision
     collisionSegment: ICollisionSegment;
@@ -47,8 +48,10 @@ export class WorldCollisionTracker {
     private _resolvePath: IResolvePathEntry[];
     // indicates if our collision resolve path has been completed and if the remaining movement has been depleted
     private _pathCompleted: boolean;
-    // offset of the collision point from the position point of the entity
-    private _offset: IVector;
+    // offset of the floor collision point from the position point of the entity
+    private _floorCollisionOffset: IVector;
+    // offset of the ceiling collision point from the position point of the entity
+    private _ceilingCollisionOffset: IVector;
     // half width of collision bounding box for the entity. Used for calculating ledges and wall collision checking.
     private _entityHalfWidth: number;
 
@@ -57,34 +60,51 @@ export class WorldCollisionTracker {
     // mapping of all collision segments we have resolved to so that we don't check against them again
     private _resolvedSegments: Set<string>;
 
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // PRIVATE METHODS
+    /**
+     * Returns two movement rays offsetted to the corners of the entity in the direction of the given movement ray.
+     * First ray is the bottom corner movement ray. Second ray is the top corner movement ray.
+     * @param movement The ray that will be offsetted.
+     */
+    private getMovementWithWallOffsets(movement: IRay): [IRay, IRay] {
+        const floorOffset = add(movement.p, this._floorCollisionOffset);
+        const ceilingOffset = add(movement.p, this._ceilingCollisionOffset);
+        const v = movement.v;
+        const displace = v.x > 0 ? this._entityHalfWidth : -this._entityHalfWidth;
+        return [
+            createRayPV(floorOffset.x + displace, floorOffset.y, v.x, v.y),
+            createRayPV(ceilingOffset.x + displace, ceilingOffset.y, v.x, v.y)
+        ]
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // GETTERS
     get currentMovement(): IRay {return this._remainingMovementRay}
     get currentResolvePath(): IResolvePathEntry[] {return this._resolvePath}
     get pathCompleted(): boolean {return this._pathCompleted}
-    get collisionOffset(): IVector {return this._offset}
+    get floorCollisionOffset(): IVector {return this._floorCollisionOffset}
+    get ceilingCollisionOffset(): IVector {return this._ceilingCollisionOffset}
     get entityHalfWidth(): number {return this._entityHalfWidth}
     get currentCollisionDetectionData(): ICollisionDetectionData {return this._potentialCollision}
 
-    // SETTERS
-    set collisionOffset(offset: IVector) {this._offset = offset}
 
-    /**
-     * Constructor.
-     * @param previousPosition Where entity was last frame.
-     * @param currentPosition Where entity is this frame.
-     * @param entityHalfWidth Half width of the entities collision bounding box.
-     */
-    constructor(previousPosition: IVector, currentPosition: IVector, entityHalfWidth: number) {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS
+    constructor(previousPosition: IVector, currentPosition: IVector, floorCollisionOffset: IVector, 
+                ceilingCollisionOffset: IVector, entityHalfWidth: number) {
         this._remainingMovementRay = createRayPP( previousPosition.x, 
                                                   previousPosition.y, 
                                                   currentPosition.x, 
                                                   currentPosition.y);
         this._resolvePath = [];
         this._pathCompleted = false;
-        this._offset = zeroVector();
+        this._floorCollisionOffset = floorCollisionOffset;
+        this._ceilingCollisionOffset = ceilingCollisionOffset;
         this._entityHalfWidth = entityHalfWidth;
-        this.clearCurrentCollision();
         this._resolvedSegments = new Set<string>();
+        this.clearCurrentCollision();
     }
 
     /**
@@ -123,51 +143,128 @@ export class WorldCollisionTracker {
     }
 
     /**
-     * Returns the current remaining movement vector shifted by the point collision offset currently set for the entity.
+     * Returns the remaining movement ray offsetted to the floor collision point of the entity. Returns null if there is
+     * no remaining movement ray.
      */
-    getMovementWithOffset(): IRay {
+    getRemainingMovementWithFloorOffset(): IRay {
         if (this._remainingMovementRay) {
-            const offset = add(this._remainingMovementRay.p, this._offset);
-            const v = this._remainingMovementRay.v;
-            return createRayPV(offset.x, offset.y, v.x, v.y);
+            return createShiftedRay(this._remainingMovementRay, this._floorCollisionOffset);
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
     /**
-     * Returns a path ray from the current resolve path at the given index. The ray is shifted by the point collision
-     * offset currently set for the entity. Returns null if the index is invalid.
-     * @param index 
+     * Returns the remaining movement ray offsetted to the ceiling collision point of the entity. Returns null if there
+     * is no remaining movement ray.
      */
-    getPathAtIndexWithOffset(index: number): IResolvePathEntry {
+    getRemainingMovementWithCeilingOffset(): IRay {
+        if (this._remainingMovementRay) {
+            return createShiftedRay(this._remainingMovementRay, this._ceilingCollisionOffset);
+        }
+        return null;
+    }
+
+    /**
+     * Returns two remaining movement rays offsetted to the bottom and top corners of the entity. If the movement ray is
+     * moving towards the right, the rays will be offsetted horizontally on the right side of the entity. If the
+     * movement ray is moving towards the left, the rays will be offsetted to the left side of the entity. Both returned
+     * rays will be null if there is no remaining movement ray.
+     */
+    getRemainingMovementWithWallOffsets(): [IRay, IRay] {
+        if (this._remainingMovementRay) {
+            return this.getMovementWithWallOffsets(this._remainingMovementRay);
+        }
+        return [null, null];
+    }
+
+    /**
+     * Returns a path ray from the resolve path at the given index and will be offsetted to the floor collision point
+     * of the entity. Returns null if the index is invalid.
+     * @param index index of the path entry in the resolve path.
+     */
+    getPathAtIndexWithFloorOffset(index: number): IResolvePathEntry {
         const entry = this.getPathEntryAtIndex(index);
         if (entry) {
-            const offset = add(entry.ray.p, this._offset);
             return {
-                ray: createRayPV(offset.x, offset.y, entry.ray.v.x, entry.ray.v.y),
-                type: new CollisionType(entry.type.rawValue)
+                ray: createShiftedRay(entry.ray, this._floorCollisionOffset),
+                type: entry.type
             }
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
     /**
-     * Returns the current potential collision segment ray shifted by the point collision offset currently set for the
-     * entity. Returns null if there is no potential collision.
+     * Returns a path ray from the resolve path at the given index and will be offsetted to the ceiling collision point
+     * of the entity. Returns null if the index is invalid.
+     * @param index index of the path entry in the resolve path.
      */
-    getCollisionSegmentWithOffset(): IRay {
-        if (this._potentialCollision && this._potentialCollision.collisionSegment) {
-            const offset = subtract(this._potentialCollision.collisionSegment.segment.p, this._offset);
-            const v = this._potentialCollision.collisionSegment.segment.v;
-            return createRayPV(offset.x, offset.y, v.x, v.y);
+    getPathAtIndexWithCeilingOffset(index: number): IResolvePathEntry {
+        const entry = this.getPathEntryAtIndex(index);
+        if (entry) {
+            return {ray: createShiftedRay(entry.ray, this._ceilingCollisionOffset), type: entry.type};
         }
-        else {
-            return null;
+        return null;
+    }
+
+    /**
+     * Returns two path rays from the resolve path at the given index and will be offsetted to the top and bottom
+     * corners of the entity. If the path is moving right, the rays will be offsetted to the right side of the entity.
+     * If the path us moving left, the rays will be offsetted to the left side of the entity. First ray will be the
+     * bottom corner. Second ray will be the top corner. Both returned rays will be null if the index is invalid.
+     * @param index index of the path entry in the resolve path.
+     */
+    getPathAtIndexWithWallOffset(index: number): [IResolvePathEntry, IResolvePathEntry] {
+        const entry = this.getPathEntryAtIndex(index);
+        if (entry) {
+            const rays = this.getMovementWithWallOffsets(entry.ray);
+            return [
+                {ray: rays[0], type: entry.type},
+                {ray: rays[1], type: entry.type}
+            ]
         }
+        return [null, null];
+    }
+
+    /**
+     * Returns a ray of the given collision segment offsetted based on the given collision type.
+     * The ray will be such that if:
+     *  - Collision Type is a ledge
+     *      Will return a ledge ray instead of the ray of the segment itself.
+     *  - Collision Type is a floor
+     *      Will offset the ray by the floor collision offset.
+     *  - Collision Type is a ceiling
+     *      Will offset the ray by the ceiling collision offset.
+     *  - Collision Type is a wall
+     *      Will offset the ray to the left or right side of the entity based on what kind of wall.
+     * This is called durring collision resolve to adjust the collision segment that we are resolving to so that our
+     * resolve will be to the actually coordinate location of the entity.
+     * @param collisionSegmentRay 
+     * @param collisionType 
+     */
+    getCollisionSegmentWithOffset(collisionSegmentRay: IRay, collisionType: CollisionType): IRay {
+        // get segment ray, or segment ledge ray if type is a ledge type
+        let ray = collisionSegmentRay;
+        if (collisionType.hasStartLedgeCollision()) {
+            ray = buildStartLedgeRay(ray, this._entityHalfWidth);
+        }
+        else if (collisionType.hasEndLedgeCollision()) {
+            ray = buildEndLedgeRay(ray, this._entityHalfWidth);
+        }
+
+        // determine the offsetted ray based on collision type
+        if (collisionType.hasFloorCollision()) {
+            ray = createShiftedRay(ray, negate(this._floorCollisionOffset));
+        }
+        else if (collisionType.hasCeilingCollision()) {
+            ray = createShiftedRay(ray, negate(this._ceilingCollisionOffset));
+        }
+        else if (collisionType.hasLeftWallCollision()) {
+            ray = createShiftedRay(ray, createVector(this._entityHalfWidth, 0));
+        }
+        else if (collisionType.hasRightWallCollision()) {
+            ray = createShiftedRay(ray, createVector(-this._entityHalfWidth, 0));
+        }
+        return ray;
     }
 
     /**
@@ -179,7 +276,7 @@ export class WorldCollisionTracker {
     }
 
     /**
-     * Returns the resolve entry from the resolve path at the given index.
+     * Returns the resolve entry from the resolve path at the given index. Returns null if the index is invalid.
      * @param index 
      */
     getPathEntryAtIndex(index: number): IResolvePathEntry {
@@ -199,8 +296,8 @@ export class WorldCollisionTracker {
 
     /**
      * Modifies the resolve path, removing paths after the given index and changing the resolve on the path at the
-     * given index. This is called when resolving along the already complete resolve path. Typically this is used for
-     * ceiling and wall collision resolves if entity has alraedy be resolved from floor collisions.
+     * given index. This is called when resolving along the already complete resolve path. This does nothing if the
+     * index is invalid.
      * @param pathIndex 
      * @param updatedRay 
      * @param updatedCollisionType 

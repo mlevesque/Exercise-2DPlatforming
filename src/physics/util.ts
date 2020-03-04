@@ -67,11 +67,11 @@ export function isMovingTowardSegmentLedge(movementDirection: IVector, segment: 
  * @param t 
  */
 export function isTValueInRange(t: number, exact: boolean = false): boolean {
-    // note that we expand the range just slightly to account for precision error.
     if (exact) {
         return t >= 0 && t <= 1;
     }
     else {
+        // note that we expand the range just slightly to account for precision error.
         return t >= -0.00000001 && t <= 1.00000001;
     }
 }
@@ -83,6 +83,17 @@ export function isTValueInRange(t: number, exact: boolean = false): boolean {
  */
 export function areTValuePairsInRange(t1: number, t2: number): boolean {
     return isTValueInRange(t1) && isTValueInRange(t2);
+}
+
+/**
+ * Returns true if one of the following is true:
+ *  1) t1 <= 0 && t2 >= 1
+ *  2) t1 >= 1 && t2 <= 0
+ * @param t1 
+ * @param t2 
+ */
+export function areTValuesOnOppositeOutsideRange(t1: number, t2: number): boolean {
+    return (t1 <= 0 && t2 >= 1) || (t1 >= 1 && t2 <= 0);
 }
 
 /**
