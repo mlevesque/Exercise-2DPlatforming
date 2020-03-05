@@ -1,8 +1,10 @@
 import { ICollisionSegment } from "./CollisionSegment";
 import { IRay, IVector, getEndOfRay, createRayPP, isZeroVector, createRayPV, add, createVector, negate,
-    createShiftedRay } from "../utils/geometry";
+    createShiftedRay, IArea, buildAreaFromRay, updateBoundsForArea, isBoundsACompletelyInsideBoundsB} 
+    from "../utils/geometry";
 import { CollisionType } from "./collisionType";
 import { buildStartLedgeRay, buildEndLedgeRay } from "./util";
+import { WorldPartition } from "./WorldPartition";
 
 /**
  * Potential collision information to possibly be resolved.
@@ -54,6 +56,12 @@ export class WorldCollisionTracker {
     private _ceilingCollisionOffset: IVector;
     // half width of collision bounding box for the entity. Used for calculating ledges and wall collision checking.
     private _entityHalfWidth: number;
+    // bounding box containing remaining movement ray and resolve path
+    private _movementBounds: IArea;
+    // all collision segments from the partition that should be considered for collision detection
+    private _relevantCollisionSegments: ICollisionSegment[];
+    // the highest number of collision segments pulled from the partition for this entity this frame
+    private _maxCollisionsConsidered: number;
 
     // Stored collision information of the best collision to resolve on during collision checks
     private _potentialCollision: ICollisionDetectionData;
@@ -79,6 +87,37 @@ export class WorldCollisionTracker {
         ]
     }
 
+    /**
+     * Returns the whole bounding box area for the entity's movement this frame that would encapsulate the entire area
+     * at which we should consider for collision detection. We use this bounding box to feed to the world partition to
+     * get the collision segments for collision detection.
+     * 
+     * Note that the width of the bounding box is expanded by twice the entity half width in both directions. This is
+     * to make sure we get segments with ledges. Ledges are dynamically created from segments when needed since their
+     * length is dependent on the halfwidth of an entity, and as such, they are not added to the partition. Because of
+     * this, we need to expand our lookup by an extra half width in both directions in order to consider segments with
+     * those potential ledges that may collide with the entity.
+     */
+    getCollisionLookupArea(): IArea {
+        return {
+            minX: this._movementBounds.minX - this._entityHalfWidth * 2,
+            minY: this._movementBounds.minY - this._ceilingCollisionOffset.y,
+            maxX: this._movementBounds.maxX + this._entityHalfWidth * 2,
+            maxY: this._movementBounds.maxY + this._floorCollisionOffset.y
+        };
+    }
+
+    /**
+     * Updates the list of collision segments to consider for collision detection. This will be called when the
+     * bounding area of our movement has expanded due to a new resolve entry added to the resolve path.
+     */
+    updateRelevantCollisionSegments(): void {
+        const area = this.getCollisionLookupArea();
+        this._relevantCollisionSegments = WorldPartition.getInstance().getCollisionsInWorldArea(area);
+        this._maxCollisionsConsidered = Math.max(this._maxCollisionsConsidered, this._relevantCollisionSegments.length);
+    }
+
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // GETTERS
     get currentMovement(): IRay {return this._remainingMovementRay}
@@ -88,6 +127,9 @@ export class WorldCollisionTracker {
     get ceilingCollisionOffset(): IVector {return this._ceilingCollisionOffset}
     get entityHalfWidth(): number {return this._entityHalfWidth}
     get currentCollisionDetectionData(): ICollisionDetectionData {return this._potentialCollision}
+    get movementBoundingArea(): IArea {return this._movementBounds}
+    get relevantCollisionSegments(): ICollisionSegment[] {return this._relevantCollisionSegments}
+    get maxCollisionsConsidered(): number {return this._maxCollisionsConsidered}
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,13 +140,16 @@ export class WorldCollisionTracker {
                                                   previousPosition.y, 
                                                   currentPosition.x, 
                                                   currentPosition.y);
+        this._movementBounds = buildAreaFromRay(this._remainingMovementRay);
         this._resolvePath = [];
         this._pathCompleted = false;
         this._floorCollisionOffset = floorCollisionOffset;
         this._ceilingCollisionOffset = ceilingCollisionOffset;
         this._entityHalfWidth = entityHalfWidth;
         this._resolvedSegments = new Set<string>();
+        this._maxCollisionsConsidered = 0;
         this.clearCurrentCollision();
+        this.updateRelevantCollisionSegments();
     }
 
     /**
@@ -292,6 +337,19 @@ export class WorldCollisionTracker {
     addToResolvePath(entry: IResolvePathEntry, updatedRemainingMovement: IRay): void {
         this._resolvePath.push(entry);
         this._remainingMovementRay = updatedRemainingMovement;
+
+        // update bounds
+        const oldBounds = this._movementBounds;
+        this._movementBounds = updateBoundsForArea(this._movementBounds, getEndOfRay(entry.ray));
+        if (this._remainingMovementRay) {
+            this._movementBounds = updateBoundsForArea(this._movementBounds, getEndOfRay(this._remainingMovementRay));
+        }
+
+        // check if bounds has expanded. If it has, then we need to gather relevant collision segments from the
+        // partition with the updated bounds
+        if (!isBoundsACompletelyInsideBoundsB(this._movementBounds, oldBounds)) {
+            this.updateRelevantCollisionSegments();
+        }
     }
 
     /**
@@ -365,7 +423,7 @@ export class WorldCollisionTracker {
             }
         }
 
-        // if there is no resolve path then just get the end of the reamining movement
+        // if there is no resolve path then just get the end of the remaining movement
         // this usually happens if no collisions occur
         else {
             return {

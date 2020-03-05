@@ -1,10 +1,7 @@
 import { getGameConfig } from "../utils/jsonSchemas";
 import { IVector, cloneVector } from "../utils/geometry";
-import { IEntity, ICollisionMap } from "../redux/state";
+import { IEntity } from "../redux/state";
 import { integrateEntity } from "./integration";
-import { ICollisionSegment } from "./CollisionSegment";
-import { select } from "redux-saga/effects";
-import { getStaticCollisions } from "../redux/selectors";
 import { updateWorldCollisionsOnEntity } from "./worldCollisionChecks";
 
 export function* updateMovementSaga(deltaT: number, entities: IEntity[]) {
@@ -18,6 +15,5 @@ export function* updateMovementSaga(deltaT: number, entities: IEntity[]) {
 }
 
 export function* performWorldCollisionsSaga(deltaT: number, entities: IEntity[]) {
-    let staticCollisions: Map<string, ICollisionSegment> = yield select(getStaticCollisions);
-    entities.forEach((entity) => updateWorldCollisionsOnEntity(entity, staticCollisions));
+    entities.forEach((entity) => updateWorldCollisionsOnEntity(entity));
 }

@@ -1,15 +1,5 @@
 import { ICollisionSegment } from "./CollisionSegment";
-import { IVector, createVector, IRay } from "../utils/geometry";
-
-/**
- * Describes a bounding rectangle.
- */
-export interface IArea {
-    minX: number;
-    minY: number;
-    maxX: number;
-    maxY: number;
-}
+import { IVector, createVector, IRay, IArea, buildAreaFromRay } from "../utils/geometry";
 
 /**
  * A single cell in the world partition that contains collision informaton in a small area of the world.
@@ -44,19 +34,6 @@ export class WorldPartition {
     private _cells: PartitionCell[][];
 
     private constructor() {}
-
-    /**
-     * Returns an area bounding box for the given collision segment ray,
-     * @param segmentRay 
-     */
-    private buildWorldAreaFromSegment(segmentRay: IRay): IArea {
-        return {
-            minX: segmentRay.v.x > 0 ? segmentRay.p.x : segmentRay.p.x + segmentRay.v.x,
-            minY: segmentRay.v.y > 0 ? segmentRay.p.y : segmentRay.p.y + segmentRay.v.y,
-            maxX: segmentRay.v.x > 0 ? segmentRay.p.x + segmentRay.v.x : segmentRay.p.x,
-            maxY: segmentRay.v.y > 0 ? segmentRay.p.y + segmentRay.v.y : segmentRay.p.y
-        }
-    }
 
     /**
      * Returns the singleton instance of this class. If the instance has not be created, it will be instantiated before
@@ -184,7 +161,7 @@ export class WorldPartition {
      * @param segment 
      */
     addStaticCollision(segment: ICollisionSegment): void {
-        const worldArea = this.buildWorldAreaFromSegment(segment.segment);
+        const worldArea = buildAreaFromRay(segment.segment);
         const cellArea = this.convertWorldAreaToCellArea(worldArea);
         for (let y = cellArea.minY; y <= cellArea.maxY; ++y) {
             for (let x = cellArea.minX; x <= cellArea.maxX; ++x) {
