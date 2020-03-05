@@ -40,13 +40,3 @@ export function isKeyReleased(inputType: InputType, inputActions: IInputActions)
     let action = inputActions[inputType];
     return action && !action.current && action.previous;
 }
-
-
-
-export function clearImpulseOnEntity(entity: IEntity): void {
-    entity.impulse = {x: 0, y: 0};
-}
-
-export function applyImpulseToEntity(entity: IEntity, impulse: IVector): void {
-    entity.impulse = add(entity.impulse, impulse);
-}

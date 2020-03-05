@@ -10,18 +10,29 @@ import { updatePlayerActions, postUpdateInput } from "./input/updateSaga";
 import { updateMovementSaga, performWorldCollisionsSaga } from "./physics/updateSaga";
 import { updateAnimations } from "./animation/updateSaga";
 import { renderSaga } from "./render/updateSaga";
+import { GameEventQueue } from "./events/GameEventQueue";
+import { updateReactionBehaviors, updateActionBehaviors } from "./behaviors/updateSaga";
 
 function* updateSaga(deltaT: number) {
     // we make a copy of all entities to update on
     let entityCollectionCopy: ICopiedEntityCollection = yield select(getCopiedEntitiesSelector);
 
+    // reset the event queue
+    GameEventQueue.getInstance().resetEntireQueue();
+
     // player input
     let inputActions = yield select(getInputActionsSelector);
     yield call(updatePlayerActions, deltaT, entityCollectionCopy.player, inputActions);
 
+    // action behaviors
+    yield call(updateActionBehaviors, deltaT, entityCollectionCopy.allEntities);
+
     // physics
     yield call(updateMovementSaga, deltaT, entityCollectionCopy.allEntities);
     yield call(performWorldCollisionsSaga, deltaT, entityCollectionCopy.allEntities);
+
+    // reaction behaviors
+    yield call(updateReactionBehaviors, deltaT, entityCollectionCopy.allEntities);
 
     // animation
     yield call(updateAnimations, deltaT, entityCollectionCopy.allEntities);

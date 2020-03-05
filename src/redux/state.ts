@@ -55,12 +55,15 @@ export enum EntityType {
 }
 export enum EntityAnimation {
     Idle = "idle",
-    Walk = 'walk',
-    Jump = 'jump',
+    Walk = "walk",
+    Jump = "jump",
+    Fall = "fall",
 }
 export interface IEntity {
     id: string;
     type: EntityType;
+
+    behavior: any;
 
     flip: boolean;
     currentAnimation: EntityAnimation;

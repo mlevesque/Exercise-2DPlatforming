@@ -8,6 +8,8 @@ import { getEntityJsonData } from "../utils/jsonSchemas";
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
 import { CollisionType, CollisionFlag } from "./collisionType";
 import { resolveWithExternalDirection, resolveByPath } from "./collisionResolve";
+import { GameEventQueue } from "../events/GameEventQueue";
+import { WorldCollisionEvent } from "../events/GameEvents";
 
 /**
  * Checks collision against the given collision segment and stores the collision to the tracker.
@@ -371,14 +373,14 @@ export function updateWorldCollisionsOnEntity(entity: IEntity): void {
     performWorldCollisionsForEntity(collisionTracker);
 
     // update the entity with the collision resolve results
+    const eventQueue = GameEventQueue.getInstance();
+    let collisionType = new CollisionType(CollisionFlag.None);
     if (collisionTracker.hasResolvePath()) {
         const resolveData = collisionTracker.getFinalResolvePosition();
         entity.position = resolveData.position;
-
-        // if we collided with floors or ceilings, then we want to zero out the y velocity. This way, next time we
-        // go off a ledge, we won't quickly drop from accumulated gravity
-        if (resolveData.collisionType.hasFloorCollision() || resolveData.collisionType.hasCeilingCollision()) {
-            entity.velocity.y = 0;
-        }
+        collisionType = resolveData.collisionType;
     }
+
+    // queue event
+    eventQueue.addToQueue(entity.id, new WorldCollisionEvent(collisionType));
 }

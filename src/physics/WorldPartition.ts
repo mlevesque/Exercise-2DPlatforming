@@ -73,7 +73,6 @@ export class WorldPartition {
 
         // loop until we get to the ending cell
         let cell: PartitionCell;
-        console.log("xDir: " + xDir + " yDir: " + yDir);
         while (!areVectorsEqual(cellPos, endCell)) {
             // insert into current cell
             cell = this.getCellFromCellCoordinates(cellPos);
@@ -81,8 +80,6 @@ export class WorldPartition {
 
             // go to next cell
             const nextT = this.getNextCellTValues(ray, cellPos.x + nextXDir, cellPos.y + nextYDir);
-            console.log(JSON.stringify(cellPos))
-            console.log(JSON.stringify(nextT));
             if (nextT[0] <= nextT[1]) {
                 cellPos.x += xDir;
             }
@@ -121,7 +118,7 @@ export class WorldPartition {
     /** Returns the number of columns in the partition grid. */
     get numColumns(): number {return this._cells.length > 0 ? this._cells[0].length : 0}
 
-    
+
     /**
      * Returns a string representation of the partition.
      */

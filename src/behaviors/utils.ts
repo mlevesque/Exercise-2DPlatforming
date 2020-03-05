@@ -1,4 +1,21 @@
-import { IEntity, EntityAnimation } from "../redux/state";
+import { IEntity, EntityAnimation, EntityType } from "../redux/state";
+import { createPlayerBehaviorData } from "./player";
+import { add, IVector } from "../utils/geometry";
+
+export enum MoveDirection {
+    None = "None",
+    Left = "Left",
+    Right = "Right",
+}
+
+/**
+ * Sets impulse to entity. Used for input or behavior controlled movement.
+ * @param entity 
+ * @param impulse 
+ */
+export function applyImpulseToEntity(entity: IEntity, impulse: IVector): void {
+    entity.impulse = add(entity.impulse, impulse);
+}
 
 /**
  * Sets up an animation change for the given entity.
@@ -12,5 +29,16 @@ export function changeAnimationOnEntity(entity: IEntity, animationType: EntityAn
         entity.currentAnimation = animationType;
         entity.elapsedTime = 0;
         entity.currentFrame = 0;
+    }
+}
+
+/**
+ * Returns a entity behavior data object for a given entity type.
+ * @param entityType 
+ */
+export function createEntityBehaviorData(entityType: EntityType): any {
+    switch (entityType) {
+        case EntityType.Player:
+            return createPlayerBehaviorData();
     }
 }

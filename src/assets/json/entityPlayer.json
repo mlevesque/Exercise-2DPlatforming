@@ -10,6 +10,11 @@
             "loops": true,
             "frameCount": 9, "x": 0, "y": 96, "w": 64, "h": 96, "offX": 32, "offY": 48,
             "intervals": [30, 30, 30, 30, 30, 30, 30, 30, 30]
+        },
+        "fall": {
+            "loops": false,
+            "frameCount": 6, "x": 0, "y":192, "w": 64, "h": 96, "offX": 32, "offY": 48,
+            "intervals": [30, 30, 30, 30, 30, 30]
         }
     },
     "speed": 300,

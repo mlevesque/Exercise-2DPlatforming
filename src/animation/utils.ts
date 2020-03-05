@@ -12,8 +12,7 @@ export function isLastFrameIndex(index: number, animation: IAnimationSchema) {
 }
 
 export function shouldChangeAnimationFrame(elapsedTime: number, frameIndex: number, animation: IAnimationSchema): boolean {
-    return elapsedTime > animation.intervals[frameIndex]
-            && (animation.loops || (isLastFrameIndex(frameIndex, animation) && !animation.loops));
+    return elapsedTime > animation.intervals[frameIndex];
 }
 
 export function updateSpriteAnimationOnEntity(deltaT: number, entity: IEntity): void {

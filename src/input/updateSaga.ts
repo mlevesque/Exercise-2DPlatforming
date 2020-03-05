@@ -1,10 +1,11 @@
 import { loadLevelSaga } from "../loading/updateSaga";
 import { select, fork } from "redux-saga/effects";
 import { getLoadingSelector } from "../redux/selectors";
-import { getEntityJsonData } from "../utils/jsonSchemas";
-import { isKeyPressed, isKeyDown, applyImpulseToEntity, clearImpulseOnEntity } from "./utils";
-import { InputType, IEntity, IInputActions, EntityType, EntityAnimation } from "../redux/state";
-import { changeAnimationOnEntity } from "../behaviors/utils";
+import { isKeyPressed, isKeyDown } from "./utils";
+import { InputType, IEntity, IInputActions } from "../redux/state";
+import { MoveDirection } from "../behaviors/utils";
+import { GameEventQueue } from "../events/GameEventQueue";
+import { InputActionEvent } from "../events/GameEvents";
 
 /**
  * Generator function for updating player input actions and affecting the player entity.
@@ -19,23 +20,19 @@ export function* updatePlayerActions(deltaT: number, player: IEntity, inputActio
         return;
     }
 
-    let playerData = getEntityJsonData(EntityType.Player);
     let goLeft = isKeyDown(InputType.Left, inputActions);
     let goRight = isKeyDown(InputType.Right, inputActions);
+    const eventQueue = GameEventQueue.getInstance();
 
     if (goLeft && !goRight) {
-        player.flip = true;
-        changeAnimationOnEntity(player, EntityAnimation.Walk, false);
-        applyImpulseToEntity(player, {x: -playerData.speed, y: 0});
+        eventQueue.addToQueue(player.id, new InputActionEvent(MoveDirection.Left));
+
     }
     else if (goRight && !goLeft) {
-        player.flip = false;
-        changeAnimationOnEntity(player, EntityAnimation.Walk, false);
-        applyImpulseToEntity(player, {x: playerData.speed, y: 0});
+        eventQueue.addToQueue(player.id, new InputActionEvent(MoveDirection.Right));
     }
     else {
-        changeAnimationOnEntity(player, EntityAnimation.Idle, false);
-        clearImpulseOnEntity(player);
+        eventQueue.addToQueue(player.id, new InputActionEvent(MoveDirection.None));
     }
 }
 
