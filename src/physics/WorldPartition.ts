@@ -1,5 +1,5 @@
 import { ICollisionSegment } from "./CollisionSegment";
-import { IVector, createVector, IRay, IArea, buildAreaFromRay } from "../utils/geometry";
+import { IVector, createVector, IRay, IArea, getEndOfRay, areVectorsEqual } from "../utils/geometry";
 
 /**
  * A single cell in the world partition that contains collision informaton in a small area of the world.
@@ -27,13 +27,74 @@ export class WorldPartition {
     // height in world units of the partition
     private _height: number;
     // width of a single partition cell in world units
-    private _celllWidth: number;
+    private _cellWidth: number;
     // height of a single partition cell in world units
     private _cellHeight: number;
     // grid of all partition cells, row major
     private _cells: PartitionCell[][];
 
     private constructor() {}
+
+    /**
+     * Returns the calculated t values along the given ray where it intersects the next cell borders in the given x and
+     * y positions. Used for traversing through the grid for inserting a collision segment in the cells that it spans
+     * into.
+     * @param ray 
+     * @param nextCellX 
+     * @param nextCellY 
+     */
+    private getNextCellTValues(ray: IRay, nextCellX: number, nextCellY: number): [number, number] {
+        const worldCellX = this.getWorldXFromCellX(nextCellX);
+        const worldCellY = this.getWorldYFromCellY(nextCellY);
+        
+        // calculate t values
+        // note that we explicitly check for if the vector of the ray is zero in both directions and just make the
+        // t value infinity is they are. This is to circumvent if the segment is colinear with one of the grid lines.
+        // When a segment is colinear, the resulting t becomes NaN. Instead, we just want it to be the largest value
+        // so when we find the smaller t, the NaN t will be disregarded.
+        return [
+            ray.v.x == 0 ? Infinity : (worldCellX - ray.p.x) / ray.v.x,
+            ray.v.y == 0 ? Infinity : (worldCellY - ray.p.y) / ray.v.y
+        ]
+    }
+
+    /**
+     * Inserts the given collision segment into the cells that it intersects into.
+     * @param segment 
+     */
+    private insertSegment(segment: ICollisionSegment): void {
+        const ray = segment.segment;
+        const xDir = ray.v.x > 0 ? 1 : -1;
+        const yDir = ray.v.y > 0 ? 1 : -1;
+        const nextXDir = ray.v.x > 0 ? 1 : 0;
+        const nextYDir = ray.v.y > 0 ? 1 : 0;
+        const endCell = this.convertWorldPositionToCellPosition(getEndOfRay(ray));
+        let cellPos = this.convertWorldPositionToCellPosition(ray.p);
+
+        // loop until we get to the ending cell
+        let cell: PartitionCell;
+        console.log("xDir: " + xDir + " yDir: " + yDir);
+        while (!areVectorsEqual(cellPos, endCell)) {
+            // insert into current cell
+            cell = this.getCellFromCellCoordinates(cellPos);
+            cell.staticCollisions.push(segment);
+
+            // go to next cell
+            const nextT = this.getNextCellTValues(ray, cellPos.x + nextXDir, cellPos.y + nextYDir);
+            console.log(JSON.stringify(cellPos))
+            console.log(JSON.stringify(nextT));
+            if (nextT[0] <= nextT[1]) {
+                cellPos.x += xDir;
+            }
+            if (nextT[0] >= nextT[1]) {
+                cellPos.y += yDir;
+            }
+        }
+
+        // add to end cell
+        cell = this.getCellFromCellCoordinates(cellPos);
+        cell.staticCollisions.push(segment);
+    }
 
     /**
      * Returns the singleton instance of this class. If the instance has not be created, it will be instantiated before
@@ -46,12 +107,13 @@ export class WorldPartition {
         return this._instance;
     }
 
+
     /** Returns the width of the partition in world units. */
     get width(): number {return this._width}
     /** Returns the height of the partition in world units. */
     get height(): number {return this._height}
     /** Returns the width of a single cell partition in world units. */
-    get cellWidth(): number {return this._celllWidth}
+    get cellWidth(): number {return this._cellWidth}
     /** Returns the height of a single cell partition in world units. */
     get cellHeight(): number {return this._cellHeight}
     /** Returns the number of rows in the partition grid. */
@@ -59,12 +121,13 @@ export class WorldPartition {
     /** Returns the number of columns in the partition grid. */
     get numColumns(): number {return this._cells.length > 0 ? this._cells[0].length : 0}
 
+    
     /**
      * Returns a string representation of the partition.
      */
     toString(): string {
         let result = "World Partition: width=" + this._width + " height=" + this._height + " cellWidth=" 
-            + this._celllWidth + " cellHeight=" + this._cellHeight + "\n";
+            + this._cellWidth + " cellHeight=" + this._cellHeight + "\n";
         for (let y = 0; y < this.numRows; ++y) {
             for (let x = 0; x < this.numColumns; ++x) {
                 const cell = this.getCellFromCellCoordinates(createVector(x, y));
@@ -79,7 +142,7 @@ export class WorldPartition {
      * Clears out the partition of all collisions.
      */
     clearPartition(): void {
-        this.setupPartition(this._width, this._height, this._celllWidth, this._cellHeight);
+        this.setupPartition(this._width, this._height, this._cellWidth, this._cellHeight);
     }
 
     /**
@@ -92,7 +155,7 @@ export class WorldPartition {
     setupPartition(width: number, height: number, cellWidth: number, cellHeight: number): void {
         this._width = width;
         this._height = height;
-        this._celllWidth = cellWidth;
+        this._cellWidth = cellWidth;
         this._cellHeight = cellHeight;
         this._cells = [];
         let distY = 0;
@@ -137,7 +200,7 @@ export class WorldPartition {
      * @param x 
      */
     getCellXFromWorldX(x: number): number {
-        return Math.floor(x / this._celllWidth);
+        return Math.floor(x / this._cellWidth);
     }
 
     /**
@@ -146,6 +209,14 @@ export class WorldPartition {
      */
     getCellYFromWorldY(y: number): number {
         return Math.floor(y / this._cellHeight);
+    }
+
+    getWorldXFromCellX(x: number): number {
+        return x * this._cellWidth;
+    }
+
+    getWorldYFromCellY(y: number): number {
+        return y * this._cellHeight;
     }
 
     /**
@@ -161,16 +232,7 @@ export class WorldPartition {
      * @param segment 
      */
     addStaticCollision(segment: ICollisionSegment): void {
-        const worldArea = buildAreaFromRay(segment.segment);
-        const cellArea = this.convertWorldAreaToCellArea(worldArea);
-        for (let y = cellArea.minY; y <= cellArea.maxY; ++y) {
-            for (let x = cellArea.minX; x <= cellArea.maxX; ++x) {
-                let cell = this.getCellFromCellCoordinates(createVector(x, y));
-                if (cell) {
-                    cell.staticCollisions.push(segment);
-                }
-            }
-        }
+        this.insertSegment(segment);
     }
 
     /**
