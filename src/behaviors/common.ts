@@ -59,7 +59,8 @@ export function updateEntityMove(entity: IEntity, moveDirection: MoveDirection, 
     }
 }
 export function updateEntityCollisionVelocity(entity: IEntity, collisionType: CollisionType): void {
-    if (collisionType.hasCeilingCollision() || collisionType.hasFloorCollision()) {
+    if ((collisionType.hasCeilingCollision() && entity.velocity.y < 0) 
+        || (collisionType.hasFloorCollision()) && entity.velocity.y > 0) {
         entity.velocity.y = 0;
     }
 }
