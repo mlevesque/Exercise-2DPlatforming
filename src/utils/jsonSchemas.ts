@@ -59,6 +59,12 @@ export interface IEntitySchema {
     speed: number;
     collision: IEntityCollisionSchema;
 }
+export interface IPlayerSchema extends IEntitySchema {
+    jump: {
+        speed: number;
+        duration: number;
+    }
+}
 
 export function getGameConfig(): IGameConfigSchema {
     return gameConfig as IGameConfigSchema;
@@ -67,6 +73,6 @@ export function getGameConfig(): IGameConfigSchema {
 export function getEntityJsonData(type: EntityType): IEntitySchema {
     switch (type) {
         case EntityType.Player:
-            return entityPlayer as IEntitySchema;
+            return entityPlayer as IPlayerSchema;
     }
 }

@@ -14,11 +14,14 @@ export class GameEvent {
 
 export class InputActionEvent extends GameEvent {
     private _direction: MoveDirection;
-    constructor(direction: MoveDirection) {
+    private _jump: boolean;
+    constructor(direction: MoveDirection, jump: boolean) {
         super(GameEventType.InputAction);
         this._direction = direction;
+        this._jump = jump;
     }
     get direction(): MoveDirection {return this._direction}
+    get jump(): boolean {return this._jump}
 }
 
 export class WorldCollisionEvent extends GameEvent {

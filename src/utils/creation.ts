@@ -12,7 +12,7 @@ export function buildEntity(type: EntityType, flip: boolean, animation: EntityAn
         currentAnimation: animation,
         currentFrame: 0,
         elapsedTime: 0,
-        impulse: {x: 0, y: 0},
+        impulses: {},
         velocity: {x: 0, y: 0},
         prevPosition: Object.assign({}, position),
         position: Object.assign({}, position),

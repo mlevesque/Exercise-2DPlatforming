@@ -15,9 +15,23 @@
             "loops": false,
             "frameCount": 6, "x": 0, "y":192, "w": 64, "h": 96, "offX": 32, "offY": 48,
             "intervals": [30, 30, 30, 30, 30, 30]
+        },
+        "jump": {
+            "loops": false,
+            "frameCount": 7, "x": 0, "y":288, "w": 64, "h": 96, "offX": 32, "offY": 48,
+            "intervals": [30, 30, 30, 30, 30, 30, 30]
+        },
+        "jumpFall": {
+            "loops": false,
+            "frameCount": 7, "x": 0, "y":384, "w": 64, "h": 96, "offX": 32, "offY": 48,
+            "intervals": [30, 30, 30, 30, 30, 30, 30]
         }
     },
     "speed": 300,
+    "jump": {
+        "speed": 4000,
+        "duration": 100
+    },
     "collision": {
         "floorPoint": {"x": 0, "y": 48},
         "ceilingPoint": {"x": 0, "y": -15},

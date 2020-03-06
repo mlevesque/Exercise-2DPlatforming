@@ -22,17 +22,18 @@ export function* updatePlayerActions(deltaT: number, player: IEntity, inputActio
 
     let goLeft = isKeyDown(InputType.Left, inputActions);
     let goRight = isKeyDown(InputType.Right, inputActions);
+    let jump = isKeyDown(InputType.Jump, inputActions);
     const eventQueue = GameEventQueue.getInstance();
 
     if (goLeft && !goRight) {
-        eventQueue.addToQueue(player.id, new InputActionEvent(MoveDirection.Left));
+        eventQueue.addToQueue(player.id, new InputActionEvent(MoveDirection.Left, jump));
 
     }
     else if (goRight && !goLeft) {
-        eventQueue.addToQueue(player.id, new InputActionEvent(MoveDirection.Right));
+        eventQueue.addToQueue(player.id, new InputActionEvent(MoveDirection.Right, jump));
     }
     else {
-        eventQueue.addToQueue(player.id, new InputActionEvent(MoveDirection.None));
+        eventQueue.addToQueue(player.id, new InputActionEvent(MoveDirection.None, jump));
     }
 }
 

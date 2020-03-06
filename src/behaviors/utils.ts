@@ -1,20 +1,57 @@
 import { IEntity, EntityAnimation, EntityType } from "../redux/state";
 import { createPlayerBehaviorData } from "./player";
-import { add, IVector } from "../utils/geometry";
+import { IVector } from "../utils/geometry";
 
+/** Specifies the type of horizontal entity movement. */
 export enum MoveDirection {
     None = "None",
     Left = "Left",
     Right = "Right",
 }
 
+/** Specifies the type of impulse catagory. */
+export enum ImpulseType {
+    Walk = "Walk",
+    Jump = "Jump",
+}
+
+/** Specifies which part of integration would an impulse affect. */
+export enum ImpulseTarget {
+    Acceleration = 0,
+    Velocity = 1,
+}
+
 /**
- * Sets impulse to entity. Used for input or behavior controlled movement.
- * @param entity 
- * @param impulse 
+ * Adds the given impulse data to the given entity. Will overwrite a previous impulse of the same type.
+ * @param entity the entity to apply the impulse to
+ * @param type the type of impulse, such as a move or jump
+ * @param impulse the impulse vector to apply during integration
+ * @param duration amount of time to apply the impulse during integration, in milliseconds
+ * @param instant if true, then the impulse only applies for one update
+ * @param target specifies whether the impulse should be part of acceleration or velocity
  */
-export function applyImpulseToEntity(entity: IEntity, impulse: IVector): void {
-    entity.impulse = add(entity.impulse, impulse);
+export function applyImpulseToEntity( entity: IEntity, 
+                                      type: ImpulseType, 
+                                      impulse: IVector, 
+                                      duration: number, 
+                                      instant: boolean,
+                                      target: ImpulseTarget): void {
+    entity.impulses[type] = {
+        impulse: impulse, 
+        instant: instant, 
+        timeRemaining: duration, 
+        target: target
+    };
+}
+
+/**
+ * Removes an impulse of the given type from the given entity.
+ * @param entity 
+ * @param type 
+ */
+export function removeImpulse(entity: IEntity, type: ImpulseType): void {
+    const { [type]: _, ...impulses } = entity.impulses;
+    entity.impulses = impulses;
 }
 
 /**

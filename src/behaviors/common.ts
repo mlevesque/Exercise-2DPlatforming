@@ -1,6 +1,6 @@
 import { IEntity, EntityType } from "../redux/state";
 import { GameEvent, GameEventType, WorldCollisionEvent, InputActionEvent } from "../events/GameEvents";
-import { MoveDirection, applyImpulseToEntity } from "./utils";
+import { MoveDirection, applyImpulseToEntity, ImpulseType, ImpulseTarget } from "./utils";
 import { CollisionType } from "../physics/collisionType";
 import { createVector } from "../utils/geometry";
 
@@ -20,6 +20,9 @@ export interface ICollisionBehaviorData {
 }
 export interface IMovementBehaviorData {
     moveDirection: MoveDirection;
+    jumpPressed: boolean;
+    jumping: boolean;
+    jumpDuration: number;
 }
 
 
@@ -31,9 +34,15 @@ export function handleWorldCollision(behavior: any, event: GameEvent): void {
     b.collisionType = collisionType.rawValue;
 }
 export function handleInputAction(behavior: any, event: GameEvent): void {
-    const moveDirection = (event as InputActionEvent).direction;
+    const inputEvent = event as InputActionEvent;
     let b = behavior as IMovementBehaviorData;
-    b.moveDirection = moveDirection;
+
+    // handle move
+    b.moveDirection = inputEvent.direction;
+
+    // handle jump
+    let oldJumpFlag = b.jumpPressed;
+    b.jumpPressed = inputEvent.jump;
 }
 
 
@@ -42,11 +51,11 @@ export function handleInputAction(behavior: any, event: GameEvent): void {
 export function updateEntityMove(entity: IEntity, moveDirection: MoveDirection, speed: number): void {
     if (moveDirection == MoveDirection.Left) {
         entity.flip = true;
-        applyImpulseToEntity(entity, createVector(-speed, 0));
+        applyImpulseToEntity(entity, ImpulseType.Walk, createVector(-speed, 0), 0, true, ImpulseTarget.Velocity);
     }
     else if (moveDirection == MoveDirection.Right) {
         entity.flip = false;
-        applyImpulseToEntity(entity, createVector(speed, 0));
+        applyImpulseToEntity(entity, ImpulseType.Walk, createVector(speed, 0), 0, true, ImpulseTarget.Velocity);
     }
 }
 export function updateEntityCollisionVelocity(entity: IEntity, collisionType: CollisionType): void {

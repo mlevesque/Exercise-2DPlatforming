@@ -7,10 +7,9 @@ import { updateWorldCollisionsOnEntity } from "./worldCollisionChecks";
 export function* updateMovementSaga(deltaT: number, entities: IEntity[]) {
     let config = getGameConfig();
     let externalForces: IVector = cloneVector(config.gravity);
-    let t = deltaT / 1000;
 
     entities.forEach((entity) => {
-        integrateEntity(t, entity, externalForces);
+        integrateEntity(deltaT, entity, externalForces);
     });
 }
 
