@@ -30,7 +30,10 @@
     "speed": 300,
     "jump": {
         "speed": 4000,
-        "duration": 100
+        "initialDuration": 90,
+        "additionalDurations": [
+            {"keyDuration": 70, "impulseDuration": 125}
+        ]
     },
     "collision": {
         "floorPoint": {"x": 0, "y": 48},

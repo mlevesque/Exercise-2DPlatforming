@@ -51,6 +51,10 @@ export interface IEntityCollisionSchema {
     ceilingPoint: IVector;
     halfWidth: number;
 }
+export interface IJumpDuration {
+    keyDuration: number;
+    impulseDuration: number;
+}
 export interface IEntitySchema {
     spritesheet: string;
     animations: {
@@ -62,7 +66,8 @@ export interface IEntitySchema {
 export interface IPlayerSchema extends IEntitySchema {
     jump: {
         speed: number;
-        duration: number;
+        initialDuration: number;
+        additionalDurations: IJumpDuration[];
     }
 }
 

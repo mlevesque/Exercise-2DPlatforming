@@ -1,22 +1,28 @@
 import { ICollisionBehaviorData, EntityEventHandleMap, updateEntityMove, updateEntityCollisionVelocity, 
-    IMovementBehaviorData, handleWorldCollision, handleInputAction } from "./common";
-import { GameEventType } from "../events/GameEvents";
+    IMovementBehaviorData, handleWorldCollision } from "./common";
+import { GameEventType, InputActionEvent, GameEvent } from "../events/GameEvents";
 import { IEntity, EntityAnimation } from "../redux/state";
 import { changeAnimationOnEntity, MoveDirection, applyImpulseToEntity, ImpulseType, ImpulseTarget, 
     removeImpulse } from "./utils";
 import { CollisionFlag, CollisionType } from "../physics/collisionType";
-import { getEntityJsonData, IPlayerSchema } from "../utils/jsonSchemas";
+import { getEntityJsonData, IPlayerSchema, IJumpDuration } from "../utils/jsonSchemas";
 import { createVector } from "../utils/geometry";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEHAVIOR DATA
-export interface IPlayerBehavior extends ICollisionBehaviorData, IMovementBehaviorData {}
+export interface IPlayerBehavior extends ICollisionBehaviorData, IMovementBehaviorData {
+    jumpPressed: boolean;
+    jumping: boolean;
+    jumpDuration: number;
+    jumpKeyElapsedTime: number;
+}
 
 export function createPlayerBehaviorData(): IPlayerBehavior {
     return {
         moveDirection: MoveDirection.None,
         jumpPressed: false,
         jumping: false,
+        jumpKeyElapsedTime: 0,
         jumpDuration: 0,
         collisionType: CollisionFlag.None,
     }
@@ -32,7 +38,33 @@ export const playerEventHandlerMapping: EntityEventHandleMap = new Map([
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// EVENTS HANDLERS
+export function handleInputAction(behavior: any, event: GameEvent): void {
+    const inputEvent = event as InputActionEvent;
+    let b = behavior as IPlayerBehavior;
+
+    // handle move
+    b.moveDirection = inputEvent.direction;
+
+    // handle jump
+    b.jumpPressed = inputEvent.jump;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ACTION UPDATE
+function getJumpDuration(jumpDuration: number, initialDuration: number, jumpEntries: IJumpDuration[]): number {
+    let entry: IJumpDuration = null;
+    for (let i = jumpEntries.length - 1; i >= 0; --i) {
+        if (jumpDuration >= jumpEntries[i].keyDuration) {
+            entry = jumpEntries[i];
+        }
+    }
+    if (entry) {
+        return entry.impulseDuration;
+    }
+    return initialDuration;
+}
 export function updatePlayerActionBehavior(deltaT: number, player: IEntity): void {
     const behavior = player.behavior as IPlayerBehavior;
     const entityData = getEntityJsonData(player.type) as IPlayerSchema;
@@ -40,26 +72,38 @@ export function updatePlayerActionBehavior(deltaT: number, player: IEntity): voi
     // set left and right movement
     updateEntityMove(player, behavior.moveDirection, entityData.speed);
 
-    // set jump
+    // handle jump
     const collisionType = new CollisionType(behavior.collisionType);
     if (behavior.jumpPressed) {
         if (collisionType.hasFloorCollision()) {
-            const speed = entityData.jump.speed;
-            const duration = entityData.jump.duration;
+            behavior.jumping = true;
+            behavior.jumpKeyElapsedTime = 0;
+        }
+    }
+    else {
+        behavior.jumpKeyElapsedTime = 0;
+    }
+
+    // apply jump impulse
+    if (behavior.jumping) {
+        const speed = entityData.jump.speed;
+        const jump = entityData.jump;
+        const duration = getJumpDuration(behavior.jumpKeyElapsedTime, jump.initialDuration, jump.additionalDurations);
+        if (duration > behavior.jumpDuration) {
             applyImpulseToEntity(
                 player, 
                 ImpulseType.Jump, 
                 createVector(0, -speed), 
-                duration, 
+                duration - behavior.jumpDuration, 
                 false, 
                 ImpulseTarget.Acceleration
             );
-            behavior.jumping = true;
-            behavior.jumpDuration = 0;
+            behavior.jumpDuration = duration;
         }
-        else {
-            behavior.jumpDuration += deltaT;
-        }
+        behavior.jumpKeyElapsedTime += deltaT;
+    }
+    else {
+        behavior.jumpDuration = 0;
     }
 }
 
@@ -89,6 +133,7 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
             else {
                 changeAnimationOnEntity(player, EntityAnimation.Fall, false);
             }
+            behavior.jumping = false;
         }
         else if (behavior.jumping) {
             changeAnimationOnEntity(player, EntityAnimation.Jump, false);

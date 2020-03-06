@@ -1,5 +1,5 @@
 import { IEntity, EntityType } from "../redux/state";
-import { GameEvent, GameEventType, WorldCollisionEvent, InputActionEvent } from "../events/GameEvents";
+import { GameEvent, GameEventType, WorldCollisionEvent } from "../events/GameEvents";
 import { MoveDirection, applyImpulseToEntity, ImpulseType, ImpulseTarget } from "./utils";
 import { CollisionType } from "../physics/collisionType";
 import { createVector } from "../utils/geometry";
@@ -20,9 +20,6 @@ export interface ICollisionBehaviorData {
 }
 export interface IMovementBehaviorData {
     moveDirection: MoveDirection;
-    jumpPressed: boolean;
-    jumping: boolean;
-    jumpDuration: number;
 }
 
 
@@ -32,17 +29,6 @@ export function handleWorldCollision(behavior: any, event: GameEvent): void {
     const collisionType = (event as WorldCollisionEvent).collisionType;
     let b = behavior as ICollisionBehaviorData;
     b.collisionType = collisionType.rawValue;
-}
-export function handleInputAction(behavior: any, event: GameEvent): void {
-    const inputEvent = event as InputActionEvent;
-    let b = behavior as IMovementBehaviorData;
-
-    // handle move
-    b.moveDirection = inputEvent.direction;
-
-    // handle jump
-    let oldJumpFlag = b.jumpPressed;
-    b.jumpPressed = inputEvent.jump;
 }
 
 

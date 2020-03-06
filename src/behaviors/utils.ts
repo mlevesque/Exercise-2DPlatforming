@@ -36,12 +36,25 @@ export function applyImpulseToEntity( entity: IEntity,
                                       duration: number, 
                                       instant: boolean,
                                       target: ImpulseTarget): void {
-    entity.impulses[type] = {
-        impulse: impulse, 
-        instant: instant, 
-        timeRemaining: duration, 
-        target: target
-    };
+
+    // handle duration
+    const entry = entity.impulses[type];
+    let timeRemaining = entry ? entry.timeRemaining + duration : duration;
+
+    // if zero or less time remaining, then remove it
+    if (entry && timeRemaining <= 0 && !instant) {
+        removeImpulse(entity, type);
+    }
+
+    // otherwise set impulse
+    else {
+        entity.impulses[type] = {
+            impulse: impulse, 
+            instant: instant,
+            timeRemaining: timeRemaining, 
+            target: target
+        };
+    }
 }
 
 /**
