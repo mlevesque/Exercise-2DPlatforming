@@ -115,7 +115,7 @@ function checkWallCollisionOnSegment( topMovementRay: IRay,
 }
 
 /**
- * Perform collision checks against all given collisions and stores the earliest collision along the given entity
+ * Perform point collision checks against all given collisions and stores the earliest collision along the given entity
  * movement into the collision tracker.
  * @param movementRay 
  * @param pathIndex 
@@ -135,6 +135,15 @@ function performPointCollisions( movementRay: IRay,
     });
 }
 
+/**
+ * Perform wall collision checks against all given collisions and stores the earliest collision along the given entity
+ * movement offsets at the top and bottom corners into the collision tracker.
+ * @param topMovementRay 
+ * @param bottomMovementRay 
+ * @param pathIndex 
+ * @param collisionTracker 
+ * @param collisionType 
+ */
 function performWallCollisions( topMovementRay: IRay,
                                 bottomMovementRay: IRay,
                                 pathIndex: number,
@@ -163,16 +172,16 @@ function performWallCollisions( topMovementRay: IRay,
   * @param surfaceTypeCheck 
   * @param resolveDirection 
   */
-function buildPointCollisionResolvePath( collisionTracker: WorldCollisionTracker, 
-                                         movementRay: IRay,
+function buildPointCollisionResolvePath( collisionTracker: WorldCollisionTracker,
                                          collisionType: CollisionType,
+                                         getMovementRay: () => IRay,
                                          surfaceTypeCheck: ISurfaceTypeCheck, 
                                          resolveDirection: IVector): boolean {
     let shouldContinueChecking = true;
     let hasCollision = false;
     while (shouldContinueChecking) {
         // collision check
-        performPointCollisions(movementRay, -1, collisionTracker, collisionType, surfaceTypeCheck);
+        performPointCollisions(getMovementRay(), -1, collisionTracker, collisionType, surfaceTypeCheck);
 
         // if we found a collision, resolve to it. If we resolve off of the edge of the collision segment, then
         // we will need to perform another collision check
@@ -197,16 +206,18 @@ function buildPointCollisionResolvePath( collisionTracker: WorldCollisionTracker
  * @param bottomMovementRay 
  * @param resolveDirection 
  */
-function buildWallCollisionResolvePath( collisionTracker: WorldCollisionTracker,
-                                        topMovementRay: IRay,
-                                        bottomMovementRay: IRay,
-                                        resolveDirection: IVector): boolean {
-    const collisionType = new CollisionType(topMovementRay.v.x > 0 ? CollisionFlag.RightWall : CollisionFlag.LeftWall);
+function buildWallCollisionResolvePath( collisionTracker: WorldCollisionTracker, resolveDirection: IVector): boolean {
+    const collisionType = new CollisionType(
+        collisionTracker.currentMovement.v.x > 0 ? CollisionFlag.RightWall : CollisionFlag.LeftWall
+    );
     let hasCollision = false;
     let shouldContinueChecking = true;
     while (shouldContinueChecking) {
+        // get the bottom and top corner movement rays
+        const movementRays = collisionTracker.getRemainingMovementWithWallOffsets();
+
         // collision checks
-        performWallCollisions(topMovementRay, bottomMovementRay, -1, collisionTracker, collisionType);
+        performWallCollisions(movementRays[1], movementRays[0], -1, collisionTracker, collisionType);
 
         // if we found a collision, resolve to it. If we resolve off of the edge of the collision segment, then
         // we will need to perform another collision check
@@ -289,8 +300,8 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
     // try to build resolve path on floors
     let hasFloorCollision = buildPointCollisionResolvePath(
         collisionTracker,
-        collisionTracker.getRemainingMovementWithFloorOffset(),
         new CollisionType(CollisionFlag.Floor),
+        () => {return collisionTracker.getRemainingMovementWithFloorOffset()},
         isFloor,
         createVector(0, -1)
     );
@@ -300,8 +311,8 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
     if (!hasFloorCollision) {
         hasCeilingCollision = buildPointCollisionResolvePath(
             collisionTracker,
-            collisionTracker.getRemainingMovementWithCeilingOffset(),
             new CollisionType(CollisionFlag.Ceiling),
+            () => {return collisionTracker.getRemainingMovementWithCeilingOffset()},
             isCeiling,
             createVector(0, 1)
         );
@@ -313,8 +324,6 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
         const wallMovementRays = collisionTracker.getRemainingMovementWithWallOffsets();
         hasWallCollision = buildWallCollisionResolvePath(
             collisionTracker,
-            wallMovementRays[1],
-            wallMovementRays[0],
             createVector(wallMovementRays[0].v.x > 0 ? -1 : 1, 0)
         );
     }
