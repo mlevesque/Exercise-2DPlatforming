@@ -4,6 +4,7 @@ export enum GameAction {
 
 export enum CameraAction {
     Resize = "CameraAction.Resize",
+    SetPosition = "CameraAction.SetPosition",
 }
 
 export enum CollisionsAction {

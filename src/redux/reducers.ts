@@ -49,6 +49,11 @@ export function cameraReducer(state: ICamera = InitState.camera, action: AnyActi
             newState = Object.assign({}, state);
             newState.width = action.payload.width;
             newState.height = action.payload.height;
+            newState.position = Object.assign({}, state.position);
+            return newState;
+        case CameraAction.SetPosition:
+            newState = Object.assign({}, state);
+            newState.position = Object.assign({}, action.payload.position);
             return newState;
     }
     return state;

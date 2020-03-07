@@ -12,6 +12,7 @@ import { updateAnimations } from "./animation/updateSaga";
 import { renderSaga } from "./render/updateSaga";
 import { GameEventQueue } from "./events/GameEventQueue";
 import { updateReactionBehaviors, updateActionBehaviors } from "./behaviors/updateSaga";
+import { updateCamera } from "./camera/updateSaga";
 
 function* updateSaga(deltaT: number) {
     // we make a copy of all entities to update on
@@ -36,6 +37,9 @@ function* updateSaga(deltaT: number) {
 
     // animation
     yield call(updateAnimations, deltaT, entityCollectionCopy.allEntities);
+
+    // camera
+    yield call(updateCamera, entityCollectionCopy.player.position);
 
     // we will then save the updated entities to the store
     yield put(actionSetEntitiesCollection(entityCollectionCopy.allEntities));

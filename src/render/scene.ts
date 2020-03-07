@@ -10,8 +10,11 @@ export function renderLoading(ctx: CanvasRenderingContext2D, width: number, heig
 }
 
 export function render(ctx: CanvasRenderingContext2D, width: number, height: number, deltaT: number, state: IMainState): void {
+    ctx.save();
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, width, height);
+
+    ctx.translate(Math.floor(-state.camera.position.x), Math.floor(-state.camera.position.y));
 
     // render scene
     renderTiles(ctx, state.map);
@@ -25,5 +28,8 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
         renderEntityCollisions(ctx, entity);
     });
     renderPartition(ctx);
+    ctx.restore();
+
+    // render HUD stuff
     renderFrameRate(ctx, deltaT);
 }

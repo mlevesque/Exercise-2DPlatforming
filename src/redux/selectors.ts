@@ -1,4 +1,4 @@
-import { IMainState, IInputActions, IEntity, EntityType, ICollisionMap } from "./state";
+import { IMainState, IInputActions, IEntity, EntityType, ICollisionMap, ICamera } from "./state";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { copyEntity } from "../utils/creation";
 
@@ -36,4 +36,8 @@ export function getCopiedEntitiesSelector(state: IMainState): ICopiedEntityColle
         entityMap: entityMap,
         player: allEntities.length > 0 && allEntities[0].type == EntityType.Player ? allEntities[0] : null
     }
+}
+
+export function getCamera(state: IMainState): ICamera {
+    return state.camera;
 }
