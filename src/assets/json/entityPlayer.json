@@ -32,7 +32,7 @@
         "speed": 4000,
         "initialDuration": 90,
         "additionalDurations": [
-            {"keyDuration": 70, "impulseDuration": 125}
+            {"keyDuration": 90, "impulseDuration": 125}
         ]
     },
     "collision": {

@@ -25,6 +25,7 @@ export interface IBehaviorJump {
     jumping: boolean;
     jumpDuration: number;
     jumpKeyElapsedTime: number;
+    onGround: boolean;
 }
 
 

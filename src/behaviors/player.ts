@@ -3,8 +3,8 @@ import { GameEventType, InputActionEvent, GameEvent } from "../events/GameEvents
 import { IEntity, EntityAnimation } from "../redux/state";
 import { changeAnimationOnEntity, MoveDirection, applyImpulseToEntity, ImpulseType, ImpulseTarget, 
     removeImpulse } from "./utils";
-import { CollisionFlag, CollisionType } from "../physics/collisionType";
-import { getEntityJsonData, IPlayerSchema, IJumpDuration } from "../utils/jsonSchemas";
+import { CollisionType } from "../physics/collisionType";
+import { getEntityJsonData, IPlayerSchema, IJumpDuration, IJumpSchema } from "../utils/jsonSchemas";
 import { createVector } from "../utils/geometry";
 import { IBehaviorData, setBehaviorCollision, setBehaviorMovement, setBehaviorJump, getBehaviorMovement, 
     getBehaviorJump, 
@@ -25,7 +25,8 @@ export function createPlayerBehaviorData(): IBehaviorData {
         jumpPressed: false,
         jumping: false,
         jumpDuration: 0,
-        jumpKeyElapsedTime: 0
+        jumpKeyElapsedTime: 0,
+        onGround: false,
     })
     return behavior;
 }
@@ -49,69 +50,71 @@ export function handleInputAction(behavior: IBehaviorData, event: GameEvent): vo
     // handle move
     moveBehavior.moveDirection = inputEvent.direction;
 
-    // handle jump
-    jumpBehavior.jumpPressed = inputEvent.jump;
+    // we can only signal if the jump key is pressed if:
+    //  1) We are currently jumping and haven't let go of the key since we started jumping
+    //  2) We are not jumping
+    const oldPress = jumpBehavior.jumpPressed;
+    if ((jumpBehavior.jumping && oldPress) || !jumpBehavior.jumping) {
+        jumpBehavior.jumpPressed = inputEvent.jump;
+    }
+
+    // if we are on the ground and jump is pressed down, signal that we will jump
+    if (jumpBehavior.onGround && jumpBehavior.jumpPressed) {
+        jumpBehavior.jumping = true;
+        jumpBehavior.jumpKeyElapsedTime = 0;
+        jumpBehavior.jumpDuration = 0;
+    }
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ACTION UPDATE
-function getJumpDuration(jumpDuration: number, initialDuration: number, jumpEntries: IJumpDuration[]): number {
+function getJumpDuration(jumpDuration: number, jumpData: IJumpSchema): number {
     let entry: IJumpDuration = null;
-    for (let i = jumpEntries.length - 1; i >= 0; --i) {
-        if (jumpDuration >= jumpEntries[i].keyDuration) {
-            entry = jumpEntries[i];
+    const entries = jumpData.additionalDurations;
+    for (let i = entries.length - 1; i >= 0; --i) {
+        if (jumpDuration >= entries[i].keyDuration) {
+            entry = entries[i];
         }
     }
     if (entry) {
         return entry.impulseDuration;
     }
-    return initialDuration;
+    return jumpData.initialDuration;
 }
-export function updatePlayerActionBehavior(deltaT: number, player: IEntity): void {
-    const entityData = getEntityJsonData(player.type) as IPlayerSchema;
 
+export function updatePlayerActionBehavior(deltaT: number, player: IEntity): void {
     // set left and right movement
+    const entityData = getEntityJsonData(player.type) as IPlayerSchema;
     let moveBehavior = getBehaviorMovement(player.behavior);
     updateEntityMove(player, moveBehavior.moveDirection, entityData.speed);
 
-    // handle jump
+    // detach any segment if we are jumping
     let jumpBehavior = getBehaviorJump(player.behavior);
     let collisionBehavior = getBehaviorCollision(player.behavior);
-    const collisionType = new CollisionType(collisionBehavior.collisionType);
-    if (jumpBehavior.jumpPressed) {
-        if (collisionType.hasFloorCollision()) {
-            jumpBehavior.jumping = true;
-            jumpBehavior.jumpKeyElapsedTime = 0;
-
-            // detach segment
-            collisionBehavior.segId = "";
-        }
-    }
-    else {
-        jumpBehavior.jumpKeyElapsedTime = 0;
-    }
-
-    // apply jump impulse
     if (jumpBehavior.jumping) {
-        const speed = entityData.jump.speed;
-        const jump = entityData.jump;
-        const d = getJumpDuration(jumpBehavior.jumpKeyElapsedTime, jump.initialDuration, jump.additionalDurations);
-        if (d > jumpBehavior.jumpDuration) {
+        collisionBehavior.segId = "";
+    }
+
+    // apply jump impulse if we are jumping and the jump key is still pressed
+    if (jumpBehavior.jumping && jumpBehavior.jumpPressed) {
+
+        // get jump impulse duration and if it is greater than our current total, then apply it
+        const duration = getJumpDuration(jumpBehavior.jumpKeyElapsedTime, entityData.jump);
+        if (duration > jumpBehavior.jumpDuration) {
             applyImpulseToEntity(
                 player, 
                 ImpulseType.Jump, 
-                createVector(0, -speed), 
-                d - jumpBehavior.jumpDuration, 
+                createVector(0, -entityData.jump.speed), 
+                duration - jumpBehavior.jumpDuration, 
                 false, 
                 ImpulseTarget.Acceleration
             );
-            jumpBehavior.jumpDuration = d;
+            jumpBehavior.jumpDuration = duration;
         }
+
+        // accumulate key time
         jumpBehavior.jumpKeyElapsedTime += deltaT;
-    }
-    else {
-        jumpBehavior.jumpDuration = 0;
     }
 }
 
@@ -124,34 +127,43 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
     const collisionType = new CollisionType(collisionBehavior.collisionType);
     updateEntityCollisionVelocity(player, collisionType);
 
-    // handle animation triggers
-    let jumpBehavior = getBehaviorJump(player.behavior);
+    // handle move and jump animations
     let moveBehavior = getBehaviorMovement(player.behavior);
     if (collisionType.hasFloorCollision()) {
-        jumpBehavior.jumping = false;
-        if (moveBehavior.moveDirection == MoveDirection.Left || moveBehavior.moveDirection == MoveDirection.Right) {
-            changeAnimationOnEntity(player, EntityAnimation.Walk, false);
-        }
-        else {
-            changeAnimationOnEntity(player, EntityAnimation.Idle, false);
+        switch (moveBehavior.moveDirection) {
+            case MoveDirection.Left:
+            case MoveDirection.Right:
+                changeAnimationOnEntity(player, EntityAnimation.Walk, false);
+                break;
+            default:
+                changeAnimationOnEntity(player, EntityAnimation.Idle, false);
+                break;
         }
     }
+    
+    // handle jump flags
+    let jumpBehavior = getBehaviorJump(player.behavior);
+    if (collisionType.hasFloorCollision()) {
+        jumpBehavior.onGround = true;
+        jumpBehavior.jumping = false;
+    }
     else {
-        if (player.velocity.y > 0) {
-            if (jumpBehavior.jumping) {
-                changeAnimationOnEntity(player, EntityAnimation.JumpFall, false);
-            }
-            else {
-                changeAnimationOnEntity(player, EntityAnimation.Fall, false);
-            }
-        }
-        else if (jumpBehavior.jumping) {
-            changeAnimationOnEntity(player, EntityAnimation.Jump, false);
-        }
+        jumpBehavior.onGround = false;
     }
 
     // remove jump impulse if we hit the ceiling
     if (collisionType.hasCeilingCollision()) {
         removeImpulse(player, ImpulseType.Jump);
+    }
+    
+    // handle jump animation
+    if (player.velocity.y < 0 && jumpBehavior.jumping) {
+        changeAnimationOnEntity(player, EntityAnimation.Jump, false);
+    }
+
+    // handle fall animation
+    if (!collisionType.hasFloorCollision() && player.velocity.y > 0) {
+        if (jumpBehavior.jumping) changeAnimationOnEntity(player, EntityAnimation.JumpFall, false);
+        else changeAnimationOnEntity(player, EntityAnimation.Fall, false);
     }
 }
