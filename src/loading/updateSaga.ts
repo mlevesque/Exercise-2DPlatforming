@@ -1,11 +1,11 @@
 import { put, select } from "redux-saga/effects";
-import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition } from "../redux/actionCreators";
+import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, 
+    actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition } from "../redux/actionCreators";
 import { IMapSchema, getGameConfig } from "../utils/jsonSchemas";
 import { IMap, ICamera } from "../redux/state";
-import { buildCollisionsCollection, lazyLoadImages, getImagesToLoad, buildEntityCollection, 
-    buildWorldPartition, 
-    setupCamera} from "./utils";
+import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera} from "./utils";
 import { getCamera } from "../redux/selectors";
+import { buildWorldPartition, buildCollisionsCollection } from "./collisionBuilding";
 
 /**
  * Generator function for handling level loading, including loading all assets needed for the given level.

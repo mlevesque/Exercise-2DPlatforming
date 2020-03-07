@@ -157,6 +157,12 @@ export function getLedgeCollisionData(t: number, seg: ICollisionSegment): Collis
     return new CollisionType();
 }
 
+/**
+ * Returns the id of the next or previous segment based on the given t value. An empty string means that there is no
+ * segment.
+ * @param t 
+ * @param seg 
+ */
 export function getConnectedCollisionId(t: number, seg: ICollisionSegment): string {
     if (t <= 0) {
         return seg.prevSegment;
@@ -165,4 +171,13 @@ export function getConnectedCollisionId(t: number, seg: ICollisionSegment): stri
         return seg.nextSegment;
     }
     return "";
+}
+
+/**
+ * Returns true if both segments have the same general direction.
+ * @param segmentA 
+ * @param segmentB 
+ */
+export function areSegmentsInSameGeneralDirection(segmentA: ICollisionSegment, segmentB: ICollisionSegment): boolean {
+    return dot(segmentA.segment.v, segmentB.segment.v) > 0;
 }

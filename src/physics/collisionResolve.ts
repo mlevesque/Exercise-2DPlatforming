@@ -1,7 +1,7 @@
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
 import { IVector, IRay, getEndOfRay, getPositionAlongRay, createRayPP, createRayPV } from "../utils/geometry";
 import { calculateTCollisionValues, capT, getPointCollision, isTValueInRange, getLedgeCollisionData, 
-    getConnectedCollisionId } from "./util";
+    getConnectedCollisionId, areSegmentsInSameGeneralDirection} from "./util";
 import { CollisionType } from "./collisionType";
 import { ICollisionSegment } from "./CollisionSegment";
 
@@ -138,7 +138,9 @@ export function resolveToSegment(collisionTracker: WorldCollisionTracker, resolv
             // try to get next segment
             const nextSegId = getConnectedCollisionId(t, collisionSegment);
             const nextSeg = collisionTracker.relevantCollisionSegments.get(nextSegId);
-            if (nextSeg) {
+
+            // if next segment exists and is going in the same general direction, then resolve to it
+            if (nextSeg && areSegmentsInSameGeneralDirection(collisionSegment, nextSeg)) {
                 collisionTracker.setPotentialCollision({
                     movementT: 0,
                     collisionSegment: nextSeg,
