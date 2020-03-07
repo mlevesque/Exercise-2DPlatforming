@@ -1,6 +1,6 @@
 import { IMapSchema, getEntityJsonData, getGameConfig } from "../utils/jsonSchemas";
 import { ICollisionSegment, createSegment } from "../physics/CollisionSegment";
-import { EntityType, IEntity, EntityAnimation, ICollisionMap } from "../redux/state";
+import { EntityType, IEntity, EntityAnimation, ICollisionMap, ICamera } from "../redux/state";
 import { buildEntity } from "../utils/creation";
 import { createVector, IVector, getEndOfRay, areVectorsEqual, dot, negate } from "../utils/geometry";
 import { isWall } from "../physics/util";
@@ -201,4 +201,21 @@ export function buildEntityCollection(map: IMapSchema): IEntity[] {
         );
     }
     return results;
+}
+
+/**
+ * Sets up the camera locking if the world is smaller than the camera width or height.
+ * @param camera 
+ * @param mapWidth 
+ * @param mapHeight 
+ */
+export function setupCamera(camera: ICamera, mapWidth: number, mapHeight: number): void {
+    camera.lockX = camera.width >= mapWidth;
+    if (camera.lockX) {
+        camera.position.x = -(camera.width - mapWidth) / 2;
+    }
+    camera.lockY = camera.height >= mapHeight;
+    if (camera.lockY) {
+        camera.position.y = -(camera.height - mapHeight) / 2;
+    }
 }

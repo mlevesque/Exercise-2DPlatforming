@@ -78,7 +78,9 @@ export class WorldPartition {
         while (!areVectorsEqual(cellPos, endCell)) {
             // insert into current cell
             cell = this.getCellFromCellCoordinates(cellPos);
-            cell.staticCollisions.push(segment);
+            if (cell) {
+                cell.staticCollisions.push(segment);
+            }
 
             // go to next cell
             const nextT = this.getNextCellTValues(ray, cellPos.x + nextXDir, cellPos.y + nextYDir);
@@ -92,7 +94,9 @@ export class WorldPartition {
 
         // add to end cell
         cell = this.getCellFromCellCoordinates(cellPos);
-        cell.staticCollisions.push(segment);
+        if (cell) {
+            cell.staticCollisions.push(segment);
+        }
     }
 
     /**

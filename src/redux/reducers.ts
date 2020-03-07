@@ -55,6 +55,12 @@ export function cameraReducer(state: ICamera = InitState.camera, action: AnyActi
             newState = Object.assign({}, state);
             newState.position = Object.assign({}, action.payload.position);
             return newState;
+        case CameraAction.SetLocks:
+            newState = Object.assign({}, state);
+            newState.position = Object.assign({}, action.payload.position);
+            newState.lockX = action.payload.lockX;
+            newState.lockY = action.payload.lockY;
+            return newState;
     }
     return state;
 }

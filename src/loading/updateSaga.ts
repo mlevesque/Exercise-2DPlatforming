@@ -1,9 +1,11 @@
-import { put } from "redux-saga/effects";
-import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, actionSetEntitiesCollection } from "../redux/actionCreators";
+import { put, select } from "redux-saga/effects";
+import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition } from "../redux/actionCreators";
 import { IMapSchema, getGameConfig } from "../utils/jsonSchemas";
-import { IMap } from "../redux/state";
-import { buildCollisionsCollection, lazyLoadImages, getImagesToLoad, buildEntityCollection, buildWorldPartition } from "./utils";
-import { WorldPartition } from "../physics/WorldPartition";
+import { IMap, ICamera } from "../redux/state";
+import { buildCollisionsCollection, lazyLoadImages, getImagesToLoad, buildEntityCollection, 
+    buildWorldPartition, 
+    setupCamera} from "./utils";
+import { getCamera } from "../redux/selectors";
 
 /**
  * Generator function for handling level loading, including loading all assets needed for the given level.
@@ -35,6 +37,12 @@ export function* loadLevelSaga(levelFile: string) {
         height: mapHeight
     };
     yield put(actionSetMap(map));
+
+    // setup camera
+    let camera: ICamera = yield select(getCamera);
+    setupCamera(camera, mapWidth, mapHeight);
+    yield put(actionCameraSetLocks(camera.lockX, camera.lockY));
+    yield put(actionCameraSetPosition(camera.position));
 
     // build partition
     buildWorldPartition(data);

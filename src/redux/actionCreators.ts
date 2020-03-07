@@ -28,6 +28,9 @@ export function actionCameraResize(width: number, height: number): AnyAction {
 export function actionCameraSetPosition(position: IVector): AnyAction {
     return createAction(CameraAction.SetPosition, {position: position});
 }
+export function actionCameraSetLocks(lockX: boolean, lockY: boolean): AnyAction {
+    return createAction(CameraAction.SetLocks, {lockX: lockX, lockY: lockY});
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Collisions

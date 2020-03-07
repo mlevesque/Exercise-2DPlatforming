@@ -11,7 +11,9 @@ export const InitState: IMainState = {
     camera: {
         width: 640,
         height: 480,
-        position: {x: 0, y: 0}
+        position: {x: 0, y: 0},
+        lockX: false,
+        lockY: false,
     },
     map: null,
     staticCollisions: {},
