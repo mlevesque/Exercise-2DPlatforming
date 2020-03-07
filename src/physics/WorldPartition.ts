@@ -1,6 +1,8 @@
 import { ICollisionSegment } from "./CollisionSegment";
 import { IVector, createVector, IRay, IArea, getEndOfRay, areVectorsEqual } from "../utils/geometry";
 
+export type SegmentCollisionsMap = Map<string, ICollisionSegment>;
+
 /**
  * A single cell in the world partition that contains collision informaton in a small area of the world.
  */
@@ -260,18 +262,14 @@ export class WorldPartition {
      * Returns all unique collisions in all cells that lie within the given bounding area in world units.
      * @param worldArea 
      */
-    getCollisionsInWorldArea(worldArea: IArea): ICollisionSegment[] {
-        let segmentSet = new Set<string>();
-        let results: ICollisionSegment[] = [];
+    getCollisionsInWorldArea(worldArea: IArea): SegmentCollisionsMap {
+        let results: SegmentCollisionsMap = new Map();
         const cellArea = this.convertWorldAreaToCellArea(worldArea);
         for (let y = cellArea.minY; y <= cellArea.maxY; ++y) {
             for( let x = cellArea.minX; x <= cellArea.maxX; ++x) {
                 const collisions = this.getCollisionsAtCellCoordinates(createVector(x, y));
                 collisions.forEach((segment: ICollisionSegment) => {
-                    if (!segmentSet.has(segment.id)) {
-                        results.push(segment);
-                        segmentSet.add(segment.id);
-                    }
+                    results.set(segment.id, segment);
                 });
             }
         }

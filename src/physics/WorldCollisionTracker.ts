@@ -4,7 +4,7 @@ import { IRay, IVector, getEndOfRay, createRayPP, isZeroVector, createRayPV, add
     from "../utils/geometry";
 import { CollisionType } from "./collisionType";
 import { buildStartLedgeRay, buildEndLedgeRay } from "./util";
-import { WorldPartition } from "./WorldPartition";
+import { WorldPartition, SegmentCollisionsMap } from "./WorldPartition";
 
 /**
  * Potential collision information to possibly be resolved.
@@ -59,7 +59,7 @@ export class WorldCollisionTracker {
     // bounding box containing remaining movement ray and resolve path
     private _movementBounds: IArea;
     // all collision segments from the partition that should be considered for collision detection
-    private _relevantCollisionSegments: ICollisionSegment[];
+    private _relevantCollisionSegments: SegmentCollisionsMap;
     // the highest number of collision segments pulled from the partition for this entity this frame
     private _maxCollisionsConsidered: number;
 
@@ -114,7 +114,7 @@ export class WorldCollisionTracker {
     updateRelevantCollisionSegments(): void {
         const area = this.getCollisionLookupArea();
         this._relevantCollisionSegments = WorldPartition.getInstance().getCollisionsInWorldArea(area);
-        this._maxCollisionsConsidered = Math.max(this._maxCollisionsConsidered, this._relevantCollisionSegments.length);
+        this._maxCollisionsConsidered = Math.max(this._maxCollisionsConsidered, this._relevantCollisionSegments.size);
     }
 
 
@@ -128,7 +128,7 @@ export class WorldCollisionTracker {
     get entityHalfWidth(): number {return this._entityHalfWidth}
     get currentCollisionDetectionData(): ICollisionDetectionData {return this._potentialCollision}
     get movementBoundingArea(): IArea {return this._movementBounds}
-    get relevantCollisionSegments(): ICollisionSegment[] {return this._relevantCollisionSegments}
+    get relevantCollisionSegments(): SegmentCollisionsMap {return this._relevantCollisionSegments}
     get maxCollisionsConsidered(): number {return this._maxCollisionsConsidered}
 
 
@@ -369,6 +369,16 @@ export class WorldCollisionTracker {
             // add the new updated last entry
             this._resolvePath.push({ray: updatedRay, type: updatedCollisionType});
         }
+    }
+
+    /**
+     * Clears out the current collision and adds the segment to the resolved set.
+     */
+    completeCurrentCollision(): void {
+        if (this._potentialCollision && this._potentialCollision.collisionSegment) {
+            this.addSegmentToResolvedSet(this._potentialCollision.collisionSegment.id);
+        }
+        this.clearCurrentCollision();
     }
 
     /**

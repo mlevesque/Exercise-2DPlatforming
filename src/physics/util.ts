@@ -143,21 +143,26 @@ export function buildEndLedgeRay(segmentRay: IRay, width: number): IRay {
 }
 
 /**
- * Returns a calculated ledge ray and collision type for a ledge on a specific end of a given segment based on the t
- * value. Returns no collision type and no ledge if the t value is between 0 and 1, inclusively.
- * @param t t value along the segment. Used to determine if we should return a start (t < 0) or end (t > 1) ledge
- * @param seg collision segment
- * @param width width for the ledge
- * @param segRay collision segment to build the ledge ray from
+ * Returns what kind of ledge collision type the given segment will have at the given t value.
+ * @param t 
+ * @param seg 
  */
-export function getLedgeData(t: number, seg: ICollisionSegment, width: number, segRay: IRay): [CollisionType,IRay] {
+export function getLedgeCollisionData(t: number, seg: ICollisionSegment): CollisionType {
     if (t < 0 && seg.startLedge) {
-        return [getStartLedgeCollisionType(seg), buildStartLedgeRay(segRay, width)];
+        return getStartLedgeCollisionType(seg);
     }
     else if (t > 1 && seg.endLedge) {
-        return [getEndLedgeCollisionType(seg), buildEndLedgeRay(segRay, width)];
+        return getEndLedgeCollisionType(seg);
     }
-    else {
-        return [new CollisionType(), null];
+    return new CollisionType();
+}
+
+export function getConnectedCollisionId(t: number, seg: ICollisionSegment): string {
+    if (t <= 0) {
+        return seg.prevSegment;
     }
+    else if (t >= 1) {
+        return seg.nextSegment;
+    }
+    return "";
 }
