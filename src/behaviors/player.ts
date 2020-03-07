@@ -144,7 +144,6 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
             else {
                 changeAnimationOnEntity(player, EntityAnimation.Fall, false);
             }
-            jumpBehavior.jumping = false;
         }
         else if (jumpBehavior.jumping) {
             changeAnimationOnEntity(player, EntityAnimation.Jump, false);
