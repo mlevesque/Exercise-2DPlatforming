@@ -7,9 +7,10 @@ import { ISurfaceTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMov
 import { getEntityJsonData } from "../utils/jsonSchemas";
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
 import { CollisionType, CollisionFlag } from "./collisionType";
-import { resolveWithExternalDirection, resolveByPath } from "./collisionResolve";
+import { resolveWithExternalDirection, resolveByPath, resolveToSegment } from "./collisionResolve";
 import { GameEventQueue } from "../events/GameEventQueue";
 import { WorldCollisionEvent } from "../events/GameEvents";
+import { ICollisionBehaviorData } from "../behaviors/common";
 
 /**
  * Checks collision against the given collision segment and stores the collision to the tracker.
@@ -128,8 +129,8 @@ function performPointCollisions( movementRay: IRay,
                                  collisionTracker: WorldCollisionTracker,
                                  collisionType: CollisionType,
                                  typeCheck: ISurfaceTypeCheck): void {
-    collisionTracker.relevantCollisionSegments.forEach((collisionSegment) => {
-        if (!collisionTracker.hasSegmentAlreadyBeenResolved(collisionSegment.id) && typeCheck(collisionSegment)) {
+    collisionTracker.relevantCollisionSegments.forEach((collisionSegment, id) => {
+        if (!collisionTracker.hasSegmentAlreadyBeenResolved(id) && typeCheck(collisionSegment)) {
             checkPointCollisionOnSegment(movementRay, pathIndex, collisionSegment, collisionTracker, collisionType);
         }
     });
@@ -149,8 +150,8 @@ function performWallCollisions( topMovementRay: IRay,
                                 pathIndex: number,
                                 collisionTracker: WorldCollisionTracker,
                                 collisionType: CollisionType): void {
-    collisionTracker.relevantCollisionSegments.forEach((collisionSegment) => {
-        if (!collisionTracker.hasSegmentAlreadyBeenResolved(collisionSegment.id) && isWall(collisionSegment)) {
+    collisionTracker.relevantCollisionSegments.forEach((collisionSegment, id) => {
+        if (!collisionTracker.hasSegmentAlreadyBeenResolved(id) && isWall(collisionSegment)) {
             checkWallCollisionOnSegment(
                 topMovementRay, 
                 bottomMovementRay, 
@@ -298,13 +299,16 @@ function performWallCollisionPathResolve( collisionTracker: WorldCollisionTracke
  */
 function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker): void {
     // try to build resolve path on floors
-    let hasFloorCollision = buildPointCollisionResolvePath(
-        collisionTracker,
-        new CollisionType(CollisionFlag.Floor),
-        () => {return collisionTracker.getRemainingMovementWithFloorOffset()},
-        isFloor,
-        createVector(0, -1)
-    );
+    let hasFloorCollision = collisionTracker.hasResolvePath();
+    if (!hasFloorCollision) {
+        hasFloorCollision = buildPointCollisionResolvePath(
+            collisionTracker,
+            new CollisionType(CollisionFlag.Floor),
+            () => {return collisionTracker.getRemainingMovementWithFloorOffset()},
+            isFloor,
+            createVector(0, -1)
+        );
+    }
 
     // if no floor collisions, try to build resolve path on ceiling
     let hasCeilingCollision = false;
@@ -366,6 +370,27 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
 }
 
 /**
+ * If the given entity is attached to a segment, resolve to that segment.
+ * @param entity 
+ * @param collisionTracker 
+ */
+function updateAttachedCollisionForEntity(entity: IEntity, collisionTracker: WorldCollisionTracker): void {
+    const collisionBehavior = entity.behavior as ICollisionBehaviorData;
+    if (collisionBehavior) {
+        const attachedCollision = collisionTracker.relevantCollisionSegments.get(collisionBehavior.segId);
+        if (attachedCollision) {
+            collisionTracker.setPotentialCollision({
+                movementT: 0,
+                collisionSegment: attachedCollision,
+                collisionType: new CollisionType(collisionBehavior.collisionType),
+                pathIndex: -1
+            });
+            resolveWithExternalDirection(collisionTracker, createVector(0, -1));
+        }
+    }
+}
+
+/**
  * Main world collision checking and resolving for a given entity.
  * @param entity 
  */
@@ -379,17 +404,24 @@ export function updateWorldCollisionsOnEntity(entity: IEntity): void {
         entityCollision.floorPoint, 
         entityCollision.ceilingPoint, 
         entityCollision.halfWidth);
+
+    // if the entity is attached to a segment, then resolve to segment first
+    updateAttachedCollisionForEntity(entity, collisionTracker);
+    
+    // perform collisions
     performWorldCollisionsForEntity(collisionTracker);
 
     // update the entity with the collision resolve results
     const eventQueue = GameEventQueue.getInstance();
     let collisionType = new CollisionType(CollisionFlag.None);
+    let collisionSegments: ICollisionSegment[] = [];
     if (collisionTracker.hasResolvePath()) {
         const resolveData = collisionTracker.getFinalResolvePosition();
         entity.position = resolveData.position;
         collisionType = resolveData.collisionType;
+        collisionSegments = resolveData.collisionSegments;
     }
 
     // queue event
-    eventQueue.addToQueue(entity.id, new WorldCollisionEvent(collisionType));
+    eventQueue.addToQueue(entity.id, new WorldCollisionEvent(collisionType, collisionSegments));
 }

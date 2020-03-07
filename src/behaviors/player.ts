@@ -25,6 +25,7 @@ export function createPlayerBehaviorData(): IPlayerBehavior {
         jumpKeyElapsedTime: 0,
         jumpDuration: 0,
         collisionType: CollisionFlag.None,
+        segId: "",
     }
 }
 
@@ -78,6 +79,9 @@ export function updatePlayerActionBehavior(deltaT: number, player: IEntity): voi
         if (collisionType.hasFloorCollision()) {
             behavior.jumping = true;
             behavior.jumpKeyElapsedTime = 0;
+
+            // detach segment
+            behavior.segId = "";
         }
     }
     else {
@@ -114,8 +118,10 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
     const behavior = player.behavior as IPlayerBehavior;
     const collisionType = new CollisionType(behavior.collisionType);
 
+    // update velocity upon collisions
     updateEntityCollisionVelocity(player, collisionType);
 
+    // handle animation triggers
     if (collisionType.hasFloorCollision()) {
         behavior.jumping = false;
         if (behavior.moveDirection == MoveDirection.Left || behavior.moveDirection == MoveDirection.Right) {
@@ -140,6 +146,7 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
         }
     }
 
+    // remove jump impulse if we hit the ceiling
     if (collisionType.hasCeilingCollision()) {
         removeImpulse(player, ImpulseType.Jump);
     }

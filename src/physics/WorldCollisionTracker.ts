@@ -26,6 +26,8 @@ export interface ICollisionDetectionData {
 export interface IResolvePathEntry {
     // resolved movement
     ray: IRay;
+    // segment that this was resolved to
+    collisionSegments: ICollisionSegment[];
     // type of collision that occurred for this resolve (floor, wall, ledge, etc)
     type: CollisionType;
 }
@@ -38,6 +40,8 @@ export interface IResolvedPosition {
     position: IVector;
     // final collision type (floor, wall, ledge, etc)
     collisionType: CollisionType;
+    // all collision segments we currently have collision at
+    collisionSegments: ICollisionSegment[];
 }
 
 /**
@@ -232,6 +236,7 @@ export class WorldCollisionTracker {
         if (entry) {
             return {
                 ray: createShiftedRay(entry.ray, this._floorCollisionOffset),
+                collisionSegments: entry.collisionSegments,
                 type: entry.type
             }
         }
@@ -246,7 +251,11 @@ export class WorldCollisionTracker {
     getPathAtIndexWithCeilingOffset(index: number): IResolvePathEntry {
         const entry = this.getPathEntryAtIndex(index);
         if (entry) {
-            return {ray: createShiftedRay(entry.ray, this._ceilingCollisionOffset), type: entry.type};
+            return {
+                ray: createShiftedRay(entry.ray, this._ceilingCollisionOffset), 
+                collisionSegments: entry.collisionSegments,
+                type: entry.type
+            };
         }
         return null;
     }
@@ -263,8 +272,8 @@ export class WorldCollisionTracker {
         if (entry) {
             const rays = this.getMovementWithWallOffsets(entry.ray);
             return [
-                {ray: rays[0], type: entry.type},
-                {ray: rays[1], type: entry.type}
+                {ray: rays[0], collisionSegments: entry.collisionSegments, type: entry.type},
+                {ray: rays[1], collisionSegments: entry.collisionSegments, type: entry.type}
             ]
         }
         return [null, null];
@@ -356,18 +365,25 @@ export class WorldCollisionTracker {
      * Modifies the resolve path, removing paths after the given index and changing the resolve on the path at the
      * given index. This is called when resolving along the already complete resolve path. This does nothing if the
      * index is invalid.
-     * @param pathIndex 
-     * @param updatedRay 
-     * @param updatedCollisionType 
+     * @param index 
+     * @param newRay 
+     * @param newCollisionType 
      */
-    setUpdatedEndPath(pathIndex: number, updatedRay: IRay, updatedCollisionType: CollisionType): void {
+    setUpdatedEndPath(index: number, newRay: IRay, newCollisionType: CollisionType, newSeg: ICollisionSegment): void {
         // do nothing if index is invalid
-        if (this.isPathIndexValid(pathIndex)) {
+        const oldEntry = this.getPathEntryAtIndex(index);
+        if (oldEntry) {
             // cut off any later entries to make this index the last entry
-            this._resolvePath = this._resolvePath.slice(0, pathIndex);
+            this._resolvePath = this._resolvePath.slice(0, index);
 
             // add the new updated last entry
-            this._resolvePath.push({ray: updatedRay, type: updatedCollisionType});
+            let newType = new CollisionType(oldEntry.type.rawValue);
+            newType.addType(newCollisionType);
+            this._resolvePath.push({
+                ray: newRay, 
+                collisionSegments: [...oldEntry.collisionSegments, newSeg], 
+                type: newType
+            });
         }
     }
 
@@ -387,8 +403,9 @@ export class WorldCollisionTracker {
     completePath(): void {
         if (!this._pathCompleted) {
             if (this._remainingMovementRay && !isZeroVector(this._remainingMovementRay.v)) {
-                const entry = {
+                const entry: IResolvePathEntry = {
                     ray: this._remainingMovementRay,
+                    collisionSegments: [],
                     type: new CollisionType()
                 }
                 this.addToResolvePath(entry, null);
@@ -429,7 +446,8 @@ export class WorldCollisionTracker {
             const lastEntry = this._resolvePath[this._resolvePath.length - 1];
             return {
                 position: getEndOfRay(lastEntry.ray),
-                collisionType: lastEntry.type
+                collisionType: lastEntry.type,
+                collisionSegments: lastEntry.collisionSegments
             }
         }
 
@@ -438,7 +456,8 @@ export class WorldCollisionTracker {
         else {
             return {
                 position: getEndOfRay(this._remainingMovementRay),
-                collisionType: new CollisionType()
+                collisionType: new CollisionType(),
+                collisionSegments: []
             }
         }
     }

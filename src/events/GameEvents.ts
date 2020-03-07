@@ -1,5 +1,6 @@
 import { CollisionType } from "../physics/collisionType";
 import { MoveDirection } from "../behaviors/utils";
+import { ICollisionSegment } from "../physics/CollisionSegment";
 
 export enum GameEventType {
     InputAction = "InputAction",
@@ -26,10 +27,12 @@ export class InputActionEvent extends GameEvent {
 
 export class WorldCollisionEvent extends GameEvent {
     private _collisionType: CollisionType;
-    constructor(collisionType: CollisionType) {
+    private _collisionSegments: ICollisionSegment[];
+    constructor(collisionType: CollisionType, collisionSegments: ICollisionSegment[]) {
         super(GameEventType.WorldCollision);
         this._collisionType = collisionType;
+        this._collisionSegments = collisionSegments;
     }
     get collisionType(): CollisionType {return this._collisionType}
+    get collisionSegments(): ICollisionSegment[] {return this._collisionSegments}
 }
-

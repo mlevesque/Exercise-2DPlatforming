@@ -1,22 +1,27 @@
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
 import { IVector, IRay, getEndOfRay, getPositionAlongRay, createRayPP, createRayPV } from "../utils/geometry";
-import { calculateTCollisionValues, capT, getPointCollision, isTValueInRange, getLedgeCollisionData, getConnectedCollisionId } from "./util";
+import { calculateTCollisionValues, capT, getPointCollision, isTValueInRange, getLedgeCollisionData, 
+    getConnectedCollisionId } from "./util";
 import { CollisionType } from "./collisionType";
+import { ICollisionSegment } from "./CollisionSegment";
 
 /**
  * Returns a resolve path entry with the given information.
  * @param cappedT t value along the surface collision, capped between 0 and 1, inclusively
  * @param surfaceCollision collision surface resolved to
+ * @param collisionSegment original collision segment we collided with
  * @param movement resolved movement ray
  * @param collisionType type of collision (floor, wall, ledge, etc)
  */
 function buildResolvePathEntry( cappedT: number, 
                                 surfaceCollision: IRay,
+                                collisionSegment: ICollisionSegment,
                                 movement: IRay,
                                 collisionType: CollisionType): IResolvePathEntry {
     const pathEnd = getPositionAlongRay(surfaceCollision, cappedT);
     return {
         ray: createRayPP(movement.p.x, movement.p.y, pathEnd.x, pathEnd.y),
+        collisionSegments: [collisionSegment],
         type: collisionType
     }
 }
@@ -42,6 +47,7 @@ function buildUpdatedMovementRay( cappedT: number, surfaceCollision: IRay, movem
  * @param collisionTracker stores collision information and the resolve path
  * @param resolveDirection direction at which to resolve the movement to the surface collision
  * @param surfaceCollision collision surface to resolve to
+ * @param collisionSegment original collision segment we collided with
  * @param movementT t position along the movement ray where the collison occurred. If the resolve direction is parallel
  *      to the surface collision, then this resolves to this t value position.
  * @param collisionType type of collision this is resolving to (floor, wall, ledge, etc)
@@ -49,6 +55,7 @@ function buildUpdatedMovementRay( cappedT: number, surfaceCollision: IRay, movem
 function addToResolvePath( collisionTracker: WorldCollisionTracker, 
                            resolveDirection: IVector,
                            surfaceCollision: IRay, 
+                           collisionSegment: ICollisionSegment,
                            movementT: number, 
                            collisionType: CollisionType): number {
     
@@ -67,7 +74,7 @@ function addToResolvePath( collisionTracker: WorldCollisionTracker,
 
     // add path entry
     collisionTracker.addToResolvePath(
-        buildResolvePathEntry(cappedT, surfaceCollision, collisionTracker.currentMovement, collisionType),
+        buildResolvePathEntry(cappedT,surfaceCollision,collisionSegment,collisionTracker.currentMovement,collisionType),
         remainingMovement
     );
 
@@ -85,7 +92,7 @@ function addToResolvePath( collisionTracker: WorldCollisionTracker,
  * @param collisionTracker 
  * @param resolveDirection 
  */
-function resolveToSegment(collisionTracker: WorldCollisionTracker, resolveDirection: IVector): void {
+export function resolveToSegment(collisionTracker: WorldCollisionTracker, resolveDirection: IVector): void {
     // find the intersection from the resolve direction and the collision segment
     const d = collisionTracker.currentCollisionDetectionData;
     const collisionSegment = d.collisionSegment;
@@ -95,7 +102,14 @@ function resolveToSegment(collisionTracker: WorldCollisionTracker, resolveDirect
     // resolve the collision segment
     // this will return the t value location along the collision segment that can tell us if we resolved off the
     // edge of the segment
-    const t = addToResolvePath(collisionTracker, resolveDirection, offsetSegment, d.movementT, d.collisionType);
+    const t = addToResolvePath(
+        collisionTracker, 
+        resolveDirection, 
+        offsetSegment, 
+        collisionSegment, 
+        d.movementT, 
+        d.collisionType
+    );
 
     // we are done with this collision
     collisionTracker.completeCurrentCollision();
@@ -143,14 +157,21 @@ function resolveToSegment(collisionTracker: WorldCollisionTracker, resolveDirect
  * @param collisionTracker 
  * @param resolveDirection 
  */
-function resolveToSegmentLedge(collisionTracker: WorldCollisionTracker, resolveDirection: IVector): void {
+export function resolveToSegmentLedge(collisionTracker: WorldCollisionTracker, resolveDirection: IVector): void {
     // build ledge and offset it by the entity collision offset
     const d = collisionTracker.currentCollisionDetectionData;
     const collisionSegment = d.collisionSegment;
     const offsetLedgeRay = collisionTracker.getCollisionSegmentWithOffset(d.collisionSegment.segment, d.collisionType);
 
     // resolve to ledge
-    const t = addToResolvePath(collisionTracker, resolveDirection, offsetLedgeRay, d.movementT, d.collisionType);
+    const t = addToResolvePath(
+        collisionTracker, 
+        resolveDirection, 
+        offsetLedgeRay, 
+        collisionSegment, 
+        d.movementT, 
+        d.collisionType
+    );
 
     // we are done with this collision
     collisionTracker.completeCurrentCollision();
@@ -178,17 +199,21 @@ function resolveToSegmentLedge(collisionTracker: WorldCollisionTracker, resolveD
  * Performs collision resolve to wall segments for the stored collision segment.
  * @param collisionTracker 
  */
-function resolveToWallSegment(collisionTracker: WorldCollisionTracker): void {
+export function resolveToWallSegment(collisionTracker: WorldCollisionTracker): void {
     const d = collisionTracker.currentCollisionDetectionData;
     const movement = collisionTracker.currentMovement;
     const offsetWall = collisionTracker.getCollisionSegmentWithOffset(d.collisionSegment.segment, d.collisionType);
     collisionTracker.addToResolvePath(
         {
             ray: createRayPV(movement.p.x, movement.p.y, offsetWall.p.x - movement.p.x, movement.v.y),
+            collisionSegments: [d.collisionSegment],
             type: d.collisionType
         },
         null
     );
+
+    // we are done with this collision
+    collisionTracker.completeCurrentCollision();
 }
 
 /**
@@ -226,6 +251,9 @@ export function resolveByPath(collisionTracker: WorldCollisionTracker): void {
         newType.addType(data.collisionType);
 
         // update resolve path
-        collisionTracker.setUpdatedEndPath(data.pathIndex, newRay, newType);
+        collisionTracker.setUpdatedEndPath(data.pathIndex, newRay, newType, data.collisionSegment);
     }
+
+    // we are done with this collision
+    collisionTracker.completeCurrentCollision();
 }
