@@ -1,6 +1,6 @@
 import { put } from "redux-saga/effects";
 import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, actionSetEntitiesCollection } from "../redux/actionCreators";
-import { IMapSchema } from "../utils/jsonSchemas";
+import { IMapSchema, getGameConfig } from "../utils/jsonSchemas";
 import { IMap } from "../redux/state";
 import { buildCollisionsCollection, lazyLoadImages, getImagesToLoad, buildEntityCollection, buildWorldPartition } from "./utils";
 import { WorldPartition } from "../physics/WorldPartition";
@@ -25,9 +25,14 @@ export function* loadLevelSaga(levelFile: string) {
     let data: IMapSchema = (yield promise) as IMapSchema;
 
     // store map data into store
+    const config = getGameConfig();
+    const mapHeight = data.map.length * config.tileSize;
+    const mapWidth = mapHeight == 0 ? 0 : data.map[0].length * config.tileSize;
     let map: IMap = {
         tileset: data.tileset,
         tiles: data.map,
+        width: mapWidth,
+        height: mapHeight
     };
     yield put(actionSetMap(map));
 
