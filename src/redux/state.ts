@@ -1,6 +1,7 @@
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IVector } from "../utils/geometry";
 import { ImpulseTarget } from "../behaviors/utils";
+import { IBehaviorData } from "../behaviors/behaviorData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main State
@@ -74,7 +75,7 @@ export interface IEntity {
     id: string;
     type: EntityType;
 
-    behavior: any;
+    behavior: IBehaviorData;
 
     flip: boolean;
     currentAnimation: EntityAnimation;

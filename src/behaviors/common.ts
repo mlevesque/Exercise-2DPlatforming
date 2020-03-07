@@ -4,41 +4,31 @@ import { MoveDirection, applyImpulseToEntity, ImpulseType, ImpulseTarget } from 
 import { CollisionType } from "../physics/collisionType";
 import { createVector } from "../utils/geometry";
 import { isFloor } from "../physics/util";
+import { IBehaviorData, getBehaviorCollision } from "./behaviorData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEHAVIOR DEFINITIONS
 export type EntityEventHandleMap = Map<GameEventType, IHandleEntityEvent>;
 export type EntityUpdateBehaviorMap = Map<EntityType, IUpdateEntityBehavior>;
 
-export interface IHandleEntityEvent { (behavior: any, event: GameEvent): void }
+export interface IHandleEntityEvent { (behavior: IBehaviorData, event: GameEvent): void }
 export interface IUpdateEntityBehavior { (deltaT: number, entity: IEntity): void }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMMON BEHAVIOR DATA
-export interface ICollisionBehaviorData {
-    collisionType: number;
-    segId: string;
-}
-export interface IMovementBehaviorData {
-    moveDirection: MoveDirection;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMMON EVENT HANDLERS
-export function handleWorldCollision(behavior: any, event: GameEvent): void {
+export function handleWorldCollision(behavior: IBehaviorData, event: GameEvent): void {
     const collisionEvent = (event as WorldCollisionEvent);
-    let b = behavior as ICollisionBehaviorData;
-    b.collisionType = collisionEvent.collisionType.rawValue;
+    let collisionBehavior = getBehaviorCollision(behavior);
+    collisionBehavior.collisionType = collisionEvent.collisionType.rawValue;
 
     // attach segment if we are on the ground
     if (collisionEvent.collisionType.hasFloorCollision()) {
         const seg = collisionEvent.collisionSegments.find(isFloor);
-        b.segId = seg ? seg.id : "";
+        collisionBehavior.segId = seg ? seg.id : "";
     }
     else {
-        b.segId = "";
+        collisionBehavior.segId = "";
     }
 }
 

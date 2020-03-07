@@ -1,5 +1,4 @@
-import { ICollisionBehaviorData, EntityEventHandleMap, updateEntityMove, updateEntityCollisionVelocity, 
-    IMovementBehaviorData, handleWorldCollision } from "./common";
+import { EntityEventHandleMap, updateEntityMove, updateEntityCollisionVelocity, handleWorldCollision } from "./common";
 import { GameEventType, InputActionEvent, GameEvent } from "../events/GameEvents";
 import { IEntity, EntityAnimation } from "../redux/state";
 import { changeAnimationOnEntity, MoveDirection, applyImpulseToEntity, ImpulseType, ImpulseTarget, 
@@ -7,26 +6,28 @@ import { changeAnimationOnEntity, MoveDirection, applyImpulseToEntity, ImpulseTy
 import { CollisionFlag, CollisionType } from "../physics/collisionType";
 import { getEntityJsonData, IPlayerSchema, IJumpDuration } from "../utils/jsonSchemas";
 import { createVector } from "../utils/geometry";
+import { IBehaviorData, setBehaviorCollision, setBehaviorMovement, setBehaviorJump, getBehaviorMovement, 
+    getBehaviorJump, 
+    getBehaviorCollision} from "./behaviorData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// BEHAVIOR DATA
-export interface IPlayerBehavior extends ICollisionBehaviorData, IMovementBehaviorData {
-    jumpPressed: boolean;
-    jumping: boolean;
-    jumpDuration: number;
-    jumpKeyElapsedTime: number;
-}
-
-export function createPlayerBehaviorData(): IPlayerBehavior {
-    return {
-        moveDirection: MoveDirection.None,
+// BEHAVIOR CREATION
+export function createPlayerBehaviorData(): IBehaviorData {
+    let behavior: IBehaviorData = {};
+    setBehaviorCollision(behavior, {
+        collisionType: 0,
+        segId: ""
+    });
+    setBehaviorMovement(behavior, {
+        moveDirection: MoveDirection.None
+    })
+    setBehaviorJump(behavior, {
         jumpPressed: false,
         jumping: false,
-        jumpKeyElapsedTime: 0,
         jumpDuration: 0,
-        collisionType: CollisionFlag.None,
-        segId: "",
-    }
+        jumpKeyElapsedTime: 0
+    })
+    return behavior;
 }
 
 
@@ -40,15 +41,16 @@ export const playerEventHandlerMapping: EntityEventHandleMap = new Map([
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EVENTS HANDLERS
-export function handleInputAction(behavior: any, event: GameEvent): void {
+export function handleInputAction(behavior: IBehaviorData, event: GameEvent): void {
     const inputEvent = event as InputActionEvent;
-    let b = behavior as IPlayerBehavior;
+    let moveBehavior = getBehaviorMovement(behavior);
+    let jumpBehavior = getBehaviorJump(behavior);
 
     // handle move
-    b.moveDirection = inputEvent.direction;
+    moveBehavior.moveDirection = inputEvent.direction;
 
     // handle jump
-    b.jumpPressed = inputEvent.jump;
+    jumpBehavior.jumpPressed = inputEvent.jump;
 }
 
 
@@ -67,47 +69,49 @@ function getJumpDuration(jumpDuration: number, initialDuration: number, jumpEntr
     return initialDuration;
 }
 export function updatePlayerActionBehavior(deltaT: number, player: IEntity): void {
-    const behavior = player.behavior as IPlayerBehavior;
     const entityData = getEntityJsonData(player.type) as IPlayerSchema;
 
     // set left and right movement
-    updateEntityMove(player, behavior.moveDirection, entityData.speed);
+    let moveBehavior = getBehaviorMovement(player.behavior);
+    updateEntityMove(player, moveBehavior.moveDirection, entityData.speed);
 
     // handle jump
-    const collisionType = new CollisionType(behavior.collisionType);
-    if (behavior.jumpPressed) {
+    let jumpBehavior = getBehaviorJump(player.behavior);
+    let collisionBehavior = getBehaviorCollision(player.behavior);
+    const collisionType = new CollisionType(collisionBehavior.collisionType);
+    if (jumpBehavior.jumpPressed) {
         if (collisionType.hasFloorCollision()) {
-            behavior.jumping = true;
-            behavior.jumpKeyElapsedTime = 0;
+            jumpBehavior.jumping = true;
+            jumpBehavior.jumpKeyElapsedTime = 0;
 
             // detach segment
-            behavior.segId = "";
+            collisionBehavior.segId = "";
         }
     }
     else {
-        behavior.jumpKeyElapsedTime = 0;
+        jumpBehavior.jumpKeyElapsedTime = 0;
     }
 
     // apply jump impulse
-    if (behavior.jumping) {
+    if (jumpBehavior.jumping) {
         const speed = entityData.jump.speed;
         const jump = entityData.jump;
-        const duration = getJumpDuration(behavior.jumpKeyElapsedTime, jump.initialDuration, jump.additionalDurations);
-        if (duration > behavior.jumpDuration) {
+        const d = getJumpDuration(jumpBehavior.jumpKeyElapsedTime, jump.initialDuration, jump.additionalDurations);
+        if (d > jumpBehavior.jumpDuration) {
             applyImpulseToEntity(
                 player, 
                 ImpulseType.Jump, 
                 createVector(0, -speed), 
-                duration - behavior.jumpDuration, 
+                d - jumpBehavior.jumpDuration, 
                 false, 
                 ImpulseTarget.Acceleration
             );
-            behavior.jumpDuration = duration;
+            jumpBehavior.jumpDuration = d;
         }
-        behavior.jumpKeyElapsedTime += deltaT;
+        jumpBehavior.jumpKeyElapsedTime += deltaT;
     }
     else {
-        behavior.jumpDuration = 0;
+        jumpBehavior.jumpDuration = 0;
     }
 }
 
@@ -115,16 +119,17 @@ export function updatePlayerActionBehavior(deltaT: number, player: IEntity): voi
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // REACTION UPDATE
 export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): void {
-    const behavior = player.behavior as IPlayerBehavior;
-    const collisionType = new CollisionType(behavior.collisionType);
-
     // update velocity upon collisions
+    const collisionBehavior = getBehaviorCollision(player.behavior);
+    const collisionType = new CollisionType(collisionBehavior.collisionType);
     updateEntityCollisionVelocity(player, collisionType);
 
     // handle animation triggers
+    let jumpBehavior = getBehaviorJump(player.behavior);
+    let moveBehavior = getBehaviorMovement(player.behavior);
     if (collisionType.hasFloorCollision()) {
-        behavior.jumping = false;
-        if (behavior.moveDirection == MoveDirection.Left || behavior.moveDirection == MoveDirection.Right) {
+        jumpBehavior.jumping = false;
+        if (moveBehavior.moveDirection == MoveDirection.Left || moveBehavior.moveDirection == MoveDirection.Right) {
             changeAnimationOnEntity(player, EntityAnimation.Walk, false);
         }
         else {
@@ -133,15 +138,15 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
     }
     else {
         if (player.velocity.y > 0) {
-            if (behavior.jumping) {
+            if (jumpBehavior.jumping) {
                 changeAnimationOnEntity(player, EntityAnimation.JumpFall, false);
             }
             else {
                 changeAnimationOnEntity(player, EntityAnimation.Fall, false);
             }
-            behavior.jumping = false;
+            jumpBehavior.jumping = false;
         }
-        else if (behavior.jumping) {
+        else if (jumpBehavior.jumping) {
             changeAnimationOnEntity(player, EntityAnimation.Jump, false);
         }
     }

@@ -7,10 +7,10 @@ import { ISurfaceTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMov
 import { getEntityJsonData } from "../utils/jsonSchemas";
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
 import { CollisionType, CollisionFlag } from "./collisionType";
-import { resolveWithExternalDirection, resolveByPath, resolveToSegment } from "./collisionResolve";
+import { resolveWithExternalDirection, resolveByPath } from "./collisionResolve";
 import { GameEventQueue } from "../events/GameEventQueue";
 import { WorldCollisionEvent } from "../events/GameEvents";
-import { ICollisionBehaviorData } from "../behaviors/common";
+import { getBehaviorCollision } from "../behaviors/behaviorData";
 
 /**
  * Checks collision against the given collision segment and stores the collision to the tracker.
@@ -375,7 +375,7 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
  * @param collisionTracker 
  */
 function updateAttachedCollisionForEntity(entity: IEntity, collisionTracker: WorldCollisionTracker): void {
-    const collisionBehavior = entity.behavior as ICollisionBehaviorData;
+    const collisionBehavior = getBehaviorCollision(entity.behavior)
     if (collisionBehavior) {
         const attachedCollision = collisionTracker.relevantCollisionSegments.get(collisionBehavior.segId);
         if (attachedCollision) {
