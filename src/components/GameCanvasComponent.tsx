@@ -3,14 +3,14 @@ import { connect } from "react-redux"
 import { IMainState } from "../redux/state"
 
 interface ICanvasProps {
-    width: number;
-    height: number;
+    halfWidth: number;
+    halfHeight: number;
 }
 
 const mapStateToProps = (state: IMainState): ICanvasProps => {
     return {
-        width: state.camera.width,
-        height: state.camera.height,
+        halfWidth: state.camera.halfWidth,
+        halfHeight: state.camera.halfHeight,
     }
 }
 
@@ -18,7 +18,7 @@ class GameCanvasComponent extends React.PureComponent<ICanvasProps> {
     render() {
         return (
             <div>
-                <canvas id="gameView" width={this.props.width} height={this.props.height} />
+                <canvas id="gameView" width={this.props.halfWidth * 2} height={this.props.halfHeight * 2} />
             </div>
         )
     }

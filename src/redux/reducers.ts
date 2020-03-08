@@ -3,7 +3,7 @@ import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap } from
 import { InitState } from "./InitState";
 import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction } from "./actionTypes";
 import { ICollisionSegment, cloneSegment } from "../physics/CollisionSegment";
-import { copyEntity } from "../utils/creation";
+import { copyEntity, copyCamera } from "../utils/creation";
 
 
 const allReducers = combineReducers<IMainState>({
@@ -46,20 +46,23 @@ export function cameraReducer(state: ICamera = InitState.camera, action: AnyActi
     let newState: ICamera;
     switch (action.type) {
         case CameraAction.Resize:
-            newState = Object.assign({}, state);
-            newState.width = action.payload.width;
-            newState.height = action.payload.height;
-            newState.position = Object.assign({}, state.position);
+            newState = copyCamera(state);
+            newState.halfWidth = action.payload.width / 2;
+            newState.halfHeight = action.payload.height / 2;
             return newState;
         case CameraAction.SetPosition:
-            newState = Object.assign({}, state);
+            newState = copyCamera(state);
             newState.position = Object.assign({}, action.payload.position);
             return newState;
         case CameraAction.SetLocks:
-            newState = Object.assign({}, state);
-            newState.position = Object.assign({}, action.payload.position);
+            newState = copyCamera(state);
             newState.lockX = action.payload.lockX;
             newState.lockY = action.payload.lockY;
+            return newState;
+        case CameraAction.SetScrollArea:
+            newState = copyCamera(state);
+            newState.innerScrollArea = Object.assign({}, action.payload.innerArea);
+            newState.outerScrollArea = Object.assign({}, action.payload.outerArea);
             return newState;
     }
     return state;

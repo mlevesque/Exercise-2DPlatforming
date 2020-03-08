@@ -14,7 +14,8 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, width, height);
 
-    ctx.translate(Math.floor(-state.camera.position.x), Math.floor(-state.camera.position.y));
+    const cam = state.camera;
+    ctx.translate(Math.floor(cam.halfWidth - cam.position.x), Math.floor(cam.halfHeight - cam.position.y));
 
     // render scene
     renderTiles(ctx, state.map);

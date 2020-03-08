@@ -9,11 +9,19 @@ export const InitState: IMainState = {
         [InputType.Reset]: {previous: false, current: false},
     },
     camera: {
-        width: 640,
-        height: 480,
+        halfWidth: 320,
+        halfHeight: 240,
         position: {x: 0, y: 0},
         lockX: false,
         lockY: false,
+        innerScrollArea: {
+            verticalRadius: 100,
+            horizontalRadius: 150,
+        },
+        outerScrollArea: {
+            verticalRadius: 200,
+            horizontalRadius: 300,
+        }
     },
     map: null,
     staticCollisions: {},

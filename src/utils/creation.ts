@@ -1,5 +1,5 @@
 import { Guid } from "guid-typescript";
-import { IEntity, EntityType, EntityAnimation } from "../redux/state";
+import { IEntity, EntityType, EntityAnimation, ICamera } from "../redux/state";
 import { IVector } from "./geometry";
 import { createEntityBehaviorData } from "../behaviors/utils";
 
@@ -55,4 +55,8 @@ export function deepCopy(obj: any): any {
 
 export function copyEntity(entity: IEntity): IEntity {
     return deepCopy(entity);
+}
+
+export function copyCamera(camera: ICamera): ICamera {
+    return deepCopy(camera);
 }

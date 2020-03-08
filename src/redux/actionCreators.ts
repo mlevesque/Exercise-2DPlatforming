@@ -7,7 +7,7 @@ import { GameAction,
          LoadingAction, 
          MapAction } from "./actionTypes";
 import { ICollisionSegment } from "../physics/CollisionSegment";
-import { IEntity, InputType, IMap } from "./state";
+import { IEntity, InputType, IMap, IScrollArea } from "./state";
 import { IVector } from "../utils/geometry";
 
 export function createAction(type: string, payload: Object = null): AnyAction {
@@ -30,6 +30,9 @@ export function actionCameraSetPosition(position: IVector): AnyAction {
 }
 export function actionCameraSetLocks(lockX: boolean, lockY: boolean): AnyAction {
     return createAction(CameraAction.SetLocks, {lockX: lockX, lockY: lockY});
+}
+export function actionCameraSetScrollArea(innerArea: IScrollArea, outerArea: IScrollArea): AnyAction {
+    return createAction(CameraAction.SetScrollArea, {innerArea: innerArea, outerArea: outerArea});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

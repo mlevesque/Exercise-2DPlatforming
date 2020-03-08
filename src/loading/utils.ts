@@ -94,12 +94,12 @@ export function buildEntityCollection(map: IMapSchema): IEntity[] {
  * @param mapHeight 
  */
 export function setupCamera(camera: ICamera, mapWidth: number, mapHeight: number): void {
-    camera.lockX = camera.width >= mapWidth;
+    camera.lockX = camera.halfWidth * 2 >= mapWidth;
     if (camera.lockX) {
-        camera.position.x = -(camera.width - mapWidth) / 2;
+        camera.position.x = mapWidth / 2;
     }
-    camera.lockY = camera.height >= mapHeight;
+    camera.lockY = camera.halfHeight * 2 >= mapHeight;
     if (camera.lockY) {
-        camera.position.y = -(camera.height - mapHeight) / 2;
+        camera.position.y = mapHeight / 2;
     }
 }

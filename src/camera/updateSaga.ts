@@ -12,15 +12,15 @@ export function* updateCamera(targetPosition: IVector) {
     // move camera
     const map: IMap = yield select(getMap);
     if (!camera.lockX) {
-        camPosition.x = targetPosition.x - camera.width / 2;
-        camPosition.x = Math.max(camPosition.x, 0);
-        camPosition.x = Math.min(camPosition.x, map.width - camera.width);
+        camPosition.x = targetPosition.x;
+        camPosition.x = Math.max(camPosition.x, camera.halfWidth);
+        camPosition.x = Math.min(camPosition.x, map.width - camera.halfWidth);
 
     }
     if (!camera.lockY) {
-        camPosition.y = targetPosition.y - camera.height / 2;
-        camPosition.y = Math.max(camPosition.y, 0);
-        camPosition.y = Math.min(camPosition.y, map.height - camera.height);
+        camPosition.y = targetPosition.y ;
+        camPosition.y = Math.max(camPosition.y, camera.halfHeight);
+        camPosition.y = Math.min(camPosition.y, map.height - camera.halfHeight);
     }
 
     // set updated camera
