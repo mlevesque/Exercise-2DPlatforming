@@ -35,15 +35,17 @@ export interface IInputActions {
 export interface IScrollArea {
     verticalRadius: number;
     horizontalRadius: number;
+    spring: number;
+    dampen: number;
 }
 export interface ICamera {
     halfWidth: number;
     halfHeight: number;
+    velocity: IVector;
     position: IVector;
     lockX: boolean;
     lockY: boolean;
-    innerScrollArea: IScrollArea;
-    outerScrollArea: IScrollArea;
+    scrollArea: IScrollArea;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

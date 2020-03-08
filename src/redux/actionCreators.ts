@@ -25,14 +25,14 @@ export function actionGameUpdate(deltaTime: number): AnyAction {
 export function actionCameraResize(width: number, height: number): AnyAction {
     return createAction(CameraAction.Resize, {width: width, height: height});
 }
-export function actionCameraSetPosition(position: IVector): AnyAction {
-    return createAction(CameraAction.SetPosition, {position: position});
+export function actionCameraSetPosition(position: IVector, velocity: IVector): AnyAction {
+    return createAction(CameraAction.SetPositioning, {position: position, velocity: velocity});
 }
 export function actionCameraSetLocks(lockX: boolean, lockY: boolean): AnyAction {
     return createAction(CameraAction.SetLocks, {lockX: lockX, lockY: lockY});
 }
-export function actionCameraSetScrollArea(innerArea: IScrollArea, outerArea: IScrollArea): AnyAction {
-    return createAction(CameraAction.SetScrollArea, {innerArea: innerArea, outerArea: outerArea});
+export function actionCameraSetScrollArea(scrollArea: IScrollArea): AnyAction {
+    return createAction(CameraAction.SetScrollArea, {scrollArea: scrollArea});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

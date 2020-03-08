@@ -1,6 +1,6 @@
 import { IVector, zeroVector, scale, createVector, add } from "../utils/geometry";
 import { ICollisionSegment } from "../physics/CollisionSegment";
-import { IEntity } from "../redux/state";
+import { IEntity, ICamera } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { isWall } from "../physics/util";
 import { WorldPartition } from "../physics/WorldPartition";
@@ -133,6 +133,23 @@ export function renderPartition(ctx: CanvasRenderingContext2D): void {
         ctx.lineTo(x, height);
         ctx.stroke();
     }
+}
+
+export function renderScrollArea(ctx: CanvasRenderingContext2D, camera: ICamera): void {
+    ctx.strokeStyle = "yellow";
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+    ctx.ellipse(
+        camera.halfWidth, 
+        camera.halfHeight, 
+        camera.scrollArea.horizontalRadius, 
+        camera.scrollArea.verticalRadius, 
+        0, 
+        0, 
+        2 * Math.PI
+    );
+    ctx.stroke();
 }
 
 export function renderFrameRate(ctx: CanvasRenderingContext2D, deltaT: number): void {

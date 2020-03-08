@@ -11,17 +11,16 @@ export const InitState: IMainState = {
     camera: {
         halfWidth: 320,
         halfHeight: 240,
+        velocity: {x: 0, y: 0},
         position: {x: 0, y: 0},
         lockX: false,
         lockY: false,
-        innerScrollArea: {
-            verticalRadius: 100,
-            horizontalRadius: 150,
+        scrollArea: {
+            verticalRadius: 6,
+            horizontalRadius: 8,
+            spring: 0.001,
+            dampen: 0.0001,
         },
-        outerScrollArea: {
-            verticalRadius: 200,
-            horizontalRadius: 300,
-        }
     },
     map: null,
     staticCollisions: {},

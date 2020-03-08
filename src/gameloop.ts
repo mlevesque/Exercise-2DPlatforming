@@ -39,7 +39,7 @@ function* updateSaga(deltaT: number) {
     yield call(updateAnimations, deltaT, entityCollectionCopy.allEntities);
 
     // camera
-    yield call(updateCamera, entityCollectionCopy.player.position);
+    yield call(updateCamera, deltaT, entityCollectionCopy.player.position);
 
     // we will then save the updated entities to the store
     yield put(actionSetEntitiesCollection(entityCollectionCopy.allEntities));

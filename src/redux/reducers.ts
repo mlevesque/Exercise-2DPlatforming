@@ -50,7 +50,7 @@ export function cameraReducer(state: ICamera = InitState.camera, action: AnyActi
             newState.halfWidth = action.payload.width / 2;
             newState.halfHeight = action.payload.height / 2;
             return newState;
-        case CameraAction.SetPosition:
+        case CameraAction.SetPositioning:
             newState = copyCamera(state);
             newState.position = Object.assign({}, action.payload.position);
             return newState;
@@ -61,8 +61,7 @@ export function cameraReducer(state: ICamera = InitState.camera, action: AnyActi
             return newState;
         case CameraAction.SetScrollArea:
             newState = copyCamera(state);
-            newState.innerScrollArea = Object.assign({}, action.payload.innerArea);
-            newState.outerScrollArea = Object.assign({}, action.payload.outerArea);
+            newState.scrollArea = Object.assign({}, action.payload.scrollArea);
             return newState;
     }
     return state;
