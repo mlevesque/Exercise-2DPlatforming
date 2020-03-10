@@ -3,7 +3,7 @@ import { select, put } from "redux-saga/effects";
 import { getCamera, getMap } from "../redux/selectors";
 import { actionCameraSetPosition } from "../redux/actionCreators";
 import { ICamera, IMap } from "../redux/state";
-import { integratePositionData, VerletIntegration } from "../physics/integration";
+import { integratePositionData, VerletIntegration, EulerIntegration } from "../physics/integration";
 import { setPosition } from "../physics/movementData";
 
 /**
@@ -72,7 +72,7 @@ export function* updateCamera(deltaT: number, targetPosition: IVector) {
 
     // calculate acceleration
     const acceleration: IVector = calculateAcceleration(camera, targetPosition);
-    integratePositionData(deltaT, camera.positionData, VerletIntegration, acceleration);
+    integratePositionData(deltaT, camera.positionData, EulerIntegration, acceleration);
 
     // adjust position back to previous position in any axis that is locked and constrained to edge of the world
     let newPos = getPositionFromLocks(camera);
