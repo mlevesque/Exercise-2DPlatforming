@@ -1,5 +1,4 @@
 import { ICollisionSegment } from "../physics/CollisionSegment";
-import { IVector } from "../utils/geometry";
 import { IBehaviorData } from "../behaviors/behaviorData";
 import { IPositionData } from "../physics/movementData";
 
@@ -33,19 +32,17 @@ export interface IInputActions {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Camera
 export interface IScrollArea {
-    verticalRadius: number;
-    horizontalRadius: number;
+    radius: number;
     spring: number;
     dampen: number;
 }
 export interface ICamera {
     halfWidth: number;
     halfHeight: number;
-    velocity: IVector;
-    position: IVector;
     lockX: boolean;
     lockY: boolean;
     scrollArea: IScrollArea;
+    positionData: IPositionData;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

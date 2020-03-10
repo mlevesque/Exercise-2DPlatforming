@@ -1,4 +1,4 @@
-import { IVector, zeroVector, scale, createVector, add } from "../utils/geometry";
+import { IVector, zeroVector, scale, createVector, add, subtract, vectorLength, vectorSquaredLength } from "../utils/geometry";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IEntity, ICamera } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
@@ -135,6 +135,17 @@ export function renderPartition(ctx: CanvasRenderingContext2D): void {
     }
 }
 
+export function renderScrollVector(ctx: CanvasRenderingContext2D, camera: ICamera, targetPos: IVector): void {
+    const v = subtract(targetPos, camera.positionData.position);
+    const m = vectorSquaredLength(v);
+    const r = camera.scrollArea.radius;
+    const lineColor = m > r*r+1 ? "red" : "blue";
+    ctx.strokeStyle = lineColor;
+    ctx.fillStyle = lineColor;
+    ctx.lineWidth = 3;
+    renderArrow(ctx, camera.positionData.position, targetPos, 5);
+}
+
 export function renderScrollArea(ctx: CanvasRenderingContext2D, camera: ICamera): void {
     ctx.strokeStyle = "yellow";
     ctx.lineWidth = 3;
@@ -143,8 +154,8 @@ export function renderScrollArea(ctx: CanvasRenderingContext2D, camera: ICamera)
     ctx.ellipse(
         camera.halfWidth, 
         camera.halfHeight, 
-        camera.scrollArea.horizontalRadius, 
-        camera.scrollArea.verticalRadius, 
+        camera.scrollArea.radius, 
+        camera.scrollArea.radius, 
         0, 
         0, 
         2 * Math.PI

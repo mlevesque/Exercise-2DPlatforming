@@ -1,4 +1,5 @@
 import { IMainState, InputType } from "./state";
+import { zeroVector } from "../utils/geometry";
 
 export const InitState: IMainState = {
     loading: false,
@@ -11,16 +12,23 @@ export const InitState: IMainState = {
     camera: {
         halfWidth: 320,
         halfHeight: 240,
-        velocity: {x: 0, y: 0},
-        position: {x: 0, y: 0},
         lockX: false,
         lockY: false,
         scrollArea: {
-            verticalRadius: 6,
-            horizontalRadius: 8,
-            spring: 0.001,
-            dampen: 0.0001,
+            radius: 10,
+            spring: 100,
+            dampen: 20,
         },
+        positionData: {
+            impulses: {},
+            positionShifts: {},
+            position: zeroVector(),
+            velocity: zeroVector(),
+            acceleration: zeroVector(),
+            previousFramePosition: zeroVector(),
+            previousIntegrationPosition: zeroVector(),
+            previousTimeSlice: 1
+        }
     },
     map: null,
     staticCollisions: {},

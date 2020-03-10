@@ -96,14 +96,14 @@ export function removePositionShift(positionData: IPositionData, type: ImpulseTy
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // POSITIONING ACCESS METHODS
-export function setVelocity(movementData: IPositionData, velocity: IVector): void {
-    movementData.velocity = scale(1 / movementData.previousTimeSlice, velocity);
-    movementData.previousIntegrationPosition = subtract(movementData.position, velocity);
+export function setVelocity(positionData: IPositionData, velocity: IVector): void {
+    positionData.velocity = scale(1 / positionData.previousTimeSlice, velocity);
+    positionData.previousIntegrationPosition = subtract(positionData.position, velocity);
 }
-export function setPosition(movementData: IPositionData, newPosition: IVector): void {
-    shiftPosition(movementData, subtract(newPosition, movementData.position));
+export function setPosition(positionData: IPositionData, newPosition: IVector): void {
+    shiftPosition(positionData, subtract(newPosition, positionData.position));
 }
-export function shiftPosition(movementData: IPositionData, shiftVector: IVector): void {
-    movementData.position = add(movementData.position, shiftVector);
-    movementData.previousIntegrationPosition = add(movementData.previousIntegrationPosition, shiftVector);
+export function shiftPosition(positionData: IPositionData, shiftVector: IVector): void {
+    positionData.position = add(positionData.position, shiftVector);
+    positionData.previousIntegrationPosition = add(positionData.previousIntegrationPosition, shiftVector);
 }

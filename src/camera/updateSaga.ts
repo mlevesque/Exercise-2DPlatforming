@@ -1,55 +1,85 @@
-import { IVector, zeroVector, vectorLength, createVector, scale, subtract, add } from "../utils/geometry";
+import { IVector, vectorLength, scale, subtract, createVector, cloneVector } from "../utils/geometry";
 import { select, put } from "redux-saga/effects";
 import { getCamera, getMap } from "../redux/selectors";
 import { actionCameraSetPosition } from "../redux/actionCreators";
 import { ICamera, IMap } from "../redux/state";
-import { convertToCameraSpace } from "./util";
+import { integratePositionData, VerletIntegration } from "../physics/integration";
+import { setPosition } from "../physics/movementData";
 
+/**
+ * Calculates the spring force that drives the camera scrolling.
+ * @param camera 
+ * @param targetPosition 
+ */
 function calculateAcceleration(camera: ICamera, targetPosition: IVector): IVector {
-    // create vector to target position
-    const targetVector = convertToCameraSpace(targetPosition, camera);
+    // form vector from camera to target
     const scrollArea = camera.scrollArea;
+    const v = subtract(targetPosition, camera.positionData.position);
 
-    // scale the vector horizontally so that the scroll area is in a space that is a circle
-    const scaleVal = scrollArea.verticalRadius / scrollArea.horizontalRadius;
-    const transformedV = createVector(targetVector.x * scaleVal, targetVector.y);
-
-    // get magnitude of vector and compare with scroll area radius if it is within radius, then no acceleration
-    const magnitude = vectorLength(transformedV);
-    if (magnitude <= camera.scrollArea.verticalRadius) {
-        return zeroVector();
-    }
-
-    // calculate the spring force with dampening
-    const springScale = -scrollArea.spring * (magnitude - camera.scrollArea.verticalRadius) / magnitude;
-    const springForce = scale(springScale, targetVector);
-    const dampenForce = scale(-scrollArea.dampen, camera.velocity);
+    // calculate force
+    // if the magnitude is within the radius of the area, then don't apply spring force
+    const magnitude = vectorLength(v);
+    const springK = magnitude <= scrollArea.radius 
+        ? 0 
+        : scrollArea.spring * (magnitude - scrollArea.radius) / magnitude;
+    const springForce = scale(springK, v);
+    const dampenForce = scale(scrollArea.dampen, camera.positionData.velocity);
     return subtract(springForce, dampenForce);
 }
 
-export function* updateCamera(deltaT: number, targetPosition: IVector) {
-    // get camera
-    let camera: ICamera = yield select(getCamera);
-    let camPosition = camera.position;
-    let camVelocity = camera.velocity;
+/**
+ * Returns an updated camera psoition based on camera lock flags. This should be called after camera integration
+ * calculations.
+ * @param camera 
+ */
+function getPositionFromLocks(camera: ICamera): IVector {
+    const posData = camera.positionData;
+    return createVector(
+        camera.lockX ? posData.previousFramePosition.x : posData.position.x,
+        camera.lockY ? posData.previousFramePosition.y : posData.position.y
+    );
+}
 
-    // calculate acceleration
-    let acceleration: IVector = calculateAcceleration(camera, targetPosition);
-    camVelocity = add(camVelocity, scale(deltaT, acceleration));
-    camPosition = add(camPosition, scale(deltaT, camVelocity));
-
-    // constrain to world edges
-    const map: IMap = yield select(getMap);
+/**
+ * Returns an updated position from the given position constrained to the edges of the world if it exceeds those edges.
+ * Constraints will only happen if axes are not locked.
+ * @param camera 
+ * @param camPos 
+ * @param map 
+ */
+function getPositionConstrainedToWorldEdges(camPos: IVector, camera: ICamera, map: IMap): IVector {
+    const newPos = cloneVector(camPos);
     if (!camera.lockX) {
-        camPosition.x = Math.max(camPosition.x, camera.halfWidth);
-        camPosition.x = Math.min(camPosition.x, map.width - camera.halfWidth);
+        newPos.x = Math.max(newPos.x, camera.halfWidth);
+        newPos.x = Math.min(newPos.x, map.width - camera.halfWidth);
 
     }
     if (!camera.lockY) {
-        camPosition.y = Math.max(camPosition.y, camera.halfHeight);
-        camPosition.y = Math.min(camPosition.y, map.height - camera.halfHeight);
+        newPos.y = Math.max(newPos.y, camera.halfHeight);
+        newPos.y = Math.min(newPos.y, map.height - camera.halfHeight);
     }
+    return newPos;
+}
+
+/**
+ * Updates the camera position, scrolling towards the given target position.
+ * @param deltaT 
+ * @param targetPosition 
+ */
+export function* updateCamera(deltaT: number, targetPosition: IVector) {
+    // get camera
+    let camera: ICamera = yield select(getCamera);
+
+    // calculate acceleration
+    const acceleration: IVector = calculateAcceleration(camera, targetPosition);
+    integratePositionData(deltaT, camera.positionData, VerletIntegration, acceleration);
+
+    // adjust position back to previous position in any axis that is locked and constrained to edge of the world
+    let newPos = getPositionFromLocks(camera);
+    const map: IMap = yield select(getMap);
+    newPos = getPositionConstrainedToWorldEdges(newPos, camera, map);
+    setPosition(camera.positionData, newPos);
 
     // set updated camera
-    yield put(actionCameraSetPosition(camPosition, camVelocity));
+    yield put(actionCameraSetPosition(camera.positionData));
 }

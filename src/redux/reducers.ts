@@ -3,7 +3,7 @@ import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap } from
 import { InitState } from "./InitState";
 import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction } from "./actionTypes";
 import { ICollisionSegment, cloneSegment } from "../physics/CollisionSegment";
-import { copyEntity, copyCamera } from "../utils/creation";
+import { copyEntity, copyCamera, deepCopy } from "../utils/creation";
 
 
 const allReducers = combineReducers<IMainState>({
@@ -52,7 +52,7 @@ export function cameraReducer(state: ICamera = InitState.camera, action: AnyActi
             return newState;
         case CameraAction.SetPositioning:
             newState = copyCamera(state);
-            newState.position = Object.assign({}, action.payload.position);
+            newState.positionData = deepCopy(action.payload.positionData);
             return newState;
         case CameraAction.SetLocks:
             newState = copyCamera(state);
@@ -61,7 +61,7 @@ export function cameraReducer(state: ICamera = InitState.camera, action: AnyActi
             return newState;
         case CameraAction.SetScrollArea:
             newState = copyCamera(state);
-            newState.scrollArea = Object.assign({}, action.payload.scrollArea);
+            newState.scrollArea = deepCopy(action.payload.scrollArea);
             return newState;
     }
     return state;

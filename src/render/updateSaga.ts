@@ -12,6 +12,6 @@ export function* renderSaga(deltaT: number) {
         renderLoading(ctx, canvas.width, canvas.height);
     }
     else {
-        render(ctx, canvas.width, canvas.height, deltaT, state);
+        render(ctx, deltaT, state);
     }
 }

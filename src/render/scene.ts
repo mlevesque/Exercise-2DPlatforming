@@ -1,7 +1,8 @@
 import { IMainState, IEntity } from "../redux/state";
 import { renderTiles } from "./world";
 import { renderEntity } from "./entities";
-import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPartition, renderScrollArea } from "./debug";
+import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPartition, renderScrollArea, 
+    renderScrollVector } from "./debug";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 
 export function renderLoading(ctx: CanvasRenderingContext2D, width: number, height: number): void {
@@ -9,13 +10,14 @@ export function renderLoading(ctx: CanvasRenderingContext2D, width: number, heig
     ctx.fillRect(0, 0, width, height);
 }
 
-export function render(ctx: CanvasRenderingContext2D, width: number, height: number, deltaT: number, state: IMainState): void {
+export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMainState): void {
     ctx.save();
     ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     const cam = state.camera;
-    ctx.translate(Math.floor(cam.halfWidth - cam.position.x), Math.floor(cam.halfHeight - cam.position.y));
+    const posData = cam.positionData;
+    ctx.translate(Math.floor(cam.halfWidth - posData.position.x), Math.floor(cam.halfHeight - posData.position.y));
 
     // render scene
     renderTiles(ctx, state.map);
@@ -29,6 +31,10 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
         renderEntityCollisions(ctx, entity);
     });
     renderPartition(ctx);
+    const player = state.entities.length > 0 ? state.entities[0] : null;
+    if (player) {
+        renderScrollVector(ctx, state.camera, player.positionData.position);
+    }
     ctx.restore();
 
     // render HUD stuff

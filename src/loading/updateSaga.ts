@@ -6,7 +6,6 @@ import { IMap, ICamera } from "../redux/state";
 import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera} from "./utils";
 import { getCamera } from "../redux/selectors";
 import { buildWorldPartition, buildCollisionsCollection } from "./collisionBuilding";
-import { zeroVector } from "../utils/geometry";
 
 /**
  * Generator function for handling level loading, including loading all assets needed for the given level.
@@ -43,7 +42,7 @@ export function* loadLevelSaga(levelFile: string) {
     let camera: ICamera = yield select(getCamera);
     setupCamera(camera, mapWidth, mapHeight);
     yield put(actionCameraSetLocks(camera.lockX, camera.lockY));
-    yield put(actionCameraSetPosition(camera.position, zeroVector()));
+    yield put(actionCameraSetPosition(camera.positionData));
 
     // build partition
     buildWorldPartition(data);

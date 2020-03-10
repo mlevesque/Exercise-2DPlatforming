@@ -1,8 +1,8 @@
 import { IMapSchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { EntityType, IEntity, EntityAnimation, ICamera } from "../redux/state";
 import { buildEntity } from "../utils/creation";
-import { ICollisionSegment } from "../physics/CollisionSegment";
-import { isFloor, isCeiling, isWall } from "../physics/util";
+import { cloneVector } from "../utils/geometry";
+import { setPosition } from "../physics/movementData";
 
 /**
  * Returns if an image element with the given image name has already been loaded and attached to the page.
@@ -95,11 +95,13 @@ export function buildEntityCollection(map: IMapSchema): IEntity[] {
  */
 export function setupCamera(camera: ICamera, mapWidth: number, mapHeight: number): void {
     camera.lockX = camera.halfWidth * 2 >= mapWidth;
-    if (camera.lockX) {
-        camera.position.x = mapWidth / 2;
-    }
     camera.lockY = camera.halfHeight * 2 >= mapHeight;
-    if (camera.lockY) {
-        camera.position.y = mapHeight / 2;
+    let newPos = cloneVector(camera.positionData.position);
+    if (camera.lockX) {
+        newPos.x = mapWidth / 2;
     }
+    if (camera.lockY) {
+        newPos.y = mapHeight / 2;
+    }
+    setPosition(camera.positionData, newPos);
 }

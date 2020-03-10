@@ -8,7 +8,7 @@ import { GameAction,
          MapAction } from "./actionTypes";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IEntity, InputType, IMap, IScrollArea } from "./state";
-import { IVector } from "../utils/geometry";
+import { IPositionData } from "../physics/movementData";
 
 export function createAction(type: string, payload: Object = null): AnyAction {
     return {type: type, payload: payload};
@@ -25,8 +25,8 @@ export function actionGameUpdate(deltaTime: number): AnyAction {
 export function actionCameraResize(width: number, height: number): AnyAction {
     return createAction(CameraAction.Resize, {width: width, height: height});
 }
-export function actionCameraSetPosition(position: IVector, velocity: IVector): AnyAction {
-    return createAction(CameraAction.SetPositioning, {position: position, velocity: velocity});
+export function actionCameraSetPosition(positionData: IPositionData): AnyAction {
+    return createAction(CameraAction.SetPositioning, {positionData: positionData});
 }
 export function actionCameraSetLocks(lockX: boolean, lockY: boolean): AnyAction {
     return createAction(CameraAction.SetLocks, {lockX: lockX, lockY: lockY});
