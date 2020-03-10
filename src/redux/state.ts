@@ -1,7 +1,7 @@
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IVector } from "../utils/geometry";
-import { ImpulseTarget } from "../behaviors/utils";
 import { IBehaviorData } from "../behaviors/behaviorData";
+import { IMovementData } from "../physics/movementData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main State
@@ -75,15 +75,6 @@ export enum EntityAnimation {
     Fall = "fall",
     JumpFall = "jumpFall",
 }
-export interface IImpulse {
-    impulse: IVector;
-    timeRemaining: number;
-    instant: boolean;
-    target: ImpulseTarget;
-}
-export interface IImpulseMap {
-    [type: string]: IImpulse;
-}
 export interface IEntity {
     id: string;
     type: EntityType;
@@ -95,8 +86,5 @@ export interface IEntity {
     currentFrame: number;
     elapsedTime: number;
 
-    impulses: IImpulseMap;
-    velocity: IVector;
-    prevPosition: IVector;
-    position: IVector;
+    movement: IMovementData;
 }

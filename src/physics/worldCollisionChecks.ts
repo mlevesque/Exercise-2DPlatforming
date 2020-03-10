@@ -1,5 +1,5 @@
 import { IEntity } from "../redux/state";
-import { IVector, IRay, createVector } from "../utils/geometry";
+import { IVector, IRay, createVector, cloneVector, subtract, add } from "../utils/geometry";
 import { ICollisionSegment } from "./CollisionSegment";
 import { ISurfaceTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMovingTowardSegment, areTValuePairsInRange,
     getStartLedgeCollisionType, getEndLedgeCollisionType, buildStartLedgeRay, buildEndLedgeRay,
@@ -11,6 +11,7 @@ import { resolveWithExternalDirection, resolveByPath } from "./collisionResolve"
 import { GameEventQueue } from "../events/GameEventQueue";
 import { WorldCollisionEvent } from "../events/GameEvents";
 import { getBehaviorCollision } from "../behaviors/behaviorData";
+import { setPosition } from "./movementData";
 
 /**
  * Checks collision against the given collision segment and stores the collision to the tracker.
@@ -399,8 +400,8 @@ export function updateWorldCollisionsOnEntity(entity: IEntity): void {
     const entityData = getEntityJsonData(entity.type);
     const entityCollision = entityData.collision;
     let collisionTracker = new WorldCollisionTracker(
-        entity.prevPosition, 
-        entity.position, 
+        entity.movement.previousFramePosition, 
+        entity.movement.position, 
         entityCollision.floorPoint, 
         entityCollision.ceilingPoint, 
         entityCollision.halfWidth);
@@ -417,7 +418,7 @@ export function updateWorldCollisionsOnEntity(entity: IEntity): void {
     let collisionSegments: ICollisionSegment[] = [];
     if (collisionTracker.hasResolvePath()) {
         const resolveData = collisionTracker.getFinalResolvePosition();
-        entity.position = resolveData.position;
+        setPosition(entity.movement, resolveData.position);
         collisionType = resolveData.collisionType;
         collisionSegments = resolveData.collisionSegments;
     }

@@ -29,10 +29,10 @@
     },
     "speed": 300,
     "jump": {
-        "speed": 4000,
+        "speed": 3100,
         "initialDuration": 90,
         "additionalDurations": [
-            {"keyDuration": 90, "impulseDuration": 125}
+            {"keyDuration": 80, "impulseDuration": 180}
         ]
     },
     "collision": {

@@ -1,6 +1,6 @@
 import { Guid } from "guid-typescript";
 import { IEntity, EntityType, EntityAnimation, ICamera } from "../redux/state";
-import { IVector } from "./geometry";
+import { IVector, zeroVector, cloneVector } from "./geometry";
 import { createEntityBehaviorData } from "../behaviors/utils";
 
 export function buildEntity(type: EntityType, flip: boolean, animation: EntityAnimation, position: IVector): IEntity {
@@ -12,10 +12,15 @@ export function buildEntity(type: EntityType, flip: boolean, animation: EntityAn
         currentAnimation: animation,
         currentFrame: 0,
         elapsedTime: 0,
-        impulses: {},
-        velocity: {x: 0, y: 0},
-        prevPosition: Object.assign({}, position),
-        position: Object.assign({}, position),
+        movement: {
+            impulses: {},
+            previousIntegrationPosition: cloneVector(position),
+            previousFramePosition: cloneVector(position),
+            position: cloneVector(position),
+            velocity: zeroVector(),
+            acceleration: zeroVector(),
+            previousFrameTime: 1,
+        }
     }
 }
 

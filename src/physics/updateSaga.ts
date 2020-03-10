@@ -1,7 +1,7 @@
 import { getGameConfig } from "../utils/jsonSchemas";
 import { IVector, cloneVector } from "../utils/geometry";
 import { IEntity } from "../redux/state";
-import { integrateEntity } from "./integration";
+import { integrateEntity, EulerIntegration, VerletIntegration } from "./integration";
 import { updateWorldCollisionsOnEntity } from "./worldCollisionChecks";
 
 export function* updateMovementSaga(deltaT: number, entities: IEntity[]) {
@@ -9,7 +9,7 @@ export function* updateMovementSaga(deltaT: number, entities: IEntity[]) {
     let externalForces: IVector = cloneVector(config.gravity);
 
     entities.forEach((entity) => {
-        integrateEntity(deltaT, entity, externalForces);
+        integrateEntity(deltaT, entity.movement, EulerIntegration, externalForces);
     });
 }
 

@@ -1,10 +1,8 @@
 import { Store, AnyAction } from "redux";
 import { actionGameUpdate, actionUpdateInput, actionSetEntitiesCollection } from "./redux/actionCreators";
 import { select, call, put, takeEvery } from "redux-saga/effects";
-import { getLoadingSelector, 
-         ICopiedEntityCollection,
-         getCopiedEntitiesSelector,
-         getInputActionsSelector } from "./redux/selectors";
+import { getLoadingSelector, ICopiedEntityCollection, getCopiedEntitiesSelector, getInputActionsSelector } 
+    from "./redux/selectors";
 import { GameAction } from "./redux/actionTypes";
 import { updatePlayerActions, postUpdateInput } from "./input/updateSaga";
 import { updateMovementSaga, performWorldCollisionsSaga } from "./physics/updateSaga";
@@ -39,7 +37,7 @@ function* updateSaga(deltaT: number) {
     yield call(updateAnimations, deltaT, entityCollectionCopy.allEntities);
 
     // camera
-    yield call(updateCamera, deltaT, entityCollectionCopy.player.position);
+    yield call(updateCamera, deltaT, entityCollectionCopy.player.movement.position);
 
     // we will then save the updated entities to the store
     yield put(actionSetEntitiesCollection(entityCollectionCopy.allEntities));

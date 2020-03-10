@@ -77,8 +77,8 @@ export function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IE
 
     ctx.save();
     ctx.translate(
-        entity.position.x,
-        entity.position.y
+        entity.movement.position.x,
+        entity.movement.position.y
     );
     ctx.scale(entity.flip ? -1 : 1, 1);
 

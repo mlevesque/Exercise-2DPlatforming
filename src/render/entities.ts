@@ -7,8 +7,8 @@ export function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity): vo
     let animation = entityData.animations[entity.currentAnimation];
     ctx.save();
     ctx.translate(
-        Math.floor(entity.position.x),
-        Math.floor(entity.position.y)
+        Math.floor(entity.movement.position.x),
+        Math.floor(entity.movement.position.y)
     );
     ctx.scale(entity.flip ? -1 : 1, 1);
     ctx.drawImage(

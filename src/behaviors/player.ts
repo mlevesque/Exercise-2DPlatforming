@@ -1,14 +1,13 @@
 import { EntityEventHandleMap, updateEntityMove, updateEntityCollisionVelocity, handleWorldCollision } from "./common";
 import { GameEventType, InputActionEvent, GameEvent } from "../events/GameEvents";
 import { IEntity, EntityAnimation } from "../redux/state";
-import { changeAnimationOnEntity, MoveDirection, applyImpulseToEntity, ImpulseType, ImpulseTarget, 
-    removeImpulse } from "./utils";
+import { changeAnimationOnEntity, MoveDirection } from "./utils";
 import { CollisionType } from "../physics/collisionType";
 import { getEntityJsonData, IPlayerSchema, IJumpDuration, IJumpSchema } from "../utils/jsonSchemas";
 import { createVector } from "../utils/geometry";
 import { IBehaviorData, setBehaviorCollision, setBehaviorMovement, setBehaviorJump, getBehaviorMovement, 
-    getBehaviorJump, 
-    getBehaviorCollision} from "./behaviorData";
+    getBehaviorJump, getBehaviorCollision} from "./behaviorData";
+import { applyImpulseToEntity, ImpulseType, ImpulseTarget, removeImpulse } from "../physics/movementData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEHAVIOR CREATION
@@ -98,12 +97,15 @@ export function updatePlayerActionBehavior(deltaT: number, player: IEntity): voi
 
     // apply jump impulse if we are jumping and the jump key is still pressed
     if (jumpBehavior.jumping && jumpBehavior.jumpPressed) {
+        if (jumpBehavior.jumpDuration == 0) {
+            player.movement.velocity.y = 0;
+        }
 
         // get jump impulse duration and if it is greater than our current total, then apply it
         const duration = getJumpDuration(jumpBehavior.jumpKeyElapsedTime, entityData.jump);
         if (duration > jumpBehavior.jumpDuration) {
             applyImpulseToEntity(
-                player, 
+                player.movement, 
                 ImpulseType.Jump, 
                 createVector(0, -entityData.jump.speed), 
                 duration - jumpBehavior.jumpDuration, 
@@ -153,16 +155,16 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
 
     // remove jump impulse if we hit the ceiling
     if (collisionType.hasCeilingCollision()) {
-        removeImpulse(player, ImpulseType.Jump);
+        removeImpulse(player.movement, ImpulseType.Jump);
     }
     
     // handle jump animation
-    if (player.velocity.y < 0 && jumpBehavior.jumping) {
+    if (player.movement.velocity.y < 0 && jumpBehavior.jumping) {
         changeAnimationOnEntity(player, EntityAnimation.Jump, false);
     }
 
     // handle fall animation
-    if (!collisionType.hasFloorCollision() && player.velocity.y > 0) {
+    if (!collisionType.hasFloorCollision() && player.movement.velocity.y > 0) {
         if (jumpBehavior.jumping) changeAnimationOnEntity(player, EntityAnimation.JumpFall, false);
         else changeAnimationOnEntity(player, EntityAnimation.Fall, false);
     }
