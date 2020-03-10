@@ -1,50 +1,34 @@
 import { IVector, add, scale, zeroVector, subtract, createVector } from "../utils/geometry";
-import { IMovementData, ImpulseTarget, IImpulse, IImpulseMap, shiftPosition } from "./movementData";
+import { IPositionData, IImpulse, IImpulseMap, shiftPosition } from "./movementData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// IMPULSES
+// IMPULSE HANDLING METHODS
 type ImpulseEntry = [string, IImpulse];
 
-function getImpulseEntriesFromEntityMovement(entityMovement: IMovementData): ImpulseEntry[] {
+function getImpulseEntriesFromEntityMovement(entityMovement: IPositionData): ImpulseEntry[] {
     return Object.entries(entityMovement.impulses);
+}
+
+function getPositionShiftEntriesFromEntityMovement(entityMovement: IPositionData): ImpulseEntry[] {
+    return Object.entries(entityMovement.positionShifts);
 }
 
 function getSmallestTimeSliceFromImpulses(deltaT: number, impulseEntries: ImpulseEntry[]): number {
     let smallest = deltaT;
-    impulseEntries.forEach((entry) => {
-        const impulse = entry[1];
-        if (!impulse.instant) {
-            smallest = Math.min(smallest, impulse.timeRemaining);
-        }
-    });
+    impulseEntries.forEach((entry) => smallest = Math.min(smallest, entry[1].timeRemaining));
     return smallest;
 }
 
-function getAccumulatedImpulsesByTimeSlice(deltaT: number, impulseEntries: ImpulseEntry[]): [IVector, IVector] {
-    let velocity = zeroVector();
-    let acceleration = zeroVector();
-    impulseEntries.forEach((entry) => {
-        const impulse = entry[1];
-        switch (impulse.target) {
-            case ImpulseTarget.Velocity:
-                velocity = add(velocity, impulse.impulse);
-                break;
-            case ImpulseTarget.Acceleration:
-                acceleration = add(acceleration, impulse.impulse);
-                break;
-        }
-    });
-    return [velocity, acceleration];
+function getAccumulatedImpulses(impulseEntries: ImpulseEntry[]): IVector {
+    let result = zeroVector();
+    impulseEntries.forEach((entry) => {result.x += entry[1].impulse.x; result.y += entry[1].impulse.y});
+    return result;
 }
 
 function decrementTimeFromImpulses(deltaT: number, impulseEntries: ImpulseEntry[]): ImpulseEntry[] {
     return impulseEntries
         .map((entry) => {return <ImpulseEntry>[entry[0],{...entry[1], timeRemaining: entry[1].timeRemaining - deltaT}]})
-        .filter((entry) => entry[1].timeRemaining > 0 || entry[1].instant);
-}
-
-function removeAllInstantImpulses(impulseEntries: ImpulseEntry[]): ImpulseEntry[] {
-    return impulseEntries.filter((entry) => !entry[1].instant);
+        .filter((entry) => entry[1].timeRemaining > 0);
 }
 
 function convertImpulseEntriesToImpulseMap(impulseEntries: ImpulseEntry[]): IImpulseMap {
@@ -56,10 +40,10 @@ function convertImpulseEntriesToImpulseMap(impulseEntries: ImpulseEntry[]): IImp
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INTEGRATION METHODS
-export interface IIntegrationMethod { (t: number, movementData: IMovementData, acceleration: IVector): void }
+export interface IIntegrationMethod { (t: number, movementData: IPositionData, acceleration: IVector): void }
 
 export function EulerIntegration( t: number, 
-                                  movementData: IMovementData,
+                                  movementData: IPositionData,
                                   acceleration: IVector): void {
     // integrate
     movementData.acceleration = acceleration;
@@ -68,9 +52,9 @@ export function EulerIntegration( t: number,
 }
 
 export function VerletIntegration( t: number, 
-                                   movementData: IMovementData,
+                                   movementData: IPositionData,
                                    acceleration: IVector): void {
-    const timeModifier = t / movementData.previousFrameTime;
+    const timeModifier = t / movementData.previousTimeSlice;
     const pDiff = subtract(movementData.position, movementData.previousIntegrationPosition);
     const modPDiff = scale(timeModifier, pDiff);
     movementData.position = add(add(movementData.position, modPDiff), scale(t*t, acceleration));
@@ -81,41 +65,57 @@ export function VerletIntegration( t: number,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INTEGRATION OF ENTITY
-export function integrateEntity(deltaT: number, entityMovement: IMovementData, integrationMethod: IIntegrationMethod, externalForces: IVector) {
-    const oldPosition = entityMovement.position;
-    let impulseEntries = getImpulseEntriesFromEntityMovement(entityMovement);
+/**
+ * Perform integration calculations on the given position data for an entity. This includes applying impulses and
+ * position shifts.
+ * @param deltaT 
+ * @param positionData 
+ * @param integrationMethod 
+ * @param externalForces 
+ */
+export function integratePositionData( deltaT: number, 
+                                       positionData: IPositionData, 
+                                       integrationMethod: IIntegrationMethod, 
+                                       externalForces: IVector) {
+    const oldPosition = positionData.position;
+    let impulseEntries = getImpulseEntriesFromEntityMovement(positionData);
+    let positionShiftEntries = getPositionShiftEntriesFromEntityMovement(positionData);
     let remainingT = deltaT;
 
     // loop until we have used up all the frame time
     while (remainingT > 0) {
         // find the smallest time slice based on time remaining for impulses
-        const timeSlice = getSmallestTimeSliceFromImpulses(remainingT, impulseEntries);
-        const accumulatedImpulses = getAccumulatedImpulsesByTimeSlice(timeSlice, impulseEntries);
+        const accumulatedImpulses = getAccumulatedImpulses(impulseEntries);
+        const accumulatedPositionShifts = getAccumulatedImpulses(positionShiftEntries);
+        const timeSlice = Math.min(
+            getSmallestTimeSliceFromImpulses(remainingT, impulseEntries),
+            getSmallestTimeSliceFromImpulses(remainingT, positionShiftEntries)
+        );
         impulseEntries = decrementTimeFromImpulses(timeSlice, impulseEntries);
+        positionShiftEntries = decrementTimeFromImpulses(timeSlice, positionShiftEntries);
 
         // convert time slice to seconds
         const t = timeSlice / 1000;
 
         // integrate
-        const oldIntegPos = entityMovement.position;
-        integrationMethod(t, entityMovement, add(accumulatedImpulses[1], externalForces));
-        entityMovement.previousIntegrationPosition = oldIntegPos;
+        const oldIntegPos = positionData.position;
+        integrationMethod(t, positionData, add(accumulatedImpulses, externalForces));
+        positionData.previousIntegrationPosition = oldIntegPos;
+
+        // position shift
+        shiftPosition(positionData, scale(t, accumulatedPositionShifts));
 
         // store time slice
-        entityMovement.previousFrameTime = t;
+        positionData.previousTimeSlice = t;
 
         // update remaining time
         remainingT -= timeSlice;
     }
 
-    // apply velocity impulse
-    const a = getAccumulatedImpulsesByTimeSlice(deltaT, impulseEntries);
-    shiftPosition(entityMovement, scale(deltaT / 1000, a[0]));
-
     // remove all instant impulses and set the updated impulse entries back to the movement data
-    impulseEntries = removeAllInstantImpulses(impulseEntries);
-    entityMovement.impulses = convertImpulseEntriesToImpulseMap(impulseEntries);
+    positionData.impulses = convertImpulseEntriesToImpulseMap(impulseEntries);
+    positionData.positionShifts = convertImpulseEntriesToImpulseMap(positionShiftEntries);
 
     // store previous values for next time
-    entityMovement.previousFramePosition = oldPosition;
+    positionData.previousFramePosition = oldPosition;
 }

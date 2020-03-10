@@ -400,8 +400,8 @@ export function updateWorldCollisionsOnEntity(entity: IEntity): void {
     const entityData = getEntityJsonData(entity.type);
     const entityCollision = entityData.collision;
     let collisionTracker = new WorldCollisionTracker(
-        entity.movement.previousFramePosition, 
-        entity.movement.position, 
+        entity.positionData.previousFramePosition, 
+        entity.positionData.position, 
         entityCollision.floorPoint, 
         entityCollision.ceilingPoint, 
         entityCollision.halfWidth);
@@ -418,7 +418,7 @@ export function updateWorldCollisionsOnEntity(entity: IEntity): void {
     let collisionSegments: ICollisionSegment[] = [];
     if (collisionTracker.hasResolvePath()) {
         const resolveData = collisionTracker.getFinalResolvePosition();
-        setPosition(entity.movement, resolveData.position);
+        setPosition(entity.positionData, resolveData.position);
         collisionType = resolveData.collisionType;
         collisionSegments = resolveData.collisionSegments;
     }

@@ -5,7 +5,7 @@ import { CollisionType } from "../physics/collisionType";
 import { createVector } from "../utils/geometry";
 import { isFloor } from "../physics/util";
 import { IBehaviorData, getBehaviorCollision } from "./behaviorData";
-import { applyImpulseToEntity, ImpulseTarget, ImpulseType, setVelocity } from "../physics/movementData";
+import { ImpulseType, setVelocity, applyPositionShift } from "../physics/movementData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEHAVIOR DEFINITIONS
@@ -36,20 +36,20 @@ export function handleWorldCollision(behavior: IBehaviorData, event: GameEvent):
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMMON BEHAVIOR UPDATE METHODS
-export function updateEntityMove(entity: IEntity, moveDirection: MoveDirection, speed: number): void {
-    const movement = entity.movement;
+export function updateEntityMove(deltaT: number, entity: IEntity, moveDirection: MoveDirection, speed: number): void {
+    const movement = entity.positionData;
     if (moveDirection == MoveDirection.Left) {
         entity.flip = true;
-        applyImpulseToEntity(movement, ImpulseType.Walk, createVector(-speed, 0), 0, true, ImpulseTarget.Velocity);
+        applyPositionShift(movement, ImpulseType.Walk, createVector(-speed, 0), deltaT);
     }
     else if (moveDirection == MoveDirection.Right) {
         entity.flip = false;
-        applyImpulseToEntity(movement, ImpulseType.Walk, createVector(speed, 0), 0, true, ImpulseTarget.Velocity);
+        applyPositionShift(movement, ImpulseType.Walk, createVector(speed, 0), deltaT);
     }
 }
 export function updateEntityCollisionVelocity(entity: IEntity, collisionType: CollisionType): void {
-    if ((collisionType.hasCeilingCollision() && entity.movement.velocity.y < 0) 
-        || (collisionType.hasFloorCollision()) && entity.movement.velocity.y > 0) {
-        setVelocity(entity.movement, createVector(entity.movement.velocity.x, 0));
+    if ((collisionType.hasCeilingCollision() && entity.positionData.velocity.y < 0) 
+        || (collisionType.hasFloorCollision()) && entity.positionData.velocity.y > 0) {
+        setVelocity(entity.positionData, createVector(entity.positionData.velocity.x, 0));
     }
 }

@@ -1,7 +1,7 @@
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IVector } from "../utils/geometry";
 import { IBehaviorData } from "../behaviors/behaviorData";
-import { IMovementData } from "../physics/movementData";
+import { IPositionData } from "../physics/movementData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main State
@@ -86,5 +86,5 @@ export interface IEntity {
     currentFrame: number;
     elapsedTime: number;
 
-    movement: IMovementData;
+    positionData: IPositionData;
 }

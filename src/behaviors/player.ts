@@ -7,7 +7,7 @@ import { getEntityJsonData, IPlayerSchema, IJumpDuration, IJumpSchema } from "..
 import { createVector } from "../utils/geometry";
 import { IBehaviorData, setBehaviorCollision, setBehaviorMovement, setBehaviorJump, getBehaviorMovement, 
     getBehaviorJump, getBehaviorCollision} from "./behaviorData";
-import { applyImpulseToEntity, ImpulseType, ImpulseTarget, removeImpulse } from "../physics/movementData";
+import { applyImpulse, ImpulseType, removeImpulse, addImpulseDuration } from "../physics/movementData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEHAVIOR CREATION
@@ -86,7 +86,7 @@ export function updatePlayerActionBehavior(deltaT: number, player: IEntity): voi
     // set left and right movement
     const entityData = getEntityJsonData(player.type) as IPlayerSchema;
     let moveBehavior = getBehaviorMovement(player.behavior);
-    updateEntityMove(player, moveBehavior.moveDirection, entityData.speed);
+    updateEntityMove(deltaT, player, moveBehavior.moveDirection, entityData.speed);
 
     // detach any segment if we are jumping
     let jumpBehavior = getBehaviorJump(player.behavior);
@@ -97,20 +97,24 @@ export function updatePlayerActionBehavior(deltaT: number, player: IEntity): voi
 
     // apply jump impulse if we are jumping and the jump key is still pressed
     if (jumpBehavior.jumping && jumpBehavior.jumpPressed) {
-        if (jumpBehavior.jumpDuration == 0) {
-            player.movement.velocity.y = 0;
-        }
-
-        // get jump impulse duration and if it is greater than our current total, then apply it
         const duration = getJumpDuration(jumpBehavior.jumpKeyElapsedTime, entityData.jump);
-        if (duration > jumpBehavior.jumpDuration) {
-            applyImpulseToEntity(
-                player.movement, 
+
+        // if we just started jumping, create the impulse
+        if (jumpBehavior.jumpDuration == 0) {
+            applyImpulse(
+                player.positionData, 
                 ImpulseType.Jump, 
                 createVector(0, -entityData.jump.speed), 
-                duration - jumpBehavior.jumpDuration, 
-                false, 
-                ImpulseTarget.Acceleration
+                0
+            );
+        }
+        
+        // add to the duration if our new duration is larger
+        if (duration > jumpBehavior.jumpDuration) {
+            addImpulseDuration(
+                player.positionData, 
+                ImpulseType.Jump,
+                duration - jumpBehavior.jumpDuration
             );
             jumpBehavior.jumpDuration = duration;
         }
@@ -155,16 +159,16 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
 
     // remove jump impulse if we hit the ceiling
     if (collisionType.hasCeilingCollision()) {
-        removeImpulse(player.movement, ImpulseType.Jump);
+        removeImpulse(player.positionData, ImpulseType.Jump);
     }
     
     // handle jump animation
-    if (player.movement.velocity.y < 0 && jumpBehavior.jumping) {
+    if (player.positionData.velocity.y < 0 && jumpBehavior.jumping) {
         changeAnimationOnEntity(player, EntityAnimation.Jump, false);
     }
 
     // handle fall animation
-    if (!collisionType.hasFloorCollision() && player.movement.velocity.y > 0) {
+    if (!collisionType.hasFloorCollision() && player.positionData.velocity.y > 0) {
         if (jumpBehavior.jumping) changeAnimationOnEntity(player, EntityAnimation.JumpFall, false);
         else changeAnimationOnEntity(player, EntityAnimation.Fall, false);
     }
