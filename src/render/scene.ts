@@ -12,7 +12,7 @@ export function renderLoading(ctx: CanvasRenderingContext2D, width: number, heig
 
 export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMainState): void {
     ctx.save();
-    renderBackground(ctx, state.map);
+    renderBackground(ctx, state.map, state.camera);
 
     const cam = state.camera;
     const posData = cam.positionData;

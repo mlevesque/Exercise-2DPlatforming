@@ -50,6 +50,7 @@ export interface ICamera {
 export interface IMap {
     tileset: string;
     background: string;
+    backgroundParalax: number;
     tiles: number[][];
     width: number;
     height: number;

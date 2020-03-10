@@ -33,6 +33,7 @@ export function* loadLevelSaga(levelFile: string) {
     let map: IMap = {
         tileset: data.tileset,
         background: data.background,
+        backgroundParalax: data.backgroundParallax,
         tiles: data.map,
         width: mapWidth,
         height: mapHeight

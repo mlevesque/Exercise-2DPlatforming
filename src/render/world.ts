@@ -1,18 +1,28 @@
-import { IMap } from "../redux/state";
+import { IMap, ICamera } from "../redux/state";
 import { getImage } from "./utils";
 import { getGameConfig } from "../utils/jsonSchemas";
+import { createVector } from "../utils/geometry";
 
-export function renderBackground(ctx: CanvasRenderingContext2D, map: IMap): void {
+export function renderBackground(ctx: CanvasRenderingContext2D, map: IMap, camera: ICamera): void {
     const image = getImage(map.background);
     if (!image) {
         return;
     }
 
     // determine the size of the background
-    const mapWidth = ctx.canvas.width;
-    const mapHeight = ctx.canvas.height;
+    const mapWidth = ctx.canvas.width * map.backgroundParalax;
+    const mapHeight = ctx.canvas.height * map.backgroundParalax;
     const scale = Math.max(mapWidth / image.width, mapHeight / image.height);
-    ctx.drawImage(image, 0, 0, image.width * scale, image.height * scale);
+
+    const camPosNormalized = createVector(
+        (camera.positionData.position.x - camera.halfWidth) / (map.width - 2 * camera.halfWidth),
+        (camera.positionData.position.y - camera.halfHeight) / (map.height - 2 * camera.halfHeight)
+    );
+
+    const x = camPosNormalized.x * ((image.width * scale) - ctx.canvas.width);
+    const y = camPosNormalized.y * ((image.height * scale) - ctx.canvas.height);
+
+    ctx.drawImage(image, -x, -y, image.width * scale, image.height * scale);
 }
 
 export function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
