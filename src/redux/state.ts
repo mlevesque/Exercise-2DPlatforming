@@ -1,6 +1,7 @@
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IBehaviorData } from "../behaviors/behaviorData";
 import { IPositionData } from "../physics/movementData";
+import { IVector } from "../utils/geometry";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main State
@@ -50,7 +51,7 @@ export interface ICamera {
 export interface IMap {
     tileset: string;
     background: string;
-    backgroundParalax: number;
+    backgroundParalax: IVector;
     tiles: number[][];
     width: number;
     height: number;

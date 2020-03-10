@@ -1,7 +1,7 @@
 import { IMap, ICamera } from "../redux/state";
 import { getImage } from "./utils";
 import { getGameConfig } from "../utils/jsonSchemas";
-import { createVector } from "../utils/geometry";
+import { createVector, subtract, scale } from "../utils/geometry";
 
 export function renderBackground(ctx: CanvasRenderingContext2D, map: IMap, camera: ICamera): void {
     const image = getImage(map.background);
@@ -10,19 +10,28 @@ export function renderBackground(ctx: CanvasRenderingContext2D, map: IMap, camer
     }
 
     // determine the size of the background
-    const mapWidth = ctx.canvas.width * map.backgroundParalax;
-    const mapHeight = ctx.canvas.height * map.backgroundParalax;
-    const scale = Math.max(mapWidth / image.width, mapHeight / image.height);
+    const widthScale = ctx.canvas.width * map.backgroundParalax.x / image.width;
+    const heightScale = ctx.canvas.height * map.backgroundParalax.y / image.height;
+    const maxScale = Math.max(widthScale, heightScale);
 
+    // determine positioning
     const camPosNormalized = createVector(
         (camera.positionData.position.x - camera.halfWidth) / (map.width - 2 * camera.halfWidth),
         (camera.positionData.position.y - camera.halfHeight) / (map.height - 2 * camera.halfHeight)
     );
+    const imageSize = createVector(
+        image.width * widthScale,
+        image.height * heightScale
+    );
+    const imageMaxScaleSize = createVector(
+        image.width * maxScale,
+        image.height * maxScale
+    );
+    const padding = scale(0.5, subtract(imageMaxScaleSize, imageSize));
+    const x = padding.x + camPosNormalized.x * (imageSize.x - ctx.canvas.width);
+    const y = padding.y + camPosNormalized.y * (imageSize.y - ctx.canvas.height);
 
-    const x = camPosNormalized.x * ((image.width * scale) - ctx.canvas.width);
-    const y = camPosNormalized.y * ((image.height * scale) - ctx.canvas.height);
-
-    ctx.drawImage(image, -x, -y, image.width * scale, image.height * scale);
+    ctx.drawImage(image, -x, -y, imageMaxScaleSize.x, imageMaxScaleSize.y);
 }
 
 export function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
