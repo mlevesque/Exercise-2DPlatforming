@@ -1,5 +1,5 @@
 import { IMainState, IEntity } from "../redux/state";
-import { renderTiles } from "./world";
+import { renderTiles, renderBackground } from "./world";
 import { renderEntity } from "./entities";
 import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPartition, renderScrollArea, 
     renderScrollVector } from "./debug";
@@ -12,8 +12,7 @@ export function renderLoading(ctx: CanvasRenderingContext2D, width: number, heig
 
 export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMainState): void {
     ctx.save();
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    renderBackground(ctx, state.map);
 
     const cam = state.camera;
     const posData = cam.positionData;

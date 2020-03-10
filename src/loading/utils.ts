@@ -25,6 +25,11 @@ export function getImagesToLoad(map: IMapSchema): string[] {
         uniqueImages.add(map.tileset);
     }
 
+    // get background
+    if (!isImageAlreadyLoaded(map.background)) {
+        uniqueImages.add(map.background);
+    }
+
     // get entity spritesheets
     let getEntityImage = (type: EntityType) => {
         let entityData = getEntityJsonData(type);

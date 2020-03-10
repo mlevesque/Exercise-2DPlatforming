@@ -18,6 +18,7 @@ export interface IMapCollisionSchema {
 }
 export interface IMapSchema {
     tileset: string;
+    background: string;
     map: number[][];
     partition: {
         cellWidth: number;

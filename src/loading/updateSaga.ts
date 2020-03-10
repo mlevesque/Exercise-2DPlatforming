@@ -32,6 +32,7 @@ export function* loadLevelSaga(levelFile: string) {
     const mapWidth = mapHeight == 0 ? 0 : data.map[0].length * config.tileSize;
     let map: IMap = {
         tileset: data.tileset,
+        background: data.background,
         tiles: data.map,
         width: mapWidth,
         height: mapHeight

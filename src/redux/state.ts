@@ -49,6 +49,7 @@ export interface ICamera {
 // Map
 export interface IMap {
     tileset: string;
+    background: string;
     tiles: number[][];
     width: number;
     height: number;
