@@ -12,6 +12,15 @@ interface IProfileProps {
     renderTime: number;
 }
 
+enum TimingIndex {
+    FrameTime = 0,
+    BehaviorActionTime = 1,
+    PhysicsTime = 2,
+    BehaviorReactionTime = 3,
+    AnimationTime = 4,
+    RenderTime = 5,
+}
+
 const mapStateToProps = (state: IMainState): IProfileProps => {
     const profileData = state.profileData;
     return {
@@ -26,11 +35,15 @@ const mapStateToProps = (state: IMainState): IProfileProps => {
 
 class ProfileComponent extends React.PureComponent<IProfileProps> {
     center: IVector;
-    radius: number;
-    highest: number = 0;
+    radius: number = 40;
+    numberOfTimings: number = 5;
 
-    renderPiePiece = (ctx: CanvasRenderingContext2D, time: number, color: string, startPos: number): number => {
-        const next = startPos + Math.PI * 2 * (time / this.props.frameTime);
+    highest: number = 0;
+    timings: number[][];
+    averages: number[];
+
+    renderPiePiece(ctx: CanvasRenderingContext2D, timePercentage: number, color: string, startPos: number): number {
+        const next = startPos + Math.PI * 2 * timePercentage;
         ctx.beginPath();
         ctx.moveTo(this.center.x, this.center.y);
         ctx.arc(this.center.x, this.center.y, this.radius, startPos, next);
@@ -39,18 +52,17 @@ class ProfileComponent extends React.PureComponent<IProfileProps> {
         ctx.fill();
         return next;
     }
-    renderPieChart = (ctx: CanvasRenderingContext2D): void => {
-        this.radius = 40;
+    renderPieChart(ctx: CanvasRenderingContext2D): void {
         this.center = createVector(ctx.canvas.width / 2, ctx.canvas.height / 2);
 
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        let pos = this.renderPiePiece(ctx, this.props.behaviorActionTime, "blue", 0);
-        pos = this.renderPiePiece(ctx, this.props.physicsTime, "red", pos);
-        pos = this.renderPiePiece(ctx, this.props.behaviorReactionTime, "purple", pos);
-        pos = this.renderPiePiece(ctx, this.props.animationTime, "orange", pos);
-        pos = this.renderPiePiece(ctx, this.props.renderTime, "green", pos);
+        let pos = this.renderPiePiece(ctx, this.getPercentage(TimingIndex.BehaviorActionTime), "blue", 0);
+        pos = this.renderPiePiece(ctx, this.getPercentage(TimingIndex.PhysicsTime), "red", pos);
+        pos = this.renderPiePiece(ctx, this.getPercentage(TimingIndex.BehaviorReactionTime), "purple", pos);
+        pos = this.renderPiePiece(ctx, this.getPercentage(TimingIndex.AnimationTime), "orange", pos);
+        pos = this.renderPiePiece(ctx, this.getPercentage(TimingIndex.RenderTime), "green", pos);
         this.highest = Math.max(this.highest, pos);
 
         ctx.strokeStyle = "black";
@@ -68,10 +80,42 @@ class ProfileComponent extends React.PureComponent<IProfileProps> {
         ctx.stroke();
     }
 
+    updateTiming(index: TimingIndex, newValue: number): void {
+        this.averages[index] += newValue - this.timings[index][0];
+        this.timings[index] = [...this.timings[index].slice(1), newValue];
+    }
+
+    getAverage(index: TimingIndex): number {
+        return this.averages[index] / this.numberOfTimings;
+    }
+
+    getPercentage(index: TimingIndex): number {
+        return this.getAverage(index) / this.getAverage(TimingIndex.FrameTime);
+    }
+
     componentDidUpdate() {
+        // update timings and averages
+        this.updateTiming(TimingIndex.FrameTime, this.props.frameTime);
+        this.updateTiming(TimingIndex.BehaviorActionTime, this.props.behaviorActionTime);
+        this.updateTiming(TimingIndex.PhysicsTime, this.props.physicsTime);
+        this.updateTiming(TimingIndex.BehaviorReactionTime, this.props.behaviorReactionTime);
+        this.updateTiming(TimingIndex.AnimationTime, this.props.animationTime);
+        this.updateTiming(TimingIndex.RenderTime, this.props.renderTime);
+
         const canvas = document.getElementById("profileView") as HTMLCanvasElement;
         this.renderPieChart(canvas.getContext("2d"));
     }
+
+    componentDidMount() {
+        // setup timing arrays
+        const numberOfEntries = Object.entries(this.props).length;
+        this.timings = new Array<number[]>(numberOfEntries).fill([]);
+        this.timings.forEach((val, i: number) => this.timings[i] = new Array<number>(this.numberOfTimings).fill(0));
+
+        // setup averages
+        this.averages = new Array<number>(numberOfEntries).fill(0);
+    }
+
     render() {
         return (
             <div>
