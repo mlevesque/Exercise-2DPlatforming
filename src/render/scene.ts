@@ -5,9 +5,9 @@ import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPar
     renderScrollVector } from "./debug";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 
-export function renderLoading(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+export function renderLoading(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
 
 export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMainState): void {
@@ -25,18 +25,18 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
     });
 
     // render debug stuff
-    // renderMapCollisions(ctx, new Map<string, ICollisionSegment>(Object.entries(state.staticCollisions)));
-    // state.entities.forEach((entity: IEntity) => {
-    //     renderEntityCollisions(ctx, entity);
-    // });
-    // renderPartition(ctx, state.camera, state.map);
-    // const player = state.entities.length > 0 ? state.entities[0] : null;
-    // if (player) {
-    //     renderScrollVector(ctx, state.camera, player.positionData.position);
-    // }
+    renderMapCollisions(ctx, new Map<string, ICollisionSegment>(Object.entries(state.staticCollisions)));
+    state.entities.forEach((entity: IEntity) => {
+        renderEntityCollisions(ctx, entity);
+    });
+    renderPartition(ctx, state.camera, state.map);
+    const player = state.entities.length > 0 ? state.entities[0] : null;
+    if (player) {
+        renderScrollVector(ctx, state.camera, player.positionData.position);
+    }
     ctx.restore();
 
     // render HUD stuff
-    // renderScrollArea(ctx, state.camera);
-    // renderFrameRate(ctx, deltaT);
+    renderScrollArea(ctx, state.camera);
+    renderFrameRate(ctx, deltaT);
 }

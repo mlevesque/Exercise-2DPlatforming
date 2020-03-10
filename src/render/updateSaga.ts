@@ -7,11 +7,11 @@ export function* renderSaga(deltaT: number) {
     const canvas = <HTMLCanvasElement>document.getElementById("gameView");
     const ctx = canvas.getContext("2d");
     const state: IMainState = yield select(getFullStateSelector);
+    render(ctx, deltaT, state);
+}
 
-    if (state.loading) {
-        renderLoading(ctx, canvas.width, canvas.height);
-    }
-    else {
-        render(ctx, deltaT, state);
-    }
+export function* renderLoadingSaga(deltaT: number) {
+    const canvas = <HTMLCanvasElement>document.getElementById("gameView");
+    const ctx = canvas.getContext("2d");
+    renderLoading(ctx);
 }

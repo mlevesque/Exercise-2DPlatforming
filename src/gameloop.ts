@@ -7,7 +7,7 @@ import { GameAction } from "./redux/actionTypes";
 import { updatePlayerActions, postUpdateInput } from "./input/updateSaga";
 import { updateMovementSaga, performWorldCollisionsSaga } from "./physics/updateSaga";
 import { updateAnimations } from "./animation/updateSaga";
-import { renderSaga } from "./render/updateSaga";
+import { renderSaga, renderLoadingSaga } from "./render/updateSaga";
 import { GameEventQueue } from "./events/GameEventQueue";
 import { updateReactionBehaviors, updateActionBehaviors } from "./behaviors/updateSaga";
 import { updateCamera } from "./camera/updateSaga";
@@ -58,8 +58,16 @@ function* updateSaga(deltaT: number) {
     // perform post update input
     yield call(postUpdateInput, deltaT, inputActions);
 
+    // render
+    t = performance.now();
+    yield call(renderSaga, deltaT);
+    profile.renderTime = performance.now() - t;
+    
     // save profile data
     yield put(actionSetProfile(profile));
+
+    // shift key input set flags from current to previous
+    yield put(actionUpdateInput());
 }
 
 export function initiateGameUpdates(store: Store<any, AnyAction>) {
@@ -74,23 +82,15 @@ export function initiateGameUpdates(store: Store<any, AnyAction>) {
 }
 
 function* gameloopUpdateSaga(action: AnyAction) {
-    // update
     // only update when we are not loading
     const deltaT: number = action.payload;
     const loading = yield select(getLoadingSelector);
-    if (!loading) {
+    if (loading) {
+        yield call(renderLoadingSaga, deltaT);
+    }
+    else {
         yield call(updateSaga, deltaT);
     }
-
-    // render
-    let profile: IProfileData = yield select(getProfile);
-    let t = performance.now();
-    yield call(renderSaga, deltaT);
-    profile.renderTime = performance.now() - t;
-    yield put(actionSetProfile(profile));
-
-    // shift key input set flags from current to previous
-    yield put(actionUpdateInput());
 }
 
 export function* gameloopInitSaga() {
