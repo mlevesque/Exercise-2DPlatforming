@@ -12,6 +12,7 @@ export interface IMainState {
     map: IMap;
     staticCollisions: ICollisionMap;
     entities: IEntity[];
+    profileData: IProfileData;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,4 +88,15 @@ export interface IEntity {
     elapsedTime: number;
 
     positionData: IPositionData;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PROFILING
+export interface IProfileData {
+    frameTime: number;
+    behaviorActionTime: number;
+    physicsTime: number;
+    behaviorReactionTime: number;
+    animationTime: number;
+    renderTime: number;
 }

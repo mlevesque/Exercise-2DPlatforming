@@ -5,9 +5,10 @@ import { GameAction,
          EntitiesAction, 
          InputAction, 
          LoadingAction, 
-         MapAction } from "./actionTypes";
+         MapAction, 
+         ProfileAction} from "./actionTypes";
 import { ICollisionSegment } from "../physics/CollisionSegment";
-import { IEntity, InputType, IMap, IScrollArea } from "./state";
+import { IEntity, InputType, IMap, IScrollArea, IProfileData } from "./state";
 import { IPositionData } from "../physics/movementData";
 
 export function createAction(type: string, payload: Object = null): AnyAction {
@@ -75,4 +76,10 @@ export function actionSetMap(map: IMap): AnyAction {
 }
 export function actionClearMap(): AnyAction {
     return createAction(MapAction.Clear);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Profile
+export function actionSetProfile(profileData: IProfileData): AnyAction {
+    return createAction(ProfileAction.Set, profileData);
 }

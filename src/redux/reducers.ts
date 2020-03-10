@@ -1,7 +1,7 @@
 import { combineReducers, AnyAction } from "redux";
-import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap } from "./state";
+import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap, IProfileData } from "./state";
 import { InitState } from "./InitState";
-import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction } from "./actionTypes";
+import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction } from "./actionTypes";
 import { ICollisionSegment, cloneSegment } from "../physics/CollisionSegment";
 import { copyEntity, copyCamera, deepCopy } from "../utils/creation";
 
@@ -13,6 +13,7 @@ const allReducers = combineReducers<IMainState>({
     map: mapReducer,
     staticCollisions: staticCollisionsReducer,
     entities: entitiesReducer,
+    profileData: profileReducer,
 });
 export default allReducers;
 
@@ -103,6 +104,14 @@ export function entitiesReducer(state: IEntity[] = InitState.entities, action: A
             });
         case EntitiesAction.Clear:
             return [];
+    }
+    return state;
+}
+
+export function profileReducer(state: IProfileData = InitState.profileData, action: AnyAction): IProfileData {
+    switch (action.type) {
+        case ProfileAction.Set:
+            return Object.assign({}, action.payload);
     }
     return state;
 }

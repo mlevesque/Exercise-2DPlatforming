@@ -32,3 +32,7 @@ export enum MapAction {
     Set = "MapAction.Set",
     Clear = "MapAction.Clear",
 }
+
+export enum ProfileAction {
+    Set = "ProfileAction.Set",
+}

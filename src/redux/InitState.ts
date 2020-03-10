@@ -32,5 +32,13 @@ export const InitState: IMainState = {
     },
     map: null,
     staticCollisions: {},
-    entities: []
+    entities: [],
+    profileData: {
+        frameTime: 1,
+        behaviorActionTime: 0,
+        physicsTime: 0,
+        behaviorReactionTime: 0,
+        animationTime: 0,
+        renderTime: 0
+    }
 }

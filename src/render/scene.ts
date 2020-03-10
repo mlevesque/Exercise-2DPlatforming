@@ -25,18 +25,18 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
     });
 
     // render debug stuff
-    renderMapCollisions(ctx, new Map<string, ICollisionSegment>(Object.entries(state.staticCollisions)));
-    state.entities.forEach((entity: IEntity) => {
-        renderEntityCollisions(ctx, entity);
-    });
-    renderPartition(ctx, state.camera, state.map);
-    const player = state.entities.length > 0 ? state.entities[0] : null;
-    if (player) {
-        renderScrollVector(ctx, state.camera, player.positionData.position);
-    }
+    // renderMapCollisions(ctx, new Map<string, ICollisionSegment>(Object.entries(state.staticCollisions)));
+    // state.entities.forEach((entity: IEntity) => {
+    //     renderEntityCollisions(ctx, entity);
+    // });
+    // renderPartition(ctx, state.camera, state.map);
+    // const player = state.entities.length > 0 ? state.entities[0] : null;
+    // if (player) {
+    //     renderScrollVector(ctx, state.camera, player.positionData.position);
+    // }
     ctx.restore();
 
     // render HUD stuff
-    renderScrollArea(ctx, state.camera);
-    renderFrameRate(ctx, deltaT);
+    // renderScrollArea(ctx, state.camera);
+    // renderFrameRate(ctx, deltaT);
 }
