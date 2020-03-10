@@ -1,6 +1,6 @@
 import { IVector, zeroVector, scale, createVector, add, subtract, vectorLength, vectorSquaredLength } from "../utils/geometry";
 import { ICollisionSegment } from "../physics/CollisionSegment";
-import { IEntity, ICamera } from "../redux/state";
+import { IEntity, ICamera, IMap } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { isWall } from "../physics/util";
 import { WorldPartition } from "../physics/WorldPartition";
@@ -106,18 +106,28 @@ export function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IE
     ctx.restore();
 }
 
-export function renderPartition(ctx: CanvasRenderingContext2D): void {
+export function renderPartition(ctx: CanvasRenderingContext2D, camera: ICamera, map: IMap): void {
     const partition = WorldPartition.getInstance();
     const numRows = partition.numRows;
     const numColumns = partition.numColumns;
-    const width = ctx.canvas.width;
-    const height = ctx.canvas.height;
+    const width = map.width;
+    const height = map.height;
 
     ctx.strokeStyle = "grey";
     ctx.lineWidth = 1;
 
+    const camPos = camera.positionData.position;
+    const start = createVector(
+        Math.floor((camPos.x - camera.halfWidth) / partition.cellWidth),
+        Math.floor((camPos.y - camera.halfHeight) / partition.cellHeight)
+    );
+    const end = createVector(
+        Math.ceil((camPos.x + camera.halfWidth) / partition.cellWidth),
+        Math.ceil((camPos.y + camera.halfHeight) / partition.cellHeight)
+    );
+
     // draw rows
-    for (let i = 0; i < numRows; ++i) {
+    for (let i = start.y; i < end.y; ++i) {
         const y = i * partition.cellHeight;
         ctx.beginPath();
         ctx.moveTo(0, y);
@@ -126,7 +136,7 @@ export function renderPartition(ctx: CanvasRenderingContext2D): void {
     }
 
     // draw columns
-    for (let i = 0; i < numColumns; ++i) {
+    for (let i = start.x; i < end.x; ++i) {
         const x = i * partition.cellWidth;
         ctx.beginPath();
         ctx.moveTo(x, 0);

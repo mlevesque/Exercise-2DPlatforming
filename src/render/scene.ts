@@ -29,7 +29,7 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
     state.entities.forEach((entity: IEntity) => {
         renderEntityCollisions(ctx, entity);
     });
-    renderPartition(ctx);
+    renderPartition(ctx, state.camera, state.map);
     const player = state.entities.length > 0 ? state.entities[0] : null;
     if (player) {
         renderScrollVector(ctx, state.camera, player.positionData.position);
