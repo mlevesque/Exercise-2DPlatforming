@@ -108,8 +108,6 @@ export function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IE
 
 export function renderPartition(ctx: CanvasRenderingContext2D, camera: ICamera, map: IMap): void {
     const partition = WorldPartition.getInstance();
-    const numRows = partition.numRows;
-    const numColumns = partition.numColumns;
     const width = map.width;
     const height = map.height;
 
@@ -118,12 +116,12 @@ export function renderPartition(ctx: CanvasRenderingContext2D, camera: ICamera, 
 
     const camPos = camera.positionData.position;
     const start = createVector(
-        Math.floor((camPos.x - camera.halfWidth) / partition.cellWidth),
-        Math.floor((camPos.y - camera.halfHeight) / partition.cellHeight)
+        Math.max(0, Math.floor((camPos.x - camera.halfWidth) / partition.cellWidth)),
+        Math.max(0, Math.floor((camPos.y - camera.halfHeight) / partition.cellHeight))
     );
     const end = createVector(
-        Math.ceil((camPos.x + camera.halfWidth) / partition.cellWidth),
-        Math.ceil((camPos.y + camera.halfHeight) / partition.cellHeight)
+        Math.min(partition.numColumns, Math.ceil((camPos.x + camera.halfWidth) / partition.cellWidth)),
+        Math.min(partition.numRows, Math.ceil((camPos.y + camera.halfHeight) / partition.cellHeight))
     );
 
     // draw rows
@@ -143,6 +141,14 @@ export function renderPartition(ctx: CanvasRenderingContext2D, camera: ICamera, 
         ctx.lineTo(x, height);
         ctx.stroke();
     }
+}
+
+export function renderWorldEdge(ctx: CanvasRenderingContext2D, map: IMap): void {
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.rect(0, 0, map.width, map.height);
+    ctx.stroke();
 }
 
 export function renderScrollVector(ctx: CanvasRenderingContext2D, camera: ICamera, targetPos: IVector): void {

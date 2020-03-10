@@ -2,7 +2,8 @@ import { IMainState, IEntity } from "../redux/state";
 import { renderTiles, renderBackground } from "./world";
 import { renderEntity } from "./entities";
 import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPartition, renderScrollArea, 
-    renderScrollVector } from "./debug";
+    renderScrollVector, 
+    renderWorldEdge} from "./debug";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 
 export function renderLoading(ctx: CanvasRenderingContext2D): void {
@@ -31,6 +32,7 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
     });
     renderPartition(ctx, state.camera, state.map);
     const player = state.entities.length > 0 ? state.entities[0] : null;
+    renderWorldEdge(ctx, state.map);
     if (player) {
         renderScrollVector(ctx, state.camera, player.positionData.position);
     }
