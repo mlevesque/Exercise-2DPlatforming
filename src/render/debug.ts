@@ -1,9 +1,10 @@
-import { IVector, zeroVector, scale, createVector, add, subtract, vectorLength, vectorSquaredLength } from "../utils/geometry";
+import { IVector, zeroVector, scale, createVector, add, subtract, vectorLength, vectorSquaredLength, IArea } from "../utils/geometry";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IEntity, ICamera, IMap } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { isWall } from "../physics/util";
 import { WorldPartition } from "../physics/WorldPartition";
+import { getAreaFromCamera } from "../utils/misc";
 
 function renderArrow(ctx: CanvasRenderingContext2D, from: IVector, to: IVector, radius: number): void {
 	let x_center = to.x;
@@ -65,7 +66,8 @@ function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment
     ctx.restore();
 }
 
-export function renderMapCollisions(ctx: CanvasRenderingContext2D, collisions: Map<string, ICollisionSegment>): void {
+export function renderMapCollisions(ctx: CanvasRenderingContext2D, camera: ICamera): void {
+    const collisions = WorldPartition.getInstance().getCollisionsInWorldArea(getAreaFromCamera(camera));
     collisions.forEach((segment) => {
         renderSegment(ctx, segment);
     })
