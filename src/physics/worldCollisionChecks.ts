@@ -3,7 +3,8 @@ import { IVector, IRay, createVector, cloneVector, subtract, add } from "../util
 import { ICollisionSegment } from "./CollisionSegment";
 import { ISurfaceTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMovingTowardSegment, areTValuePairsInRange,
     getStartLedgeCollisionType, getEndLedgeCollisionType, buildStartLedgeRay, buildEndLedgeRay,
-    isMovingTowardSegmentLedge, isTValueInRange, areTValuesOnOppositeOutsideRange, isWall, getCollisionTypeForAttachedSegment} from "./util";
+    isMovingTowardSegmentLedge, isTValueInRange, areTValuesOnOppositeOutsideRange, isWall, 
+    getCollisionTypeForAttachedSegment, areTValuesPairsInRangeForLedge} from "./util";
 import { getEntityJsonData } from "../utils/jsonSchemas";
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
 import { CollisionType, CollisionFlag } from "./collisionType";
@@ -41,7 +42,7 @@ function checkPointCollisionOnSegment( movementRay: IRay,
         if (collisionSegment.startLedge) {
             let ledge = buildStartLedgeRay(collisionSegment.segment, collisionTracker.entityHalfWidth);
             tValues = calculateTCollisionValues(movementRay, ledge);
-            hasCollision = areTValuePairsInRange(tValues[0], tValues[1]);
+            hasCollision = areTValuesPairsInRangeForLedge(tValues[0], tValues[1]);
             if (hasCollision) {
                 type.addType(getStartLedgeCollisionType(collisionSegment));
             }
@@ -50,7 +51,7 @@ function checkPointCollisionOnSegment( movementRay: IRay,
         if (!hasCollision && collisionSegment.endLedge) {
             let ledge = buildEndLedgeRay(collisionSegment.segment, collisionTracker.entityHalfWidth);
             tValues = calculateTCollisionValues(movementRay, ledge);
-            hasCollision = areTValuePairsInRange(tValues[0], tValues[1]);
+            hasCollision = areTValuesPairsInRangeForLedge(tValues[0], tValues[1]);
             if (hasCollision) {
                 type.addType(getEndLedgeCollisionType(collisionSegment));
             }

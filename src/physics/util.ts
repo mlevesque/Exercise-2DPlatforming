@@ -90,6 +90,17 @@ export function areTValuePairsInRange(t1: number, t2: number): boolean {
 }
 
 /**
+ * Returns true if the given t values from a collisio check against a segment ledge are within 0 and 1 inclusively, and
+ * that the ledge t value is less than 1. This extra check fixes an issue where a entity jumping straight up along a
+ * wall will not land on the ledge.
+ * @param movementT 
+ * @param ledgeT 
+ */
+export function areTValuesPairsInRangeForLedge(movementT: number, ledgeT: number): boolean {
+    return ledgeT < 1 && areTValuePairsInRange(movementT, ledgeT);
+}
+
+/**
  * Returns true if one of the following is true:
  *  1) t1 <= 0 && t2 >= 1
  *  2) t1 >= 1 && t2 <= 0
