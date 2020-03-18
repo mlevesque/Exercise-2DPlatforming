@@ -1,8 +1,8 @@
 import { IMapSchema, getGameConfig, IMapCollisionSchema } from "../utils/jsonSchemas";
 import { WorldPartition, SegmentCollisionsMap } from "../physics/WorldPartition";
 import { ICollisionSegment, createSegment } from "../physics/CollisionSegment";
-import { areVectorsEqual, getEndOfRay, negate, dot, cloneVector, createVector, IVector, cross } from "../utils/geometry";
-import { isWall, isFloor, isCeiling } from "../physics/util";
+import { areVectorsEqual, getEndOfRay, negate, dot, cloneVector, createVector, IVector, cross, add, createRayPV } from "../utils/geometry";
+import { isWall, isFloor, isCeiling, calculateTCollisionValues } from "../physics/util";
 
 /**
  * Returns true if the end of the first given segment is positioned at the start of the second given segment.
@@ -54,6 +54,15 @@ function linkCollisions(segment1: ICollisionSegment, segment2: ICollisionSegment
     if (segment2) segment2.prevSegment = segment1 ? segment1.id : "";
 }
 
+function doesFormConvex(segmentA: ICollisionSegment, segmentB: ICollisionSegment): boolean {
+    const segA = segmentA.nextSegment == segmentB.id ? segmentA : segmentB;
+    const segB = segmentA.nextSegment == segmentB.id ? segmentB : segmentA;
+    const sumVec = add(segA.segment.v, segB.segment.v);
+    const sumRay = createRayPV(segA.segment.p.x, segA.segment.p.y, sumVec.x, sumVec.y);
+    const normRay = createRayPV(segB.segment.p.x, segB.segment.p.y, segB.normal.x, segB.normal.y);
+    return calculateTCollisionValues(normRay, sumRay)[0] < 0;
+}
+
 /**
  * Checks if the connected surface and wall segments form a ledge. A ledge is defined as if the surface segment is
  * a floor or ceiling segment, the wall segment is a wall or is null, and if the wall segment goes in a direction
@@ -67,12 +76,12 @@ function isLedgeFromSegmentAToSegmentB(segmentA: ICollisionSegment, segmentB: IC
         return false;
     }
 
-    // if wall segment does not exist, then we have a ledge
+    // if second segment does not exist, then we have a ledge
     if (!segmentB) {
         return true;
     }
 
-    // if wall is not a wall, then this cannot be a ledge
+    // if second segment is not a wall, then this cannot be a ledge
     if (!isWall(segmentB)) {
         return false;
     }
@@ -82,10 +91,8 @@ function isLedgeFromSegmentAToSegmentB(segmentA: ICollisionSegment, segmentB: IC
         return false;
     }
 
-    // make sure that the wall is going in a direction opposite of the surface normal
-    let wallDirection = (segmentA.nextSegment == segmentB.id) 
-        ? segmentB.segment.v : negate(segmentB.segment.v);
-    return dot(wallDirection, segmentA.normal) < 0;
+    // finally, make sure that the angle between the two segments forms a convex angle with respect to the normals
+    return doesFormConvex(segmentA, segmentB);
 }
 
 /**

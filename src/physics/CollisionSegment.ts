@@ -5,7 +5,8 @@ import { IVector,
          cloneRay, 
          normalize, 
          createRayPV, 
-         vectorLength } from "../utils/geometry";
+         vectorLength, 
+         isPracticallyZero} from "../utils/geometry";
 import { Guid } from "guid-typescript";
 
 /**
@@ -32,15 +33,16 @@ export interface ICollisionSegment {
  * @param end  
  */
 export function createSegment(start: IVector, end: IVector): ICollisionSegment {
-    let seg = subtract(end, start);
-    let ray = createRayPV(start.x, start.y, seg.x, seg.y);
+    const seg = subtract(end, start);
+    const ray = createRayPV(start.x, start.y, seg.x, seg.y);
+    const isWall = isPracticallyZero(seg.x);
     return {
         id: Guid.create().toString(),
         segment: ray,
         normal: buildNormal(seg),
         length: vectorLength(seg),
-        startLedge: true,
-        endLedge: true,
+        startLedge: !isWall,
+        endLedge: !isWall,
         prevSegment: "",
         nextSegment: ""
     }
