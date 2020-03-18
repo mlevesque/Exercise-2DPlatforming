@@ -3,7 +3,7 @@ import { IVector, IRay, createVector, cloneVector, subtract, add } from "../util
 import { ICollisionSegment } from "./CollisionSegment";
 import { ISurfaceTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMovingTowardSegment, areTValuePairsInRange,
     getStartLedgeCollisionType, getEndLedgeCollisionType, buildStartLedgeRay, buildEndLedgeRay,
-    isMovingTowardSegmentLedge, isTValueInRange, areTValuesOnOppositeOutsideRange, isWall} from "./util";
+    isMovingTowardSegmentLedge, isTValueInRange, areTValuesOnOppositeOutsideRange, isWall, getCollisionTypeForAttachedSegment} from "./util";
 import { getEntityJsonData } from "../utils/jsonSchemas";
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
 import { CollisionType, CollisionFlag } from "./collisionType";
@@ -380,10 +380,11 @@ function updateAttachedCollisionForEntity(entity: IEntity, collisionTracker: Wor
     if (collisionBehavior) {
         const attachedCollision = collisionTracker.relevantCollisionSegments.get(collisionBehavior.segId);
         if (attachedCollision) {
+            const behaviorCollisionType = new CollisionType(collisionBehavior.collisionType);
             collisionTracker.setPotentialCollision({
                 movementT: 0,
                 collisionSegment: attachedCollision,
-                collisionType: new CollisionType(collisionBehavior.collisionType),
+                collisionType: getCollisionTypeForAttachedSegment(attachedCollision, behaviorCollisionType),
                 pathIndex: -1
             });
             resolveWithExternalDirection(collisionTracker, createVector(0, -1));

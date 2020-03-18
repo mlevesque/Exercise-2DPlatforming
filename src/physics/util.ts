@@ -12,6 +12,10 @@ export function isFloor(segment: ICollisionSegment): boolean {return segment.nor
 export function isCeiling(segment: ICollisionSegment): boolean {return segment.normal.y > 0}
 /** Filter for wall collision segments. */
 export function isWall(segment: ICollisionSegment): boolean {return segment.normal.y == 0}
+/** Filter for left wall collision segments. */
+export function isLeftWall(segment: ICollisionSegment): boolean {return isWall(segment) && segment.normal.x < 0}
+/** Filter for right wall collision segments. */
+export function isRightWall(segment: ICollisionSegment): boolean {return isWall(segment) && segment.normal.x > 0}
 
 /**
  * Calculates the t values of both given rays where the two rays intersect. If the rays are parallel, then the t values
@@ -180,4 +184,33 @@ export function getConnectedCollisionId(t: number, seg: ICollisionSegment): stri
  */
 export function areSegmentsInSameGeneralDirection(segmentA: ICollisionSegment, segmentB: ICollisionSegment): boolean {
     return dot(segmentA.segment.v, segmentB.segment.v) > 0;
+}
+
+/**
+ * Returns an appropriate collision type based on the given segment and the stored collision type from the entity
+ * collision behavior. This is meant to isolate the collision type information for the specific attched collision
+ * segment from any other collisions.
+ * @param segment 
+ * @param behaviorType 
+ */
+export function getCollisionTypeForAttachedSegment( segment: ICollisionSegment, 
+                                                    behaviorType: CollisionType): CollisionType {
+    let result = new CollisionType();
+    if (isFloor(segment)) {
+        result.setFlag(CollisionFlag.Floor);
+        result.setFlag(behaviorType.rawValue & CollisionFlag.FloorStartLedge);
+        result.setFlag(behaviorType.rawValue & CollisionFlag.FloorEndLedge);
+    }
+    else if (isCeiling(segment)) {
+        result.setFlag(CollisionFlag.Ceiling);
+        result.setFlag(behaviorType.rawValue & CollisionFlag.CeilingStartLedge);
+        result.setFlag(behaviorType.rawValue & CollisionFlag.CeilingEndLedge);
+    }
+    else if (isLeftWall(segment)) {
+        result.setFlag(CollisionFlag.LeftWall);
+    }
+    else if (isRightWall(segment)) {
+        result.setFlag(CollisionFlag.RightWall);
+    }
+    return result;
 }
