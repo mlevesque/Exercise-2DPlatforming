@@ -20,7 +20,7 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
     ctx.translate(Math.floor(cam.halfWidth - posData.position.x), Math.floor(cam.halfHeight - posData.position.y));
 
     // render scene
-    renderTiles(ctx, state.map);
+    renderTiles(ctx, state.map, state.camera);
     state.entities.forEach((entity: IEntity) => {
         renderEntity(ctx, entity);
     });

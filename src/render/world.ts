@@ -34,7 +34,7 @@ export function renderBackground(ctx: CanvasRenderingContext2D, map: IMap, camer
     ctx.drawImage(image, -x, -y, imageMaxScaleSize.x, imageMaxScaleSize.y);
 }
 
-export function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
+export function renderTiles(ctx: CanvasRenderingContext2D, map: IMap, camera: ICamera): void {
     // get tileset image
     const image = getImage(map.tileset);
     if (!image) {
@@ -43,13 +43,19 @@ export function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
 
     const config = getGameConfig();
     const size = config.tileSize;
-    map.tiles.forEach((columns: number[], indexY: number) => {
+    const camPos = camera.positionData.position;
+    const x1 = Math.floor((camPos.x - camera.halfWidth) / size);
+    const x2 = Math.ceil((camPos.x + camera.halfWidth) / size);
+    const y1 = Math.floor((camPos.y - camera.halfHeight) / size);
+    const y2 = Math.ceil((camPos.y + camera.halfHeight) / size);
+    for (let indexY = y1; indexY < y2; ++indexY) {
         let y = indexY * size;
-        columns.forEach((value: number, indexX: number) => {
+        for (let indexX = x1; indexX < x2; ++indexX) {
+            const value = map.tiles[indexY][indexX];
             let tileX = (value % 16) * size;
             let tileY = Math.floor(value / 16) * size;
             let x = indexX * size;
             ctx.drawImage(image, tileX, tileY, size, size, x, y, size, size);
-        });
-    });
+        }
+    }
 }
