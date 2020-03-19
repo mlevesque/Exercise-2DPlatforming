@@ -1,6 +1,6 @@
 import { put, select } from "redux-saga/effects";
 import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, 
-    actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition } from "../redux/actionCreators";
+    actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition, actionSetGravity } from "../redux/actionCreators";
 import { IMapSchema, getGameConfig } from "../utils/jsonSchemas";
 import { IMap, ICamera } from "../redux/state";
 import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera} from "./utils";
@@ -39,6 +39,10 @@ export function* loadLevelSaga(levelFile: string) {
         height: mapHeight
     };
     yield put(actionSetMap(map));
+
+    // set gravity
+    const gravity = data.gravity ? data.gravity : config.gravity;
+    yield put(actionSetGravity(gravity, true));
 
     // setup camera
     let camera: ICamera = yield select(getCamera);

@@ -1,9 +1,10 @@
 import { combineReducers, AnyAction } from "redux";
-import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap, IProfileData } from "./state";
+import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap, IProfileData, IPhysicsConfig, ConfigTab } from "./state";
 import { InitState } from "./InitState";
-import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction } from "./actionTypes";
+import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction, PhysicsConfigAction, ConfigTabAction } from "./actionTypes";
 import { ICollisionSegment, cloneSegment } from "../physics/CollisionSegment";
 import { copyEntity, copyCamera, deepCopy } from "../utils/creation";
+import { cloneVector } from "../utils/geometry";
 
 
 const allReducers = combineReducers<IMainState>({
@@ -11,8 +12,10 @@ const allReducers = combineReducers<IMainState>({
     input: inputReducer,
     camera: cameraReducer,
     map: mapReducer,
+    physics: physicsConfigReducer,
     staticCollisions: staticCollisionsReducer,
     entities: entitiesReducer,
+    configTab: configTabReducer,
     profileData: profileReducer,
 });
 export default allReducers;
@@ -78,6 +81,28 @@ export function mapReducer(state: IMap = InitState.map, action: AnyAction): IMap
     return state;
 }
 
+export function physicsConfigReducer(state: IPhysicsConfig = InitState.physics, action: AnyAction): IPhysicsConfig {
+    let newState: IPhysicsConfig;
+    switch (action.type) {
+        case PhysicsConfigAction.SetGravity:
+            newState = deepCopy(state);
+            newState.gravity = cloneVector(action.payload.gravity);
+            if (action.payload.setOriginal) {
+                newState.originalGravity = cloneVector(newState.gravity);
+            }
+            return newState;
+        case PhysicsConfigAction.ResetGravity:
+            newState = deepCopy(state);
+            newState.gravity = cloneVector(newState.originalGravity);
+            return newState;
+        case PhysicsConfigAction.SetAttachSegmentEnabled:
+            newState = deepCopy(state);
+            newState.segmentAttachEnabled = action.payload;
+            return newState;
+    }
+    return state;
+}
+
 export function staticCollisionsReducer( state: ICollisionMap = InitState.staticCollisions, 
                                          action: AnyAction): ICollisionMap {
     let newMap: ICollisionMap;
@@ -104,6 +129,14 @@ export function entitiesReducer(state: IEntity[] = InitState.entities, action: A
             });
         case EntitiesAction.Clear:
             return [];
+    }
+    return state;
+}
+
+export function configTabReducer(state: ConfigTab = InitState.configTab, action: AnyAction): ConfigTab {
+    switch (action.type) {
+        case ConfigTabAction.SetTab:
+            return action.payload;
     }
     return state;
 }

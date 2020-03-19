@@ -34,6 +34,7 @@ export interface IMapSchema {
         position: IVector;
     }[];
     collisions: IMapCollisionSchema[][];
+    gravity?: IVector;
 }
 
 export interface IAnimationSchema {

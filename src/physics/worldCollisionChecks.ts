@@ -1,4 +1,4 @@
-import { IEntity } from "../redux/state";
+import { IEntity, IPhysicsConfig } from "../redux/state";
 import { IVector, IRay, createVector, cloneVector, subtract, add } from "../utils/geometry";
 import { ICollisionSegment } from "./CollisionSegment";
 import { ISurfaceTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMovingTowardSegment, areTValuePairsInRange,
@@ -397,7 +397,7 @@ function updateAttachedCollisionForEntity(entity: IEntity, collisionTracker: Wor
  * Main world collision checking and resolving for a given entity.
  * @param entity 
  */
-export function updateWorldCollisionsOnEntity(entity: IEntity): void {
+export function updateWorldCollisionsOnEntity(entity: IEntity, physicsConfig: IPhysicsConfig): void {
     // setup a collision tracker for the entity and perform checks and resolves
     const entityData = getEntityJsonData(entity.type);
     const entityCollision = entityData.collision;
@@ -409,7 +409,9 @@ export function updateWorldCollisionsOnEntity(entity: IEntity): void {
         entityCollision.halfWidth);
 
     // if the entity is attached to a segment, then resolve to segment first
-    updateAttachedCollisionForEntity(entity, collisionTracker);
+    if (physicsConfig.segmentAttachEnabled) {
+        updateAttachedCollisionForEntity(entity, collisionTracker);
+    }
     
     // perform collisions
     performWorldCollisionsForEntity(collisionTracker);

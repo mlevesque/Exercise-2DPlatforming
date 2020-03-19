@@ -6,10 +6,13 @@ import { GameAction,
          InputAction, 
          LoadingAction, 
          MapAction, 
-         ProfileAction} from "./actionTypes";
+         ProfileAction,
+         PhysicsConfigAction,
+         ConfigTabAction} from "./actionTypes";
 import { ICollisionSegment } from "../physics/CollisionSegment";
-import { IEntity, InputType, IMap, IScrollArea, IProfileData } from "./state";
+import { IEntity, InputType, IMap, IScrollArea, IProfileData, ConfigTab } from "./state";
 import { IPositionData } from "../physics/movementData";
+import { IVector } from "../utils/geometry";
 
 export function createAction(type: string, payload: Object = null): AnyAction {
     return {type: type, payload: payload};
@@ -34,6 +37,18 @@ export function actionCameraSetLocks(lockX: boolean, lockY: boolean): AnyAction 
 }
 export function actionCameraSetScrollArea(scrollArea: IScrollArea): AnyAction {
     return createAction(CameraAction.SetScrollArea, {scrollArea: scrollArea});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Physics
+export function actionSetGravity(gravity: IVector, setOriginal: boolean = false): AnyAction {
+    return createAction(PhysicsConfigAction.SetGravity, {gravity: gravity, setOriginal: setOriginal});
+}
+export function actionResetGravity(): AnyAction {
+    return createAction(PhysicsConfigAction.ResetGravity);
+}
+export function actionSetAttachSegmentEnabled(flag: boolean): AnyAction {
+    return createAction(PhysicsConfigAction.SetAttachSegmentEnabled, flag);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +91,12 @@ export function actionSetMap(map: IMap): AnyAction {
 }
 export function actionClearMap(): AnyAction {
     return createAction(MapAction.Clear);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Config Tab
+export function actionSetConfigTab(tab: ConfigTab): AnyAction {
+    return createAction(ConfigTabAction.SetTab, tab);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

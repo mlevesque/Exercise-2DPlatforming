@@ -1,4 +1,4 @@
-import { IMainState, InputType } from "./state";
+import { IMainState, InputType, ConfigTab } from "./state";
 import { zeroVector } from "../utils/geometry";
 
 export const InitState: IMainState = {
@@ -31,8 +31,14 @@ export const InitState: IMainState = {
         }
     },
     map: null,
+    physics: {
+        gravity: {x: 0, y: 700},
+        originalGravity: {x: 0, y: 700},
+        segmentAttachEnabled: true
+    },
     staticCollisions: {},
     entities: [],
+    configTab: ConfigTab.Physics,
     profileData: {
         frameTime: 1,
         behaviorActionTime: 0,

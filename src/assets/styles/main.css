@@ -1,0 +1,19 @@
+body {
+    font-family: Arial;
+    background-color: black;
+}
+
+.container {
+    width: 100%;
+    text-align: center;
+}
+  
+.one {
+    display: inline-block;
+}
+  
+.two {
+    width: auto;
+    display: inline-block;
+    vertical-align: top;
+}

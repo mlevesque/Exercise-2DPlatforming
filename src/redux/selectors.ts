@@ -1,4 +1,4 @@
-import { IMainState, IInputActions, IEntity, EntityType, ICollisionMap, ICamera, IMap, IProfileData } from "./state";
+import { IMainState, IInputActions, IEntity, EntityType, ICollisionMap, ICamera, IMap, IProfileData, IPhysicsConfig } from "./state";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { copyEntity, deepCopy, copyCamera } from "../utils/creation";
 
@@ -44,6 +44,10 @@ export function getCamera(state: IMainState): ICamera {
 
 export function getMap(state: IMainState): IMap {
     return state.map;
+}
+
+export function getPhysicsConfig(state: IMainState): IPhysicsConfig {
+    return state.physics;
 }
 
 export function getProfile(state: IMainState): IProfileData {

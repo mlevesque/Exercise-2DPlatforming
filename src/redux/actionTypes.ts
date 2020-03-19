@@ -9,6 +9,12 @@ export enum CameraAction {
     SetScrollArea = "CameraAction.SetScrollArea",
 }
 
+export enum PhysicsConfigAction {
+    SetGravity = "PhysicsConfigAction.SetGravity",
+    ResetGravity = "PhysicsConfigAction.ResetGravity",
+    SetAttachSegmentEnabled = "PhysicsConfigAction.SetAttachSegmentEnabled",
+}
+
 export enum CollisionsAction {
     SetStatic = "CollisionsAction.SetStatic",
     Clear = "CollisionsAction.Clear",
@@ -31,6 +37,10 @@ export enum LoadingAction {
 export enum MapAction {
     Set = "MapAction.Set",
     Clear = "MapAction.Clear",
+}
+
+export enum ConfigTabAction {
+    SetTab = "ConfigTabAction.SetTab",
 }
 
 export enum ProfileAction {
