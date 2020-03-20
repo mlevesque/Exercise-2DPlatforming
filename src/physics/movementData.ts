@@ -97,8 +97,9 @@ export function removePositionShift(positionData: IPositionData, type: ImpulseTy
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // POSITIONING ACCESS METHODS
 export function setVelocity(positionData: IPositionData, velocity: IVector): void {
-    positionData.velocity = scale(1 / positionData.previousTimeSlice, velocity);
-    positionData.previousIntegrationPosition = subtract(positionData.position, velocity);
+    positionData.velocity = velocity;
+    const diff = scale(positionData.previousTimeSlice, velocity);
+    positionData.previousIntegrationPosition = subtract(positionData.position, diff);
 }
 export function setPosition(positionData: IPositionData, newPosition: IVector): void {
     shiftPosition(positionData, subtract(newPosition, positionData.position));
