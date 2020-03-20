@@ -96,22 +96,22 @@ export function actionClearMap(): AnyAction {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Render Config
-export function actionSetWhiteFade(val: boolean): AnyAction {
+export function actionShowWhiteFade(val: boolean): AnyAction {
     return createAction(RenderConfigAction.SetWhiteFade, val);
 }
-export function actionSetPartition(val: boolean): AnyAction {
+export function actionShowPartition(val: boolean): AnyAction {
     return createAction(RenderConfigAction.SetPartition, val);
 }
-export function actionSetCollisionSegment(val: boolean): AnyAction {
+export function actionShowCollisionSegment(val: boolean): AnyAction {
     return createAction(RenderConfigAction.SetCollisionSegment, val);
 }
-export function actionSetFrameRate(val: boolean): AnyAction {
+export function actionShowFrameRate(val: boolean): AnyAction {
     return createAction(RenderConfigAction.SetFrameRate, val);
 }
-export function actionSetCameraScroll(val: boolean): AnyAction {
+export function actionShowCameraScroll(val: boolean): AnyAction {
     return createAction(RenderConfigAction.SetCameraScroll, val);
 }
-export function actionSetEntityCollisions(val: boolean): AnyAction {
+export function actionShowEntityCollisions(val: boolean): AnyAction {
     return createAction(RenderConfigAction.SetEntityCollisions, val);
 }
 
