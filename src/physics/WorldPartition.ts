@@ -199,6 +199,36 @@ export class WorldPartition {
     }
 
     /**
+     * Clamps the given X coordinate in cell units to the range of [0, <numberOfColumns>).
+     * @param x 
+     */
+    clampCellX(x: number): number {
+        return Math.min(Math.max(0, x), this.numColumns - 1);
+    }
+
+    /**
+     * Clamps the given Y coordinate in cell units to the range of [0, <numberOfRows>).
+     * @param y 
+     */
+    clampCellY(y: number): number {
+        return Math.min(Math.max(0, y), this.numRows - 1);
+    }
+
+    /**
+     * Returns a clamped area from the given area in cell units to the ranges [0, <numberOfColumns>) for x, and 
+     * [0, <numberOfRows>) for y.
+     * @param cellArea 
+     */
+    clampCellArea(cellArea: IArea): IArea {
+        return {
+            minX: this.clampCellX(cellArea.minX),
+            minY: this.clampCellY(cellArea.minY),
+            maxX: this.clampCellX(cellArea.maxX),
+            maxY: this.clampCellY(cellArea.maxY) 
+        }
+    }
+
+    /**
      * Returns the X coordinate in cell units from the given X coordinate in world units.
      * @param x 
      */
@@ -214,10 +244,18 @@ export class WorldPartition {
         return Math.floor(y / this._cellHeight);
     }
 
+    /**
+     * Returns the X coordinate in world units from the given X coordinate in cell units.
+     * @param x 
+     */
     getWorldXFromCellX(x: number): number {
         return x * this._cellWidth;
     }
 
+    /**
+     * Returns the Y coordinate in world units from the given Y coordinate in cell units.
+     * @param y 
+     */
     getWorldYFromCellY(y: number): number {
         return y * this._cellHeight;
     }
@@ -268,7 +306,7 @@ export class WorldPartition {
      */
     getCollisionsInWorldArea(worldArea: IArea): SegmentCollisionsMap {
         let results: SegmentCollisionsMap = new Map();
-        const cellArea = this.convertWorldAreaToCellArea(worldArea);
+        const cellArea = this.clampCellArea(this.convertWorldAreaToCellArea(worldArea));
         for (let y = cellArea.minY; y <= cellArea.maxY; ++y) {
             for( let x = cellArea.minX; x <= cellArea.maxX; ++x) {
                 const collisions = this.getCollisionsAtCellCoordinates(createVector(x, y));
