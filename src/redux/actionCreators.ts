@@ -8,7 +8,8 @@ import { GameAction,
          MapAction, 
          ProfileAction,
          PhysicsConfigAction,
-         ConfigTabAction} from "./actionTypes";
+         ConfigTabAction,
+         RenderConfigAction} from "./actionTypes";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IEntity, InputType, IMap, IScrollArea, IProfileData, ConfigTab } from "./state";
 import { IPositionData } from "../physics/movementData";
@@ -91,6 +92,27 @@ export function actionSetMap(map: IMap): AnyAction {
 }
 export function actionClearMap(): AnyAction {
     return createAction(MapAction.Clear);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Render Config
+export function actionSetWhiteFade(val: boolean): AnyAction {
+    return createAction(RenderConfigAction.SetWhiteFade, val);
+}
+export function actionSetPartition(val: boolean): AnyAction {
+    return createAction(RenderConfigAction.SetPartition, val);
+}
+export function actionSetCollisionSegment(val: boolean): AnyAction {
+    return createAction(RenderConfigAction.SetCollisionSegment, val);
+}
+export function actionSetFrameRate(val: boolean): AnyAction {
+    return createAction(RenderConfigAction.SetFrameRate, val);
+}
+export function actionSetCameraScroll(val: boolean): AnyAction {
+    return createAction(RenderConfigAction.SetCameraScroll, val);
+}
+export function actionSetEntityCollisions(val: boolean): AnyAction {
+    return createAction(RenderConfigAction.SetEntityCollisions, val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

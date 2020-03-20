@@ -38,6 +38,14 @@ export const InitState: IMainState = {
     },
     staticCollisions: {},
     entities: [],
+    renderConfig: {
+        enableWhiteFade: false,
+        enableFrameRate: false,
+        enablePartition: false,
+        enableCameraScroll: false,
+        enableCollisionSegments: false,
+        enableEntityCollisions: false,
+    },
     configTab: ConfigTab.Physics,
     profileData: {
         frameTime: 1,

@@ -24,19 +24,30 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
     });
 
     // render debug stuff
-    renderMapCollisions(ctx, state.camera);
-    state.entities.forEach((entity: IEntity) => {
-        renderEntityCollisions(ctx, entity);
-    });
-    renderPartition(ctx, state.camera, state.map);
-    const player = state.entities.length > 0 ? state.entities[0] : null;
-    renderWorldEdge(ctx, state.map);
-    if (player) {
-        renderScrollVector(ctx, state.camera, player.positionData.position);
+    if (state.renderConfig.enableCollisionSegments) {
+        renderMapCollisions(ctx, state.camera);
+    }
+    if (state.renderConfig.enableEntityCollisions) {
+        state.entities.forEach((entity: IEntity) => {
+            renderEntityCollisions(ctx, entity);
+        });
+    }
+    if (state.renderConfig.enablePartition) {
+        renderPartition(ctx, state.camera, state.map);
+    }
+    if (state.renderConfig.enableCameraScroll) {
+        const player = state.entities.length > 0 ? state.entities[0] : null;
+        if (player) {
+            renderScrollVector(ctx, state.camera, player.positionData.position);
+        }
     }
     ctx.restore();
 
     // render HUD stuff
-    renderScrollArea(ctx, state.camera);
-    renderFrameRate(ctx, deltaT);
+    if (state.renderConfig.enableCameraScroll) {
+        renderScrollArea(ctx, state.camera);
+    }
+    if (state.renderConfig.enableFrameRate) {
+        renderFrameRate(ctx, deltaT);
+    }
 }

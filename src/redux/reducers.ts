@@ -1,7 +1,7 @@
 import { combineReducers, AnyAction } from "redux";
-import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap, IProfileData, IPhysicsConfig, ConfigTab } from "./state";
+import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap, IProfileData, IPhysicsConfig, ConfigTab, IRenderConfig } from "./state";
 import { InitState } from "./InitState";
-import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction, PhysicsConfigAction, ConfigTabAction } from "./actionTypes";
+import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction, PhysicsConfigAction, ConfigTabAction, RenderConfigAction } from "./actionTypes";
 import { ICollisionSegment, cloneSegment } from "../physics/CollisionSegment";
 import { copyEntity, copyCamera, deepCopy } from "../utils/creation";
 import { cloneVector } from "../utils/geometry";
@@ -15,6 +15,7 @@ const allReducers = combineReducers<IMainState>({
     physics: physicsConfigReducer,
     staticCollisions: staticCollisionsReducer,
     entities: entitiesReducer,
+    renderConfig: renderConfigReducer,
     configTab: configTabReducer,
     profileData: profileReducer,
 });
@@ -129,6 +130,37 @@ export function entitiesReducer(state: IEntity[] = InitState.entities, action: A
             });
         case EntitiesAction.Clear:
             return [];
+    }
+    return state;
+}
+
+export function renderConfigReducer(state: IRenderConfig = InitState.renderConfig, action: AnyAction): IRenderConfig {
+    let newState: IRenderConfig;
+    switch (action.type) {
+        case RenderConfigAction.SetWhiteFade:
+            newState = deepCopy(state);
+            newState.enableWhiteFade = action.payload;
+            return newState;
+        case RenderConfigAction.SetPartition:
+            newState = deepCopy(state);
+            newState.enablePartition = action.payload;
+            return newState;
+        case RenderConfigAction.SetCollisionSegment:
+            newState = deepCopy(state);
+            newState.enableCollisionSegments = action.payload;
+            return newState;
+        case RenderConfigAction.SetFrameRate:
+            newState = deepCopy(state);
+            newState.enableFrameRate = action.payload;
+            return newState;
+        case RenderConfigAction.SetCameraScroll:
+            newState = deepCopy(state);
+            newState.enableCameraScroll = action.payload;
+            return newState;
+        case RenderConfigAction.SetEntityCollisions:
+            newState = deepCopy(state);
+            newState.enableEntityCollisions = action.payload;
+            return newState;
     }
     return state;
 }

@@ -13,6 +13,7 @@ export interface IMainState {
     physics: IPhysicsConfig;
     staticCollisions: ICollisionMap;
     entities: IEntity[];
+    renderConfig: IRenderConfig;
     configTab: ConfigTab;
     profileData: IProfileData;
 }
@@ -98,6 +99,17 @@ export interface IEntity {
     elapsedTime: number;
 
     positionData: IPositionData;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Render Config
+export interface IRenderConfig {
+    enableWhiteFade: boolean;
+    enablePartition: boolean;
+    enableCollisionSegments: boolean;
+    enableFrameRate: boolean;
+    enableCameraScroll: boolean;
+    enableEntityCollisions: boolean;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

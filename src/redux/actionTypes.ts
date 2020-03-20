@@ -39,6 +39,15 @@ export enum MapAction {
     Clear = "MapAction.Clear",
 }
 
+export enum RenderConfigAction {
+    SetWhiteFade = "RenderConfigAction.SetWhiteFade",
+    SetPartition = "RenderConfigAction.SetPartition",
+    SetCollisionSegment = "RenderConfigAction.SetCollisionSegment",
+    SetFrameRate = "RenderConfigAction.SetFrameRate",
+    SetCameraScroll = "RenderConfigAction.SetCameraScroll",
+    SetEntityCollisions = "RenderConfigAction.SetEntityCollisions",
+}
+
 export enum ConfigTabAction {
     SetTab = "ConfigTabAction.SetTab",
 }
