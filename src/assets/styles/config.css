@@ -47,6 +47,9 @@
 }
 
 .tabcontent button {
+    -webkit-appearance: none;
+    -moz-appearance: button-bevel;
+    border-width: 1px;
     background-color: inherit;
     border-radius: 3px;
     border-color: lightgray;
@@ -75,6 +78,8 @@
 }
 
 .textfield {
+    -webkit-appearance: searchfield;
+    -moz-appearance: textfield;
     border-width: 1px;
     border-radius: 3px;
     border-color: lightgray;
