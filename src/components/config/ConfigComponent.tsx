@@ -4,18 +4,32 @@ import { connect } from "react-redux";
 import "../../assets/styles/config.css";
 import { LevelConfigCom } from "./LevelConfigComponent";
 import { PhysicsConfigCom } from "./PhysicsConfigComponent";
+import { actionSetConfigTab } from "../../redux/actionCreators";
+import { Dispatch } from "redux";
 
-interface IConfigProps {
+interface IProps {
     tab: ConfigTab;
 }
 
-const mapStateToProps = (state: IMainState): IConfigProps => {
+interface IDispatchActions {
+    actionSetTab: (tab: ConfigTab) => void;
+}
+
+type IFullProps = IProps & IDispatchActions;
+
+const mapStateToProps = (state: IMainState): IProps => {
     return {
         tab: state.configTab
     };
 }
 
-class ConfigComponent extends React.PureComponent<IConfigProps> {
+const mapDispatchToProps = (dispatch: Dispatch): IDispatchActions => {
+    return {
+        actionSetTab: (tab: ConfigTab) => dispatch(actionSetConfigTab(tab)),
+    };
+}
+
+class ConfigComponent extends React.PureComponent<IFullProps> {
     getTabContents(tab: ConfigTab): JSX.Element {
         switch (tab) {
             case ConfigTab.Level:
@@ -29,8 +43,12 @@ class ConfigComponent extends React.PureComponent<IConfigProps> {
         return (
             <div className="tabContainer">
                 <div className="tab">
-                    <button className="tablinks" onClick={() => {}}>Level</button>
-                    <button className="tablinks" onClick={() => {}}>Physics</button>
+                    <button className="tablinks" onClick={(e) => this.props.actionSetTab(ConfigTab.Level)}>
+                        Level
+                    </button>
+                    <button className="tablinks" onClick={(e) => this.props.actionSetTab(ConfigTab.Physics)}>
+                        Physics
+                    </button>
                 </div>
                 <div className="tabcontent">
                     {this.getTabContents(this.props.tab)}
@@ -40,4 +58,4 @@ class ConfigComponent extends React.PureComponent<IConfigProps> {
     }
 }
 
-export const ConfigCom = connect<IConfigProps>(mapStateToProps)(ConfigComponent);
+export const ConfigCom = connect(mapStateToProps, mapDispatchToProps)(ConfigComponent);

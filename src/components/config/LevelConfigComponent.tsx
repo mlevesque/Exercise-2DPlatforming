@@ -30,7 +30,7 @@ const mapDispatchToProps = (dispatch: Dispatch): IDispatchActions => {
     return {
         actionLoadLevel: (levelName: string) => dispatch(actionLoadLevel(levelName)),
     };
-  }
+}
 
 class LevelConfigComponent extends React.Component<IFullProps, IState> {
     constructor(props: Readonly<IFullProps>) {
