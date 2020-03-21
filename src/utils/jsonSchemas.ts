@@ -1,21 +1,24 @@
 import gameConfig from "../assets/json/gameConfig.json";
+import levelList from "../assets/json/maps/level_list.json";
 import entityPlayer from "../assets/json/entities/entityPlayer.json";
 import { IVector } from "./geometry";
 import { EntityType } from "../redux/state";
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CONFIG
 export interface IGameConfigSchema {
     tileSize: number;
     gravity: IVector;
 }
 
-export interface IImagesSchema {
-    [id: string]: string;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// LEVEL LIST
+export interface ILevelListSchema {
+    levels: string[];
 }
 
-export interface IMapCollisionSchema {
-    x: number;
-    y: number;
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MAP
 export interface IMapSchema {
     tileset: string;
     background: string;
@@ -36,7 +39,21 @@ export interface IMapSchema {
     collisions: IMapCollisionSchema[][];
     gravity?: IVector;
 }
+export interface IMapCollisionSchema {
+    x: number;
+    y: number;
+}
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ENTITY
+export interface IEntitySchema {
+    spritesheet: string;
+    animations: {
+        [id: string]: IAnimationSchema;
+    };
+    speed: number;
+    collision: IEntityCollisionSchema;
+}
 export interface IAnimationSchema {
     loops: boolean;
     frameCount: number;
@@ -48,38 +65,35 @@ export interface IAnimationSchema {
     offY: number;
     intervals: number[];
 }
-
 export interface IEntityCollisionSchema {
     floorPoint: IVector;
     ceilingPoint: IVector;
     halfWidth: number;
 }
-export interface IEntitySchema {
-    spritesheet: string;
-    animations: {
-        [id: string]: IAnimationSchema;
-    };
-    speed: number;
-    collision: IEntityCollisionSchema;
-}
 
-export interface IJumpDuration {
-    keyDuration: number;
-    impulseDuration: number;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PLAYER
+export interface IPlayerSchema extends IEntitySchema {
+    jump: IJumpSchema;
 }
 export interface IJumpSchema {
     speed: number;
     initialDuration: number;
     additionalDurations: IJumpDuration[];
 }
-export interface IPlayerSchema extends IEntitySchema {
-    jump: IJumpSchema;
+export interface IJumpDuration {
+    keyDuration: number;
+    impulseDuration: number;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// GETTERS
 export function getGameConfig(): IGameConfigSchema {
     return gameConfig as IGameConfigSchema;
 }
-
+export function getLevelList(): ILevelListSchema {
+    return levelList as ILevelListSchema;
+}
 export function getEntityJsonData(type: EntityType): IEntitySchema {
     switch (type) {
         case EntityType.Player:
