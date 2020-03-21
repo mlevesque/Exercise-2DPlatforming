@@ -30,6 +30,7 @@ export const InitState: IMainState = {
             previousTimeSlice: 1
         }
     },
+    levelName: "",
     map: null,
     physics: {
         gravity: {x: 0, y: 700},

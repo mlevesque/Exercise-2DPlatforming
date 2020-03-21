@@ -9,6 +9,7 @@ export interface IMainState {
     loading: boolean;
     input: IInputActions;
     camera: ICamera;
+    levelName: string;
     map: IMap;
     physics: IPhysicsConfig;
     staticCollisions: ICollisionMap;

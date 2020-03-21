@@ -34,6 +34,10 @@ export enum LoadingAction {
     SetFlag = "LoadingAction.SetFlag",
 }
 
+export enum LevelNameAction {
+    Set = "LevelNameAction.Set",
+}
+
 export enum MapAction {
     Set = "MapAction.Set",
     Clear = "MapAction.Clear",

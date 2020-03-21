@@ -43,6 +43,10 @@ export function getCamera(state: IMainState): ICamera {
     return copyCamera(state.camera);
 }
 
+export function getLevelName(state: IMainState): string {
+    return state.levelName;
+}
+
 export function getMap(state: IMainState): IMap {
     return state.map;
 }

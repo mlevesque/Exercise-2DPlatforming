@@ -1,7 +1,7 @@
 import { combineReducers, AnyAction } from "redux";
 import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap, IProfileData, IPhysicsConfig, ConfigTab, IRenderConfig } from "./state";
 import { InitState } from "./InitState";
-import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction, PhysicsConfigAction, ConfigTabAction, RenderConfigAction } from "./actionTypes";
+import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction, PhysicsConfigAction, ConfigTabAction, RenderConfigAction, LevelNameAction } from "./actionTypes";
 import { ICollisionSegment, cloneSegment } from "../physics/CollisionSegment";
 import { copyEntity, copyCamera, deepCopy } from "../utils/creation";
 import { cloneVector } from "../utils/geometry";
@@ -11,6 +11,7 @@ const allReducers = combineReducers<IMainState>({
     loading: loadingReducer,
     input: inputReducer,
     camera: cameraReducer,
+    levelName: levelNameReducer,
     map: mapReducer,
     physics: physicsConfigReducer,
     staticCollisions: staticCollisionsReducer,
@@ -68,6 +69,14 @@ export function cameraReducer(state: ICamera = InitState.camera, action: AnyActi
             newState = copyCamera(state);
             newState.scrollArea = deepCopy(action.payload.scrollArea);
             return newState;
+    }
+    return state;
+}
+
+export function levelNameReducer(state: string = InitState.levelName, action: AnyAction): string {
+    switch (action.type) {
+        case LevelNameAction.Set:
+            return action.payload;
     }
     return state;
 }

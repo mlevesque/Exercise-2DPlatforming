@@ -9,7 +9,8 @@ import { GameAction,
          ProfileAction,
          PhysicsConfigAction,
          ConfigTabAction,
-         RenderConfigAction} from "./actionTypes";
+         RenderConfigAction,
+         LevelNameAction} from "./actionTypes";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IEntity, InputType, IMap, IScrollArea, IProfileData, ConfigTab } from "./state";
 import { IPositionData } from "../physics/movementData";
@@ -83,6 +84,12 @@ export function actionUpdateInput(): AnyAction {
 // Loading
 export function actionSetLoadingFlag(flag: boolean): AnyAction {
     return createAction(LoadingAction.SetFlag, flag);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Level Name
+export function actionSetLevelName(name: string): AnyAction {
+    return createAction(LevelNameAction.Set, name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
