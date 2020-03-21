@@ -2,8 +2,9 @@ import { IMainState } from "../../redux/state";
 import React from "react";
 import { connect } from "react-redux";
 import "../../assets/styles/config.css";
-import { IVector, createVector } from "../../utils/geometry";
-import { actionSetGravity, actionSetAttachSegmentEnabled, actionShowPartition, actionShowCollisionSegment, actionShowEntityCollisions } from "../../redux/actionCreators";
+import { IVector, createVector, areVectorsEqual } from "../../utils/geometry";
+import { actionSetGravity, actionSetAttachSegmentEnabled, actionShowPartition, actionShowCollisionSegment, 
+    actionShowEntityCollisions } from "../../redux/actionCreators";
 import { Dispatch } from "redux";
 
 interface IProps {
@@ -67,6 +68,7 @@ class PhysicsConfigComponent extends React.Component<IFullProps, IState> {
     }
 
     onGravityXChange(event: React.FormEvent<HTMLInputElement>) {
+        console.log("GRAVITY X: " + +event.currentTarget.value);
         this.setState({
             gravityX: +event.currentTarget.value,
             gravityY: this.state.gravityY,
@@ -80,6 +82,15 @@ class PhysicsConfigComponent extends React.Component<IFullProps, IState> {
         });
     }
 
+    componentWillUpdate(nextProps: Readonly<IFullProps>) {
+        if (!areVectorsEqual(nextProps.gravity, this.props.gravity)) {
+            this.setState({
+                gravityX: nextProps.gravity.x,
+                gravityY: nextProps.gravity.y
+            });
+        }
+    }
+
     render() {
         return (
             <div>
@@ -91,14 +102,14 @@ class PhysicsConfigComponent extends React.Component<IFullProps, IState> {
                         type="number" 
                         id="gravityX" 
                         onChange={this.onGravityXChange}
-                        defaultValue={this.props.gravity.x} />
+                        value={this.state.gravityX} />
                     <span>  </span>
                     y: <input 
                         className="textfield" 
                         type="number" 
                         id="gravityY" 
                         onChange={this.onGravityYChange}
-                        defaultValue={this.props.gravity.y} />
+                        value={this.state.gravityY} />
                     <span>  </span>
                     <button onClick={this.applyGravity} >Apply</button>
                     <span>  </span>
