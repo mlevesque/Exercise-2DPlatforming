@@ -68,7 +68,7 @@ class LevelConfigComponent extends React.Component<IFullProps, IState> {
                     <select onChange={this.onLevelDropdownSelected}>
                         {optionItems}
                     </select>
-                    <span/>
+                    <span style={{width:"10px"}} />
                     <button onClick={(e) => {this.props.actionLoadLevel(this.state.selectedLevelName)}} >Load</button>
                 </div>
             </div>
