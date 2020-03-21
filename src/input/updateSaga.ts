@@ -45,6 +45,6 @@ export function* updatePlayerActions(deltaT: number, player: IEntity, inputActio
  */
 export function* postUpdateInput(deltaT: number, inputActions: IInputActions) {
     if (isKeyPressed(InputType.Reset, inputActions)) {
-        yield fork(loadLevelSaga, "map_01.json");
+        yield fork(loadLevelSaga, "map_01");
     }
 }

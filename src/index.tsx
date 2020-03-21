@@ -29,7 +29,7 @@ setupInputListener(store, "keyup", false);
 
 // Setup game updates
 function* rootSaga() {
-    yield fork(loadLevelSaga, "map_01.json");
+    yield fork(loadLevelSaga, "map_01");
     yield fork(gameloopInitSaga);
 }
 sagaMiddleware.run(rootSaga);

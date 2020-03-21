@@ -5,6 +5,18 @@ import { cloneVector } from "../utils/geometry";
 import { setPosition } from "../physics/movementData";
 
 /**
+ * Returns a Promise for loading a level json file with the given name.
+ * @param levelName 
+ */
+export function loadLevelData(levelName: string): Promise<any> {
+    return import(
+        /* webpackMode: "lazy",
+           webpackChunkName: "level" */
+        `../assets/json/maps/${levelName}.json`
+    );
+}
+
+/**
  * Returns if an image element with the given image name has already been loaded and attached to the page.
  * @param imageName The name of the image file.
  */

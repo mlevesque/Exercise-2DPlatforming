@@ -1,31 +1,35 @@
 import { put, select } from "redux-saga/effects";
 import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, 
-    actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition, actionSetGravity } from "../redux/actionCreators";
+    actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition, actionSetGravity, actionSetLevelName } 
+    from "../redux/actionCreators";
 import { IMapSchema, getGameConfig } from "../utils/jsonSchemas";
 import { IMap, ICamera } from "../redux/state";
-import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera} from "./utils";
-import { getCamera } from "../redux/selectors";
+import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera, loadLevelData} from "./utils";
+import { getCamera, getLevelName } from "../redux/selectors";
 import { buildWorldPartition, buildCollisionsCollection } from "./collisionBuilding";
 
 /**
  * Generator function for handling level loading, including loading all assets needed for the given level.
- * @param levelFile 
+ * @param levelName
  */
-export function* loadLevelSaga(levelFile: string) {
+export function* loadLevelSaga(levelName: string) {
     // indicate that we are loading
     yield put(actionSetLoadingFlag(true));
+
+    // get previous level name and determine if we are reloading the level or loading a new level
+    const previousLevelName = yield select(getLevelName);
+    const isReload = previousLevelName == levelName;
+
+    // set new level name
+    yield put(actionSetLevelName(levelName));
 
     // clear old level data
     yield put(actionClearMap());
     yield put(actionClearEntities());
 
     // load map data
-    let promise = import(
-        /* WebpackMode: "lazy",
-           webpackChunkName: "level" */
-        `../assets/json/maps/${levelFile}`
-    )
-    let data: IMapSchema = (yield promise) as IMapSchema;
+    let promise = loadLevelData(levelName);
+    const data: IMapSchema = (yield promise) as IMapSchema;
 
     // store map data into store
     const config = getGameConfig();
@@ -41,9 +45,11 @@ export function* loadLevelSaga(levelFile: string) {
     };
     yield put(actionSetMap(map));
 
-    // set gravity
-    const gravity = data.gravity ? data.gravity : config.gravity;
-    yield put(actionSetGravity(gravity, true));
+    // set gravity except on reloads
+    if (!isReload) {
+        const gravity = data.gravity ? data.gravity : config.gravity;
+        yield put(actionSetGravity(gravity, true));
+    }
 
     // setup camera
     let camera: ICamera = yield select(getCamera);
