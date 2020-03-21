@@ -47,7 +47,7 @@ export const InitState: IMainState = {
         enableCollisionSegments: false,
         enableEntityCollisions: false,
     },
-    configTab: ConfigTab.Physics,
+    configTab: ConfigTab.Level,
     profileData: {
         frameTime: 1,
         behaviorActionTime: 0,

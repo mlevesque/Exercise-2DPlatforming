@@ -2,6 +2,7 @@ import { IMainState, ConfigTab } from "../../redux/state";
 import React from "react";
 import { connect } from "react-redux";
 import "../../assets/styles/config.css";
+import { LevelConfigCom } from "./LevelConfigComponent";
 import { PhysicsConfigCom } from "./PhysicsConfigComponent";
 
 interface IConfigProps {
@@ -15,20 +16,24 @@ const mapStateToProps = (state: IMainState): IConfigProps => {
 }
 
 class ConfigComponent extends React.PureComponent<IConfigProps> {
-    render() {
-        let contents;
-        switch (this.props.tab) {
+    getTabContents(tab: ConfigTab): JSX.Element {
+        switch (tab) {
+            case ConfigTab.Level:
+                return <LevelConfigCom/>;
             case ConfigTab.Physics:
-                contents = <PhysicsConfigCom/>;
+                return <PhysicsConfigCom/>;
         }
+    }
 
+    render() {
         return (
             <div className="tabContainer">
                 <div className="tab">
+                    <button className="tablinks" onClick={() => {}}>Level</button>
                     <button className="tablinks" onClick={() => {}}>Physics</button>
                 </div>
                 <div className="tabcontent">
-                    {contents}
+                    {this.getTabContents(this.props.tab)}
                 </div>
             </div>
         )
