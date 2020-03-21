@@ -4,12 +4,14 @@ import { connect } from "react-redux";
 import "../../assets/styles/config.css";
 import { Dispatch } from "redux";
 import { getLevelList } from "../../utils/jsonSchemas";
+import { actionLoadLevel } from "../../redux/actionCreators";
 
 interface IProps {
     levelName: string;
 }
 
 interface IDispatchActions {
+    actionLoadLevel: (levelName: string) => void;
 }
 
 type IFullProps = IProps & IDispatchActions;
@@ -26,6 +28,7 @@ const mapStateToProps = (state: IMainState): IProps => {
 
 const mapDispatchToProps = (dispatch: Dispatch): IDispatchActions => {
     return {
+        actionLoadLevel: (levelName: string) => dispatch(actionLoadLevel(levelName)),
     };
   }
 
@@ -35,6 +38,14 @@ class LevelConfigComponent extends React.Component<IFullProps, IState> {
         this.state = {
             selectedLevelName: props.levelName,
         };
+
+        this.onLevelDropdownSelected = this.onLevelDropdownSelected.bind(this);
+    }
+
+    onLevelDropdownSelected(e: React.FormEvent<HTMLSelectElement>) {
+        this.setState({
+            selectedLevelName: e.currentTarget.value,
+        });
     }
 
     render() {
@@ -54,11 +65,11 @@ class LevelConfigComponent extends React.Component<IFullProps, IState> {
                 {/* SELECT LEVEL */}
                 <div className="entry">
                     <h1>Select Level:</h1>
-                    <select>
+                    <select onChange={this.onLevelDropdownSelected}>
                         {optionItems}
                     </select>
                     <span/>
-                    <button onClick={() => {}} >Load</button>
+                    <button onClick={(e) => {this.props.actionLoadLevel(this.state.selectedLevelName)}} >Load</button>
                 </div>
             </div>
         )
