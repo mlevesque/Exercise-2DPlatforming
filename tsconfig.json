@@ -3,11 +3,12 @@
         "outDir": "./dist/",
         "sourceMap": true,
         "noImplicitAny": true,
-        "module": "commonjs",
+        "module": "esnext",
         "target": "es6",
         "jsx": "react",
         "resolveJsonModule": true,
-        "esModuleInterop": true 
+        "esModuleInterop": true,
+        "moduleResolution": "node"
     },
     "include": [
         "./src/**/*"

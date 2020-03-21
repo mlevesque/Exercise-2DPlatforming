@@ -1,5 +1,5 @@
 import gameConfig from "../assets/json/gameConfig.json";
-import entityPlayer from "../assets/json/entityPlayer.json";
+import entityPlayer from "../assets/json/entities/entityPlayer.json";
 import { IVector } from "./geometry";
 import { EntityType } from "../redux/state";
 

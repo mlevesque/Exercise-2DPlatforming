@@ -21,8 +21,9 @@ export function* loadLevelSaga(levelFile: string) {
 
     // load map data
     let promise = import(
-        /* WebpackMode: "lazy" */
-        `../assets/json/${levelFile}`
+        /* WebpackMode: "lazy",
+           webpackChunkName: "level" */
+        `../assets/json/maps/${levelFile}`
     )
     let data: IMapSchema = (yield promise) as IMapSchema;
 

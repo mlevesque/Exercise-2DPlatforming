@@ -56,7 +56,8 @@ export function lazyLoadImages(imageNames: string[]): Promise<any> {
         imageNames.map((name: string) => {
             return new Promise((resolve: (value?: any) => void, reject: (reason?: any) => void) => {
                 import(
-                /* webpackMode: "lazy-once" */
+                /* webpackMode: "lazy-once",
+                   webpackChunkName: "textures" */
                 `../assets/images/${name}`
                 )
                 .then(src => {
