@@ -68,7 +68,6 @@ class PhysicsConfigComponent extends React.Component<IFullProps, IState> {
     }
 
     onGravityXChange(event: React.FormEvent<HTMLInputElement>) {
-        console.log("GRAVITY X: " + +event.currentTarget.value);
         this.setState({
             gravityX: +event.currentTarget.value,
             gravityY: this.state.gravityY,
@@ -103,16 +102,16 @@ class PhysicsConfigComponent extends React.Component<IFullProps, IState> {
                         id="gravityX" 
                         onChange={this.onGravityXChange}
                         value={this.state.gravityX} />
-                    <span>  </span>
+                    <span style={{width:"10px"}} />
                     y: <input 
                         className="textfield" 
                         type="number" 
                         id="gravityY" 
                         onChange={this.onGravityYChange}
                         value={this.state.gravityY} />
-                    <span>  </span>
+                    <span style={{width:"10px"}} />
                     <button onClick={this.applyGravity} >Apply</button>
-                    <span>  </span>
+                    <span style={{width:"10px"}} />
                     <button onClick={() => {}} >Reset</button>
                 </div>
                 <br />
