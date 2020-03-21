@@ -1,4 +1,5 @@
 export enum GameAction {
+    Load = "GameAction.Load",
     Update = 'GameAction.Update',
 }
 

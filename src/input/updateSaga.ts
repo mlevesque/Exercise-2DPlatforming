@@ -1,11 +1,12 @@
-import { loadLevelSaga } from "../loading/updateSaga";
-import { select, fork } from "redux-saga/effects";
+import { loadLevelSaga } from "../loading/loadLevelSaga";
+import { select, fork, put } from "redux-saga/effects";
 import { getLoadingSelector } from "../redux/selectors";
 import { isKeyPressed, isKeyDown } from "./utils";
 import { InputType, IEntity, IInputActions } from "../redux/state";
 import { MoveDirection } from "../behaviors/utils";
 import { GameEventQueue } from "../events/GameEventQueue";
 import { InputActionEvent } from "../events/GameEvents";
+import { actionLoadLevel } from "../redux/actionCreators";
 
 /**
  * Generator function for updating player input actions and affecting the player entity.
@@ -45,6 +46,6 @@ export function* updatePlayerActions(deltaT: number, player: IEntity, inputActio
  */
 export function* postUpdateInput(deltaT: number, inputActions: IInputActions) {
     if (isKeyPressed(InputType.Reset, inputActions)) {
-        yield fork(loadLevelSaga, "map_01");
+        yield put(actionLoadLevel("map_01"));
     }
 }

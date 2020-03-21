@@ -22,6 +22,9 @@ export function createAction(type: string, payload: Object = null): AnyAction {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Misc Game Actions
+export function actionLoadLevel(levelName: string): AnyAction {
+    return createAction(GameAction.Load, levelName);
+}
 export function actionGameUpdate(deltaTime: number): AnyAction {
     return createAction(GameAction.Update, deltaTime);
 }

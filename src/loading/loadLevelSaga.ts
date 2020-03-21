@@ -1,4 +1,4 @@
-import { put, select } from "redux-saga/effects";
+import { put, select, takeEvery } from "redux-saga/effects";
 import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, 
     actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition, actionSetGravity, actionSetLevelName } 
     from "../redux/actionCreators";
@@ -7,12 +7,17 @@ import { IMap, ICamera } from "../redux/state";
 import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera, loadLevelData} from "./utils";
 import { getCamera, getLevelName } from "../redux/selectors";
 import { buildWorldPartition, buildCollisionsCollection } from "./collisionBuilding";
+import { GameAction } from "../redux/actionTypes";
+import { AnyAction } from "redux";
 
 /**
  * Generator function for handling level loading, including loading all assets needed for the given level.
  * @param levelName
  */
-export function* loadLevelSaga(levelName: string) {
+export function* loadLevelSaga(loadAction: AnyAction) {
+    // get level name
+    const levelName = loadAction.payload;
+
     // indicate that we are loading
     yield put(actionSetLoadingFlag(true));
 
@@ -74,4 +79,8 @@ export function* loadLevelSaga(levelName: string) {
 
     // indicate that loading has finished
     yield put(actionSetLoadingFlag(false));
+}
+
+export function* loadLevelInitSaga() {
+    yield takeEvery(GameAction.Load, loadLevelSaga)
 }

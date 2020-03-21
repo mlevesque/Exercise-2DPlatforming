@@ -6,10 +6,11 @@ import MainComponent from "./components/MainComponent";
 import createSagaMiddleware from "@redux-saga/core";
 import allReducers from "./redux/reducers";
 import { InitState } from "./redux/InitState";
-import { fork, call } from "redux-saga/effects";
-import { loadLevelSaga } from "./loading/updateSaga";
+import { fork, call, put } from "redux-saga/effects";
+import { loadLevelInitSaga } from "./loading/loadLevelSaga";
 import { setupInputListener } from "./input/setup";
 import { gameloopInitSaga, initiateGameUpdates } from "./gameloop";
+import { actionLoadLevel } from "./redux/actionCreators";
 
 // setup redux
 const sagaMiddleware = createSagaMiddleware();
@@ -29,8 +30,9 @@ setupInputListener(store, "keyup", false);
 
 // Setup game updates
 function* rootSaga() {
-    yield fork(loadLevelSaga, "map_01");
+    yield fork(loadLevelInitSaga);
     yield fork(gameloopInitSaga);
+    yield put(actionLoadLevel("map_01"));
 }
 sagaMiddleware.run(rootSaga);
 initiateGameUpdates(store);
