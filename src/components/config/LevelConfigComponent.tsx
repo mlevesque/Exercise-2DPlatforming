@@ -58,18 +58,21 @@ class LevelConfigComponent extends React.Component<IFullProps, IState> {
             <div>
                 {/* CURRENT LEVEL */}
                 <div className="entry">
-                    <b>Current Level:</b> {this.props.levelName}
+                    <h1>Current Level:</h1>
+                    {this.props.levelName}
+                    <span style={{width:"10px"}} />
+                    <button onClick={(e) => this.props.actionLoadLevel(this.props.levelName)}>Reload</button>
                 </div>
                 <br />
 
                 {/* SELECT LEVEL */}
                 <div className="entry">
                     <h1>Select Level:</h1>
-                    <select onChange={this.onLevelDropdownSelected}>
+                    <select style={{width: "120px"}} onChange={this.onLevelDropdownSelected}>
                         {optionItems}
                     </select>
                     <span style={{width:"10px"}} />
-                    <button onClick={(e) => {this.props.actionLoadLevel(this.state.selectedLevelName)}} >Load</button>
+                    <button onClick={(e) => this.props.actionLoadLevel(this.state.selectedLevelName)}>Load</button>
                 </div>
             </div>
         )
