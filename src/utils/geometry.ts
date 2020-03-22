@@ -210,10 +210,10 @@ export function isZeroVector(v: IVector): boolean {return v.x == 0 && v.y == 0}
  */
 export function buildAreaFromRay(ray: IRay): IArea {
     return {
-        minX: ray.v.x > 0 ? ray.p.x : ray.p.x + ray.v.x,
-        minY: ray.v.y > 0 ? ray.p.y : ray.p.y + ray.v.y,
-        maxX: ray.v.x > 0 ? ray.p.x + ray.v.x : ray.p.x,
-        maxY: ray.v.y > 0 ? ray.p.y + ray.v.y : ray.p.y
+        minX: Math.min(ray.p.x, ray.p.x + ray.v.x),
+        minY: Math.min(ray.p.y, ray.p.y + ray.v.y),
+        maxX: Math.max(ray.p.x + ray.v.x, ray.p.x),
+        maxY: Math.max(ray.p.y + ray.v.y, ray.p.y)
     }
 }
 

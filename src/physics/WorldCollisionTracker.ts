@@ -105,7 +105,7 @@ export class WorldCollisionTracker {
     getCollisionLookupArea(): IArea {
         return {
             minX: this._movementBounds.minX - this._entityHalfWidth * 2,
-            minY: this._movementBounds.minY - this._ceilingCollisionOffset.y,
+            minY: this._movementBounds.minY + this._ceilingCollisionOffset.y,
             maxX: this._movementBounds.maxX + this._entityHalfWidth * 2,
             maxY: this._movementBounds.maxY + this._floorCollisionOffset.y
         };
