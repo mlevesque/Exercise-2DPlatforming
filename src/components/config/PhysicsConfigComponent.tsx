@@ -6,6 +6,7 @@ import { IVector, createVector, areVectorsEqual } from "../../utils/geometry";
 import { actionSetGravity, actionSetAttachSegmentEnabled, actionShowPartition, actionShowCollisionSegment, 
     actionShowEntityCollisions } from "../../redux/actionCreators";
 import { Dispatch } from "redux";
+import { VectorComponent, VectorComponentEvent } from "./VectorComponent";
 
 interface IProps {
     gravity: IVector;
@@ -26,8 +27,7 @@ interface IDispatchActions {
 type IFullProps = IProps & IDispatchActions;
 
 interface IState {
-    gravityX: number;
-    gravityY: number;
+    gravity: IVector;
 }
 
 const mapStateToProps = (state: IMainState): IProps => {
@@ -54,38 +54,27 @@ class PhysicsConfigComponent extends React.Component<IFullProps, IState> {
     constructor(props: Readonly<IFullProps>) {
         super(props);
         this.state = {
-            gravityX: props.gravity.x,
-            gravityY: props.gravity.y
+            gravity: props.gravity,
         };
 
         this.applyGravity = this.applyGravity.bind(this);
-        this.onGravityXChange = this.onGravityXChange.bind(this);
-        this.onGravityYChange = this.onGravityYChange.bind(this);
+        this.onGravityChange = this.onGravityChange.bind(this);
     }
 
     applyGravity() {
-        this.props.actionSetGravity(createVector(this.state.gravityX, this.state.gravityY));
+        this.props.actionSetGravity(this.state.gravity);
     }
 
-    onGravityXChange(event: React.FormEvent<HTMLInputElement>) {
+    onGravityChange(event: VectorComponentEvent) {
         this.setState({
-            gravityX: +event.currentTarget.value,
-            gravityY: this.state.gravityY,
-        });
-    }
-
-    onGravityYChange(event: React.FormEvent<HTMLInputElement>) {
-        this.setState({
-            gravityX: this.state.gravityX,
-            gravityY: +event.currentTarget.value,
+            gravity: event.value,
         });
     }
 
     componentWillUpdate(nextProps: Readonly<IFullProps>) {
         if (!areVectorsEqual(nextProps.gravity, this.props.gravity)) {
             this.setState({
-                gravityX: nextProps.gravity.x,
-                gravityY: nextProps.gravity.y
+                gravity: nextProps.gravity,
             });
         }
     }
@@ -96,19 +85,7 @@ class PhysicsConfigComponent extends React.Component<IFullProps, IState> {
                 {/* GRAVITY */}
                 <div className="entry">
                     <h1>Gravity:</h1>
-                    x: <input 
-                        className="textfield" 
-                        type="number" 
-                        id="gravityX" 
-                        onChange={this.onGravityXChange}
-                        value={this.state.gravityX} />
-                    <span style={{width:"10px"}} />
-                    y: <input 
-                        className="textfield" 
-                        type="number" 
-                        id="gravityY" 
-                        onChange={this.onGravityYChange}
-                        value={this.state.gravityY} />
+                    <VectorComponent onChange={this.onGravityChange} value={this.state.gravity} />
                     <span style={{width:"10px"}} />
                     <button onClick={this.applyGravity} >Apply</button>
                     <span style={{width:"10px"}} />
