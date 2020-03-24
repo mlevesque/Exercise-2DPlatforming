@@ -1,12 +1,12 @@
 import { put, select, takeEvery } from "redux-saga/effects";
 import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, 
-    actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition, actionSetGravity, actionSetLevelName } 
+    actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition, actionSetGravity, actionSetLevelName, actionSetPartitionCellSize } 
     from "../redux/actionCreators";
 import { IMapSchema, getGameConfig } from "../utils/jsonSchemas";
-import { IMap, ICamera } from "../redux/state";
+import { IMap, ICamera, IPhysicsConfig } from "../redux/state";
 import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera, loadLevelData} from "./utils";
-import { getCamera, getLevelName } from "../redux/selectors";
-import { buildWorldPartition, buildCollisionsCollection } from "./collisionBuilding";
+import { getCamera, getLevelName, getPhysicsConfig } from "../redux/selectors";
+import { buildCollisionsCollection } from "./collisionBuilding";
 import { GameAction } from "../redux/actionTypes";
 import { AnyAction } from "redux";
 
@@ -62,9 +62,6 @@ export function* loadLevelSaga(loadAction: AnyAction) {
     yield put(actionCameraSetLocks(camera.lockX, camera.lockY));
     yield put(actionCameraSetPosition(camera.positionData));
 
-    // build partition
-    buildWorldPartition(data);
-
     // build collisions
     let collisionsMap = buildCollisionsCollection(data);
     yield put(actionSetStaticCollisions(collisionsMap));
@@ -76,6 +73,12 @@ export function* loadLevelSaga(loadAction: AnyAction) {
     // populate entities
     let entities = buildEntityCollection(data);
     yield put(actionSetEntitiesCollection(entities));
+
+    // setup partition
+    const physicsConfig: IPhysicsConfig = yield select(getPhysicsConfig);
+    yield put(actionSetPartitionCellSize(
+        isReload ? physicsConfig.partitionCellWidth : data.partition.cellWidth,
+        isReload ? physicsConfig.partitionCellHeight : data.partition.cellHeight));
 
     // indicate that loading has finished
     yield put(actionSetLoadingFlag(false));

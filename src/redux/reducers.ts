@@ -109,6 +109,11 @@ export function physicsConfigReducer(state: IPhysicsConfig = InitState.physics, 
             newState = deepCopy(state);
             newState.segmentAttachEnabled = action.payload;
             return newState;
+        case PhysicsConfigAction.SetPartitionCellSize:
+            newState = deepCopy(state);
+            newState.partitionCellWidth = action.payload.width;
+            newState.partitionCellHeight = action.payload.height;
+            return newState;
     }
     return state;
 }

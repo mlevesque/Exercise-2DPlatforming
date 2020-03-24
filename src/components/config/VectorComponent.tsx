@@ -2,6 +2,7 @@ import { IVector, createVector, areVectorsEqual } from "../../utils/geometry";
 import React from "react";
 
 interface IProps {
+    disabled?: boolean;
     xLabel?: string;
     yLabel?: string;
     value?: IVector;
@@ -75,12 +76,14 @@ export class VectorComponent extends React.Component<IProps, IState> {
         return (
             <span>
                 {this.props.xLabel ? this.props.xLabel : "x"}: <input 
+                    disabled={this.props.disabled}
                     className="textfield" 
                     type="number" 
                     onChange={this.onXChange}
                     value={this.state ? this.state.x : 0} />
                 <span style={{width:"10px"}} />
                 {this.props.yLabel ? this.props.yLabel : "y"}: <input 
+                    disabled={this.props.disabled}
                     className="textfield" 
                     type="number" 
                     onChange={this.onYChange}

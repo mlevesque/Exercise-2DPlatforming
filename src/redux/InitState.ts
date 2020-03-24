@@ -35,7 +35,9 @@ export const InitState: IMainState = {
     physics: {
         gravity: {x: 0, y: 700},
         originalGravity: {x: 0, y: 700},
-        segmentAttachEnabled: true
+        segmentAttachEnabled: true,
+        partitionCellWidth: 1,
+        partitionCellHeight: 1,
     },
     staticCollisions: {},
     entities: [],

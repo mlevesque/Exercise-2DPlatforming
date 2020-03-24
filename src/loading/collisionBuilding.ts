@@ -1,7 +1,8 @@
-import { IMapSchema, getGameConfig, IMapCollisionSchema } from "../utils/jsonSchemas";
-import { WorldPartition, SegmentCollisionsMap } from "../physics/WorldPartition";
+import { IMapSchema, IMapCollisionSchema } from "../utils/jsonSchemas";
+import { SegmentCollisionsMap } from "../physics/WorldPartition";
 import { ICollisionSegment, createSegment } from "../physics/CollisionSegment";
-import { areVectorsEqual, getEndOfRay, negate, dot, cloneVector, createVector, IVector, cross, add, createRayPV } from "../utils/geometry";
+import { areVectorsEqual, getEndOfRay, cloneVector, createVector, IVector, cross, add, createRayPV } 
+    from "../utils/geometry";
 import { isWall, isFloor, isCeiling, calculateTCollisionValues } from "../physics/util";
 
 /**
@@ -149,18 +150,6 @@ function buildCollisionSet(collisionSet: IMapCollisionSchema[]): ICollisionSegme
     return endsConnected ? segmentList.slice(0, segmentList.length - 1) : segmentList;
 }
 
-
-/**
- * Sets up world partition to the dimenions and cell size based on the map schema data.
- * @param map 
- */
-export function buildWorldPartition(map: IMapSchema): void {
-    const config = getGameConfig();
-    const height = map.map.length * config.tileSize;
-    const width = height > 0 ? map.map[0].length * config.tileSize : 0;
-    WorldPartition.getInstance().setupPartition(width, height, map.partition.cellWidth, map.partition.cellHeight);
-}
-
 /**
  * Builds and returns a collection of collisions from the given map data.
  * @param map 
@@ -168,7 +157,6 @@ export function buildWorldPartition(map: IMapSchema): void {
 export function buildCollisionsCollection(map: IMapSchema): SegmentCollisionsMap {
     // build all collisions
     let results: SegmentCollisionsMap = new Map();
-    let partition = WorldPartition.getInstance();
     if (map && map.collisions) {
         map.collisions.forEach((collisonSet) => {
             // build collisions
@@ -177,7 +165,6 @@ export function buildCollisionsCollection(map: IMapSchema): SegmentCollisionsMap
             //add to results and partition
             collisionSegments.forEach((segment) => {
                 results.set(segment.id, segment);
-                partition.addStaticCollision(segment);
             });
         });
     }

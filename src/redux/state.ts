@@ -68,6 +68,8 @@ export interface IPhysicsConfig {
     gravity: IVector;
     originalGravity: IVector;
     segmentAttachEnabled: boolean;
+    partitionCellWidth: number;
+    partitionCellHeight: number;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

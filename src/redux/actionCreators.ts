@@ -55,6 +55,9 @@ export function actionResetGravity(): AnyAction {
 export function actionSetAttachSegmentEnabled(flag: boolean): AnyAction {
     return createAction(PhysicsConfigAction.SetAttachSegmentEnabled, flag);
 }
+export function actionSetPartitionCellSize(width: number, height: number): AnyAction {
+    return createAction(PhysicsConfigAction.SetPartitionCellSize, {width: width, height: height});
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Collisions

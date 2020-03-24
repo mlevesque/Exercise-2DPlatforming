@@ -14,6 +14,7 @@ export enum PhysicsConfigAction {
     SetGravity = "PhysicsConfigAction.SetGravity",
     ResetGravity = "PhysicsConfigAction.ResetGravity",
     SetAttachSegmentEnabled = "PhysicsConfigAction.SetAttachSegmentEnabled",
+    SetPartitionCellSize = "PhysicsConfigAction.SetPartitionCellSize",
 }
 
 export enum CollisionsAction {
