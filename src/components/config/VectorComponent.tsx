@@ -1,5 +1,6 @@
 import { IVector, createVector, areVectorsEqual } from "../../utils/geometry";
 import React from "react";
+import { Guid } from "guid-typescript";
 
 interface IProps {
     disabled?: boolean;
@@ -73,17 +74,23 @@ export class VectorComponent extends React.Component<IProps, IState> {
     }
 
     render() {
+        const xName = Guid.create().toString();
+        const yName = Guid.create().toString();
         return (
             <span>
-                {this.props.xLabel ? this.props.xLabel : "x"}: <input 
+                <label htmlFor={xName}>{this.props.xLabel ? this.props.xLabel : "x"}: </label>
+                <input 
                     disabled={this.props.disabled}
+                    name={xName}
                     className="textfield" 
                     type="number" 
                     onChange={this.onXChange}
                     value={this.state ? this.state.x : 0} />
                 <span style={{width:"10px"}} />
-                {this.props.yLabel ? this.props.yLabel : "y"}: <input 
+                <label htmlFor={yName}>{this.props.yLabel ? this.props.yLabel : "y"}: </label>
+                <input 
                     disabled={this.props.disabled}
+                    name={yName}
                     className="textfield" 
                     type="number" 
                     onChange={this.onYChange}
