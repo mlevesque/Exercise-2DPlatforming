@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import "../../assets/styles/config.css";
 import { LevelConfigComponent } from "./LevelConfigComponent";
 import { PhysicsConfigComponent } from "./PhysicsConfigComponent";
+import { CameraConfigComponent } from "./CameraConfigComponent";
 import { actionSetConfigTab } from "../../redux/actionCreators";
 import { Dispatch } from "redux";
 
@@ -41,6 +42,8 @@ class ConfigComponent extends React.PureComponent<IFullProps> {
                 return <LevelConfigComponent/>;
             case ConfigTab.Physics:
                 return <PhysicsConfigComponent/>;
+            case ConfigTab.Camera:
+                return <CameraConfigComponent/>;
         }
     }
 
@@ -48,6 +51,7 @@ class ConfigComponent extends React.PureComponent<IFullProps> {
         const tabs = [
             {name: "Level", type: ConfigTab.Level},
             {name: "Physics", type: ConfigTab.Physics},
+            {name: "Camera", type: ConfigTab.Camera},
         ];
         return tabs.map((entry: ITabEntry) => {
             return (
