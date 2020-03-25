@@ -26,7 +26,7 @@ interface IState {
 const mapStateToProps = (state: IMainState): IProps => {
     return {
         showCollisionSegments: state.renderConfig.enableCollisionSegments,
-        collisionSegmentIds: Object.entries(state.staticCollisions).map((v) => v[0]),
+        collisionSegmentIds: state.staticCollisions,
     }
 }
 

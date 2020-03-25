@@ -61,7 +61,7 @@ export function actionSetPartitionCellSize(width: number, height: number): AnyAc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Collisions
-export function actionSetStaticCollisions(collisions: Map<string, ICollisionSegment>): AnyAction {
+export function actionSetStaticCollisions(collisions: string[]): AnyAction {
     return createAction(CollisionsAction.SetStatic, collisions);
 }
 export function actionClearCollisions(): AnyAction {

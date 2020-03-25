@@ -1,13 +1,14 @@
 import { AnyAction } from "redux";
 import { PhysicsConfigAction } from "../redux/actionTypes";
 import { IMap } from "../redux/state";
-import { getMap, getStaticCollisions, getLevelName } from "../redux/selectors";
+import { getMap, getLevelName } from "../redux/selectors";
 import { select, put, takeEvery, all } from "redux-saga/effects";
-import { WorldPartition } from "../physics/WorldPartition";
+import { WorldPartition } from "../physics/collections/WorldPartition";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { getGameConfig, IMapSchema } from "../utils/jsonSchemas";
 import { loadLevelData } from "./utils";
 import { actionSetGravity } from "../redux/actionCreators";
+import { CollisionCollections } from "../physics/collections/CollisionCollections";
 
 function* resetPartition(action: AnyAction) {
     // determine the new cell size
@@ -18,7 +19,7 @@ function* resetPartition(action: AnyAction) {
     partition.setupPartition(map.width, map.height, width, height);
 
     // repopulate
-    const segmentCollisions: Map<string, ICollisionSegment> = yield select(getStaticCollisions);
+    const segmentCollisions = CollisionCollections.getInstance().getAllStaticCollisionSegments();
     segmentCollisions.forEach((segment: ICollisionSegment) => {
         partition.addStaticCollision(segment);
     });

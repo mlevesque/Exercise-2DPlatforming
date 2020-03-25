@@ -4,7 +4,7 @@ import { IRay, IVector, getEndOfRay, createRayPP, isZeroVector, createRayPV, add
     from "../utils/geometry";
 import { CollisionType } from "./collisionType";
 import { buildStartLedgeRay, buildEndLedgeRay } from "./util";
-import { WorldPartition, SegmentCollisionsMap } from "./WorldPartition";
+import { WorldPartition, SegmentCollisionsMap } from "./collections/WorldPartition";
 
 /**
  * Potential collision information to possibly be resolved.

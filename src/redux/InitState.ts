@@ -39,7 +39,7 @@ export const InitState: IMainState = {
         partitionCellWidth: 1,
         partitionCellHeight: 1,
     },
-    staticCollisions: {},
+    staticCollisions: [],
     entities: [],
     renderConfig: {
         enableWhiteFade: false,

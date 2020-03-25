@@ -1,6 +1,5 @@
-import { IMainState, IInputActions, IEntity, EntityType, ICollisionMap, ICamera, IMap, IProfileData, IPhysicsConfig, 
+import { IMainState, IInputActions, IEntity, EntityType, ICamera, IMap, IProfileData, IPhysicsConfig, 
     IRenderConfig } from "./state";
-import { ICollisionSegment } from "../physics/CollisionSegment";
 import { copyEntity, deepCopy, copyCamera } from "../utils/creation";
 
 export function getFullStateSelector(state: IMainState): IMainState {
@@ -13,10 +12,6 @@ export function getLoadingSelector(state: IMainState): boolean {
 
 export function getInputActionsSelector(state: IMainState): IInputActions {
     return state.input;
-}
-
-export function getStaticCollisions(state: IMainState): Map<string, ICollisionSegment> {
-    return new Map<string, ICollisionSegment>(Object.entries(state.staticCollisions));
 }
 
 export interface ICopiedEntityCollection {

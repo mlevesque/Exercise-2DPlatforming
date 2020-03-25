@@ -1,5 +1,5 @@
 import { IMapSchema, IMapCollisionSchema } from "../utils/jsonSchemas";
-import { SegmentCollisionsMap } from "../physics/WorldPartition";
+import { SegmentCollisionsMap } from "../physics/collections/WorldPartition";
 import { ICollisionSegment, createSegment } from "../physics/CollisionSegment";
 import { areVectorsEqual, getEndOfRay, cloneVector, createVector, IVector, cross, add, createRayPV } 
     from "../utils/geometry";
@@ -154,19 +154,11 @@ function buildCollisionSet(collisionSet: IMapCollisionSchema[]): ICollisionSegme
  * Builds and returns a collection of collisions from the given map data.
  * @param map 
  */
-export function buildCollisionsCollection(map: IMapSchema): SegmentCollisionsMap {
+export function buildCollisionsCollection(map: IMapSchema): ICollisionSegment[] {
     // build all collisions
-    let results: SegmentCollisionsMap = new Map();
+    let results: ICollisionSegment[] = [];
     if (map && map.collisions) {
-        map.collisions.forEach((collisonSet) => {
-            // build collisions
-            const collisionSegments = buildCollisionSet(collisonSet);
-
-            //add to results and partition
-            collisionSegments.forEach((segment) => {
-                results.set(segment.id, segment);
-            });
-        });
+        map.collisions.forEach(collisonSet => results = results.concat(buildCollisionSet(collisonSet)));
     }
     return results;
 }

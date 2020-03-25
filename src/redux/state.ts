@@ -1,4 +1,3 @@
-import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IBehaviorData } from "../behaviors/behaviorData";
 import { IPositionData } from "../physics/movementData";
 import { IVector } from "../utils/geometry";
@@ -12,7 +11,7 @@ export interface IMainState {
     levelName: string;
     map: IMap;
     physics: IPhysicsConfig;
-    staticCollisions: ICollisionMap;
+    staticCollisions: string[];
     entities: IEntity[];
     renderConfig: IRenderConfig;
     configTab: ConfigTab;
@@ -70,12 +69,6 @@ export interface IPhysicsConfig {
     segmentAttachEnabled: boolean;
     partitionCellWidth: number;
     partitionCellHeight: number;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Collisions
-export interface ICollisionMap {
-    [id: string]: ICollisionSegment;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

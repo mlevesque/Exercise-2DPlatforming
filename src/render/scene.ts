@@ -3,6 +3,7 @@ import { renderTiles, renderBackground } from "./world";
 import { renderEntity } from "./entities";
 import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPartition, renderScrollArea, 
     renderScrollVector, renderPartitionCellSegmentHighlight} from "./debug";
+import { CollisionCollections } from "../physics/collections/CollisionCollections";
 
 export function renderLoading(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = "black";
@@ -29,7 +30,7 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
 
     // render partition debug
     if (state.renderConfig.enablePartition) {
-        const segment = state.staticCollisions[state.renderConfig.partitionSegmentId];
+        const segment = CollisionCollections.getInstance().getCollisionSegment(state.renderConfig.partitionSegmentId);
         if (segment) {
             renderPartitionCellSegmentHighlight(ctx, state.camera, state.map, segment);
         }

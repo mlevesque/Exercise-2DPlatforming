@@ -9,6 +9,7 @@ import { getCamera, getLevelName, getPhysicsConfig } from "../redux/selectors";
 import { buildCollisionsCollection } from "./collisionBuilding";
 import { GameAction } from "../redux/actionTypes";
 import { AnyAction } from "redux";
+import { CollisionCollections } from "../physics/collections/CollisionCollections";
 
 /**
  * Generator function for handling level loading, including loading all assets needed for the given level.
@@ -63,8 +64,11 @@ export function* loadLevelSaga(loadAction: AnyAction) {
     yield put(actionCameraSetPosition(camera.positionData));
 
     // build collisions
-    let collisionsMap = buildCollisionsCollection(data);
-    yield put(actionSetStaticCollisions(collisionsMap));
+    const collisions = buildCollisionsCollection(data);
+    yield put(actionSetStaticCollisions(collisions.map(seg => seg.id)));
+    const collisionCollections = CollisionCollections.getInstance();
+    collisionCollections.clearStaticCollisions();
+    collisions.forEach(seg => collisionCollections.addStaticCollisionSegment(seg));
 
     // load images
     promise = lazyLoadImages(getImagesToLoad(data));

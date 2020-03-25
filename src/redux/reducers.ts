@@ -1,8 +1,9 @@
 import { combineReducers, AnyAction } from "redux";
-import { IMainState, IInputActions, ICamera, IMap, IEntity, ICollisionMap, IProfileData, IPhysicsConfig, ConfigTab, IRenderConfig } from "./state";
+import { IMainState, IInputActions, ICamera, IMap, IEntity, IProfileData, IPhysicsConfig, ConfigTab, 
+    IRenderConfig } from "./state";
 import { InitState } from "./InitState";
-import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction, PhysicsConfigAction, ConfigTabAction, RenderConfigAction, LevelNameAction } from "./actionTypes";
-import { ICollisionSegment, cloneSegment } from "../physics/CollisionSegment";
+import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction, 
+    PhysicsConfigAction, ConfigTabAction, RenderConfigAction, LevelNameAction } from "./actionTypes";
 import { copyEntity, copyCamera, deepCopy } from "../utils/creation";
 import { cloneVector } from "../utils/geometry";
 
@@ -118,20 +119,12 @@ export function physicsConfigReducer(state: IPhysicsConfig = InitState.physics, 
     return state;
 }
 
-export function staticCollisionsReducer( state: ICollisionMap = InitState.staticCollisions, 
-                                         action: AnyAction): ICollisionMap {
-    let newMap: ICollisionMap;
+export function staticCollisionsReducer( state: string[] = InitState.staticCollisions, action: AnyAction): string[] {
     switch (action.type) {
         case CollisionsAction.SetStatic:
-            newMap = {};
-            const arr: Map<string, ICollisionSegment> = action.payload;
-            arr.forEach((segment: ICollisionSegment) => {
-                const newSegment = cloneSegment(segment);
-                newMap[newSegment.id] = newSegment;
-            });
-            return newMap;
+            return [...action.payload];
         case CollisionsAction.Clear:
-            return {};
+            return [];
     }
     return state;
 }

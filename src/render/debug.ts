@@ -1,9 +1,10 @@
-import { IVector, zeroVector, scale, createVector, add, subtract, vectorLength, vectorSquaredLength, IArea, areAreasIntersecting } from "../utils/geometry";
+import { IVector, zeroVector, scale, createVector, add, subtract, vectorSquaredLength, areAreasIntersecting } 
+    from "../utils/geometry";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IEntity, ICamera, IMap } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { isWall } from "../physics/util";
-import { WorldPartition } from "../physics/WorldPartition";
+import { WorldPartition } from "../physics/collections/WorldPartition";
 import { getAreaFromCamera } from "../utils/misc";
 import { getCameraArea } from "../camera/utils";
 
