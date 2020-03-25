@@ -1,4 +1,4 @@
-import { put, select, takeEvery } from "redux-saga/effects";
+import { put, select, takeEvery, takeLatest } from "redux-saga/effects";
 import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, 
     actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition, actionSetGravity, actionSetLevelName, actionSetPartitionCellSize } 
     from "../redux/actionCreators";
@@ -85,5 +85,5 @@ export function* loadLevelSaga(loadAction: AnyAction) {
 }
 
 export function* loadLevelInitSaga() {
-    yield takeEvery(GameAction.Load, loadLevelSaga)
+    yield takeLatest(GameAction.Load, loadLevelSaga)
 }
