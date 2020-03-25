@@ -1,5 +1,5 @@
 import { ICollisionSegment } from "./CollisionSegment";
-import { IVector, createVector, IRay, IArea, getEndOfRay, areVectorsEqual, cloneVector } from "../utils/geometry";
+import { IVector, createVector, IRay, IArea, cloneVector } from "../utils/geometry";
 
 export type SegmentCollisionsMap = Map<string, ICollisionSegment>;
 
@@ -256,10 +256,11 @@ export class WorldPartition {
         const nextYDir = segmentRay.v.y > 0 ? 1 : 0;
         let cellPos = this.convertWorldPositionToCellPosition(segmentRay.p);
         let result: IVector[] = [];
-        let cell: PartitionCell;
         let nextT = [0, 0];
         while (nextT[0] < 1 || nextT[1] < 1) {
-            result.push(cloneVector(cellPos));
+            if (this.areCellCoordinatesValid(cellPos)) {
+                result.push(cloneVector(cellPos));
+            }
             nextT = this.getNextCellTValues(segmentRay, cellPos.x + nextXDir, cellPos.y + nextYDir);
             if (nextT[0] <= nextT[1]) {
                 cellPos.x += xDir;
