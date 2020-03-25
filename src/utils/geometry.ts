@@ -239,3 +239,13 @@ export function updateBoundsForArea(area: IArea, p: IVector): IArea {
 export function isBoundsACompletelyInsideBoundsB(a: IArea, b: IArea): boolean {
     return a.minX >= b.minX && a.minY >= b.minY && a.maxX <= b.maxX && a.maxY <= b.maxY;
 }
+
+/**
+ * Returns true if the two given areas are intersecting.
+ * @param a 
+ * @param b 
+ */
+export function areAreasIntersecting(a: IArea, b: IArea): boolean {
+    return a.minX <= b.maxX && a.maxX >= b.minX
+        && a.minY <= b.maxY && a.maxY >= b.minY;
+}

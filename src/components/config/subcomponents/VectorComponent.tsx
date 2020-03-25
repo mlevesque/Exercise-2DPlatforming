@@ -1,4 +1,4 @@
-import { IVector, createVector, areVectorsEqual } from "../../utils/geometry";
+import { IVector, createVector, areVectorsEqual } from "../../../utils/geometry";
 import React from "react";
 import { Guid } from "guid-typescript";
 
@@ -86,7 +86,7 @@ export class VectorComponent extends React.Component<IProps, IState> {
                     type="number" 
                     onChange={this.onXChange}
                     value={this.state ? this.state.x : 0} />
-                <span style={{width:"10px"}} />
+                <span className="space"/>
                 <label htmlFor={yName}>{this.props.yLabel ? this.props.yLabel : "y"}: </label>
                 <input 
                     disabled={this.props.disabled}

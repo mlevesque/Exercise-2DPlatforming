@@ -127,6 +127,9 @@ export function actionShowCameraScroll(val: boolean): AnyAction {
 export function actionShowEntityCollisions(val: boolean): AnyAction {
     return createAction(RenderConfigAction.SetEntityCollisions, val);
 }
+export function actionSetPartitionSegmentId(id: string): AnyAction {
+    return createAction(RenderConfigAction.SetPartitionSegmentId, id);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Config Tab

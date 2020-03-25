@@ -2,8 +2,8 @@ import { IMainState, ConfigTab } from "../../redux/state";
 import React from "react";
 import { connect } from "react-redux";
 import "../../assets/styles/config.css";
-import { LevelConfigCom } from "./LevelConfigComponent";
-import { PhysicsConfigCom } from "./PhysicsConfigComponent";
+import { LevelConfigComponent } from "./LevelConfigComponent";
+import { PhysicsConfigComponent } from "./PhysicsConfigComponent";
 import { actionSetConfigTab } from "../../redux/actionCreators";
 import { Dispatch } from "redux";
 
@@ -13,6 +13,11 @@ interface IProps {
 
 interface IDispatchActions {
     actionSetTab: (tab: ConfigTab) => void;
+}
+
+interface ITabEntry {
+    name: string;
+    type: ConfigTab;
 }
 
 type IFullProps = IProps & IDispatchActions;
@@ -33,22 +38,30 @@ class ConfigComponent extends React.PureComponent<IFullProps> {
     getTabContents(tab: ConfigTab): JSX.Element {
         switch (tab) {
             case ConfigTab.Level:
-                return <LevelConfigCom/>;
+                return <LevelConfigComponent/>;
             case ConfigTab.Physics:
-                return <PhysicsConfigCom/>;
+                return <PhysicsConfigComponent/>;
         }
+    }
+
+    buildConfigTabButtons(): JSX.Element[] {
+        const tabs = [
+            {name: "Level", type: ConfigTab.Level},
+            {name: "Physics", type: ConfigTab.Physics},
+        ];
+        return tabs.map((entry: ITabEntry) => {
+            return (
+            <button className="tabLinks" onClick={e => this.props.actionSetTab(entry.type)}>
+                {entry.name}
+            </button>)
+        });
     }
 
     render() {
         return (
             <div className="tabContainer">
                 <div className="tab">
-                    <button className="tablinks" onClick={(e) => this.props.actionSetTab(ConfigTab.Level)}>
-                        Level
-                    </button>
-                    <button className="tablinks" onClick={(e) => this.props.actionSetTab(ConfigTab.Physics)}>
-                        Physics
-                    </button>
+                    {this.buildConfigTabButtons()}
                 </div>
                 <div className="tabcontent">
                     {this.getTabContents(this.props.tab)}

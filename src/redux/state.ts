@@ -113,6 +113,7 @@ export interface IRenderConfig {
     enableFrameRate: boolean;
     enableCameraScroll: boolean;
     enableEntityCollisions: boolean;
+    partitionSegmentId: string;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

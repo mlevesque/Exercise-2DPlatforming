@@ -48,6 +48,7 @@ export const InitState: IMainState = {
         enableCameraScroll: false,
         enableCollisionSegments: false,
         enableEntityCollisions: false,
+        partitionSegmentId: "",
     },
     configTab: ConfigTab.Level,
     profileData: {

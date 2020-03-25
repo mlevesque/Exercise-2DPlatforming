@@ -2,7 +2,7 @@ import { IMainState, IEntity } from "../redux/state";
 import { renderTiles, renderBackground } from "./world";
 import { renderEntity } from "./entities";
 import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPartition, renderScrollArea, 
-    renderScrollVector, renderWorldEdge} from "./debug";
+    renderScrollVector, renderWorldEdge, renderPartitionCellSegmentHighlight} from "./debug";
 
 export function renderLoading(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = "black";
@@ -23,18 +23,28 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
         renderEntity(ctx, entity);
     });
 
-    // render debug stuff
-    if (state.renderConfig.enableCollisionSegments) {
-        renderMapCollisions(ctx, state.camera);
+    // render partition debug
+    if (state.renderConfig.enablePartition) {
+        const segment = state.staticCollisions[state.renderConfig.partitionSegmentId];
+        if (segment) {
+            renderPartitionCellSegmentHighlight(ctx, state.camera, state.map, segment);
+        }
+        renderPartition(ctx, state.camera, state.map);
     }
+
+    // render collision segments
+    if (state.renderConfig.enableCollisionSegments) {
+        renderMapCollisions(ctx, state.camera, state.renderConfig.partitionSegmentId);
+    }
+
+    // render entity collisions
     if (state.renderConfig.enableEntityCollisions) {
         state.entities.forEach((entity: IEntity) => {
             renderEntityCollisions(ctx, entity);
         });
     }
-    if (state.renderConfig.enablePartition) {
-        renderPartition(ctx, state.camera, state.map);
-    }
+
+    // render camera scroll vector
     if (state.renderConfig.enableCameraScroll) {
         const player = state.entities.length > 0 ? state.entities[0] : null;
         if (player) {

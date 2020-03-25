@@ -42,7 +42,6 @@
     text-align: left;
     font-size: 14px;
     background-color: white;
-    line-height: 150%;
     border-radius: 0 0 5px 5px;
 }
 
@@ -64,12 +63,26 @@
     background-color: inherit;
 }
 
+.tabcontent hr {
+    border-width: 0;
+    color: #ccc;
+    height: 1px;
+    background-color: #ccc;
+}
+
 .entry {
-    line-height: 90%;
+    background-color: inherit;
+    padding-top: 5px;
+    padding-bottom: 15px;
+    width: 100%;
 }
 
 .entry span {
     display: inline-block;
+}
+
+.entry .space {
+    width: 10px;
 }
 
 .entry h1 {

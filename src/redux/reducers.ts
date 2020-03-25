@@ -175,6 +175,10 @@ export function renderConfigReducer(state: IRenderConfig = InitState.renderConfi
             newState = deepCopy(state);
             newState.enableEntityCollisions = action.payload;
             return newState;
+        case RenderConfigAction.SetPartitionSegmentId:
+            newState = deepCopy(state);
+            newState.partitionSegmentId = action.payload;
+            return newState;
     }
     return state;
 }

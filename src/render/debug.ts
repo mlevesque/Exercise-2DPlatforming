@@ -1,10 +1,11 @@
-import { IVector, zeroVector, scale, createVector, add, subtract, vectorLength, vectorSquaredLength, IArea } from "../utils/geometry";
+import { IVector, zeroVector, scale, createVector, add, subtract, vectorLength, vectorSquaredLength, IArea, areAreasIntersecting } from "../utils/geometry";
 import { ICollisionSegment } from "../physics/CollisionSegment";
 import { IEntity, ICamera, IMap } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { isWall } from "../physics/util";
 import { WorldPartition } from "../physics/WorldPartition";
 import { getAreaFromCamera } from "../utils/misc";
+import { getCameraArea } from "../camera/utils";
 
 function renderArrow(ctx: CanvasRenderingContext2D, from: IVector, to: IVector, radius: number): void {
 	let x_center = to.x;
@@ -35,16 +36,16 @@ function renderArrow(ctx: CanvasRenderingContext2D, from: IVector, to: IVector, 
 	ctx.fill();
 }
 
-function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment): void {
+function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment, isHighlight: boolean): void {
     ctx.save();
     ctx.translate(segment.segment.p.x, segment.segment.p.y);
 
     // render segment
-    let color = isWall(segment) ? "blue" : "red";
+    let color = isHighlight ? "yellow" : (isWall(segment) ? "blue" : "red");
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    renderArrow(ctx, zeroVector(), segment.segment.v, 5);
+    ctx.lineWidth = isHighlight ? 3 : 2;
+    renderArrow(ctx, zeroVector(), segment.segment.v, isHighlight ? 7 : 5);
 
     // render normal
     ctx.fillStyle = "green";
@@ -66,10 +67,10 @@ function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment
     ctx.restore();
 }
 
-export function renderMapCollisions(ctx: CanvasRenderingContext2D, camera: ICamera): void {
+export function renderMapCollisions(ctx: CanvasRenderingContext2D, camera: ICamera, highlightSegId: string): void {
     const collisions = WorldPartition.getInstance().getCollisionsInWorldArea(getAreaFromCamera(camera));
     collisions.forEach((segment) => {
-        renderSegment(ctx, segment);
+        renderSegment(ctx, segment, segment.id === highlightSegId);
     })
 }
 
@@ -106,6 +107,24 @@ export function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IE
     ctx.stroke();
 
     ctx.restore();
+}
+
+export function renderPartitionCellSegmentHighlight(
+                        ctx: CanvasRenderingContext2D, camera: ICamera, map: IMap, segment: ICollisionSegment): void {
+    ctx.fillStyle = "red";
+    ctx.globalAlpha = 0.5;
+
+    const partition = WorldPartition.getInstance();
+    const positions = partition.getCellsTouchingSegment(segment);
+    const camArea = getCameraArea(camera);
+    positions.forEach((pos) => {
+        const cellArea = partition.getWorldAreaOfCell(pos);
+        if (areAreasIntersecting(camArea, cellArea)) {
+            ctx.fillRect(cellArea.minX, cellArea.minY, cellArea.maxX - cellArea.minX, cellArea.maxY - cellArea.minY);
+        }
+    });
+
+    ctx.globalAlpha = 1;
 }
 
 export function renderPartition(ctx: CanvasRenderingContext2D, camera: ICamera, map: IMap): void {
