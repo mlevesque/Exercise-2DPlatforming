@@ -2,11 +2,15 @@ import { IMainState, IEntity } from "../redux/state";
 import { renderTiles, renderBackground } from "./world";
 import { renderEntity } from "./entities";
 import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPartition, renderScrollArea, 
-    renderScrollVector, renderWorldEdge, renderPartitionCellSegmentHighlight} from "./debug";
+    renderScrollVector, renderPartitionCellSegmentHighlight} from "./debug";
 
 export function renderLoading(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.textAlign = "center";
+    ctx.font = "normal bold 20px sans-serif";
+    ctx.fillStyle = "white";
+    ctx.fillText("Loading assets...", ctx.canvas.width / 2, ctx.canvas.height / 2);
 }
 
 export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMainState): void {
