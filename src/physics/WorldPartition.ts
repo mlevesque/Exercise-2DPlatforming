@@ -249,34 +249,24 @@ export class WorldPartition {
      * @param segment 
      */
     getCellsTouchingSegment(segment: ICollisionSegment): IVector[] {
-        const ray = segment.segment;
-        const xDir = ray.v.x > 0 ? 1 : -1;
-        const yDir = ray.v.y > 0 ? 1 : -1;
-        const nextXDir = ray.v.x > 0 ? 1 : 0;
-        const nextYDir = ray.v.y > 0 ? 1 : 0;
-        const endCell = this.convertWorldPositionToCellPosition(getEndOfRay(ray));
-        let cellPos = this.convertWorldPositionToCellPosition(ray.p);
+        const segmentRay = segment.segment;
+        const xDir = segmentRay.v.x > 0 ? 1 : -1;
+        const yDir = segmentRay.v.y > 0 ? 1 : -1;
+        const nextXDir = segmentRay.v.x > 0 ? 1 : 0;
+        const nextYDir = segmentRay.v.y > 0 ? 1 : 0;
+        let cellPos = this.convertWorldPositionToCellPosition(segmentRay.p);
         let result: IVector[] = [];
-
-        // loop until we get to the ending cell
         let cell: PartitionCell;
-        while (!areVectorsEqual(cellPos, endCell) && this.areCellCoordinatesValid(cellPos)) {
-            // store cell position
+        let nextT = [0, 0];
+        while (nextT[0] < 1 || nextT[1] < 1) {
             result.push(cloneVector(cellPos));
-
-            // go to next cell
-            const nextT = this.getNextCellTValues(ray, cellPos.x + nextXDir, cellPos.y + nextYDir);
+            nextT = this.getNextCellTValues(segmentRay, cellPos.x + nextXDir, cellPos.y + nextYDir);
             if (nextT[0] <= nextT[1]) {
                 cellPos.x += xDir;
             }
             if (nextT[0] >= nextT[1]) {
                 cellPos.y += yDir;
             }
-        }
-
-        // add end cell
-        if (this.areCellCoordinatesValid(endCell)) {
-            result.push(endCell);
         }
         return result;
     }
