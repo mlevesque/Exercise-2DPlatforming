@@ -1,19 +1,17 @@
 import { IMainState } from "../../../redux/state";
 import { Dispatch } from "redux";
-import { actionSetAttachSegmentEnabled, actionShowCollisionSegment, actionSetPartitionSegmentId } 
+import { actionShowCollisionSegment, actionSetPartitionSegmentId } 
     from "../../../redux/actionCreators";
 import React from "react";
 import { connect } from "react-redux";
 import "../../../assets/styles/config.css";
 
 interface IProps {
-    enableSegAttach: boolean;
     showCollisionSegments: boolean;
     collisionSegmentIds: string[];
 }
 
 interface IDispatchActions {
-    actionSetEnableSegAttach: (value: boolean) => void;
     actionShowCollisionSegments: (value: boolean) => void;
     actionSetHighlightedSegment: (value: string) => void;
 }
@@ -27,7 +25,6 @@ interface IState {
 
 const mapStateToProps = (state: IMainState): IProps => {
     return {
-        enableSegAttach: state.physics.segmentAttachEnabled,
         showCollisionSegments: state.renderConfig.enableCollisionSegments,
         collisionSegmentIds: Object.entries(state.staticCollisions).map((v) => v[0]),
     }
@@ -35,7 +32,6 @@ const mapStateToProps = (state: IMainState): IProps => {
 
 const mapDispatchToProps = (dispatch: Dispatch): IDispatchActions => {
     return {
-        actionSetEnableSegAttach: (value: boolean) => dispatch(actionSetAttachSegmentEnabled(value)),
         actionShowCollisionSegments: (value: boolean) => dispatch(actionShowCollisionSegment(value)),
         actionSetHighlightedSegment: (value: string) => dispatch(actionSetPartitionSegmentId(value)),
     }
@@ -80,13 +76,6 @@ class CollisionSegmentsConfigComponent extends React.Component<IFullProps, IStat
         return (
             <div className="entry">
                 <h1>Collision Segments</h1>
-                <input 
-                    type="checkbox" 
-                    name="enableSegmentAttachment" 
-                    checked={this.props.enableSegAttach}
-                    onChange={e => this.props.actionSetEnableSegAttach(e.currentTarget.checked)} />
-                <label htmlFor="enableSegmentAttachment">Enable Segment Attachment</label>
-                <br/>
                 <input 
                     type="checkbox" 
                     name="showCollisionSegments" 
