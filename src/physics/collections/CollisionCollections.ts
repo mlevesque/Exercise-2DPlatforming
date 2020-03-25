@@ -1,4 +1,4 @@
-import { ICollisionSegment } from "../CollisionSegment";
+import { ICollisionSegment } from "../collisions/CollisionSegment";
 
 /**
  * Containers for all collision data for quick and easy lookup.

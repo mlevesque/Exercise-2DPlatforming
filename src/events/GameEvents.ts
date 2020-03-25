@@ -1,6 +1,6 @@
-import { CollisionType } from "../physics/collisionType";
+import { CollisionType } from "../physics/collisions/collisionType";
 import { MoveDirection } from "../behaviors/utils";
-import { ICollisionSegment } from "../physics/CollisionSegment";
+import { ICollisionSegment } from "../physics/collisions/CollisionSegment";
 
 export enum GameEventType {
     InputAction = "InputAction",

@@ -1,12 +1,5 @@
-import { IVector, 
-         cloneVector, 
-         subtract, 
-         IRay, 
-         cloneRay, 
-         normalize, 
-         createRayPV, 
-         vectorLength, 
-         isPracticallyZero} from "../utils/geometry";
+import { IVector, cloneVector, subtract, IRay, cloneRay, normalize, createRayPV, vectorLength, isPracticallyZero} 
+    from "../../utils/geometry";
 import { Guid } from "guid-typescript";
 
 /**

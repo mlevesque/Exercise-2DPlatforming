@@ -1,6 +1,5 @@
 import { IMapSchema, IMapCollisionSchema } from "../utils/jsonSchemas";
-import { SegmentCollisionsMap } from "../physics/collections/WorldPartition";
-import { ICollisionSegment, createSegment } from "../physics/CollisionSegment";
+import { ICollisionSegment, createSegment } from "../physics/collisions/CollisionSegment";
 import { areVectorsEqual, getEndOfRay, cloneVector, createVector, IVector, cross, add, createRayPV } 
     from "../utils/geometry";
 import { isWall, isFloor, isCeiling, calculateTCollisionValues } from "../physics/util";

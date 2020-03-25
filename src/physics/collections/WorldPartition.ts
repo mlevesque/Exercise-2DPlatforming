@@ -1,4 +1,4 @@
-import { ICollisionSegment } from "../CollisionSegment";
+import { ICollisionSegment } from "../collisions/CollisionSegment";
 import { IVector, createVector, IRay, IArea, cloneVector } from "../../utils/geometry";
 
 export type SegmentCollisionsMap = Map<string, ICollisionSegment>;

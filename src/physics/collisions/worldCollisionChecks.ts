@@ -1,18 +1,18 @@
-import { IEntity, IPhysicsConfig } from "../redux/state";
-import { IVector, IRay, createVector, cloneVector, subtract, add } from "../utils/geometry";
+import { IEntity, IPhysicsConfig } from "../../redux/state";
+import { IVector, IRay, createVector, cloneVector, subtract, add } from "../../utils/geometry";
 import { ICollisionSegment } from "./CollisionSegment";
 import { ISurfaceTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMovingTowardSegment, areTValuePairsInRange,
     getStartLedgeCollisionType, getEndLedgeCollisionType, buildStartLedgeRay, buildEndLedgeRay,
     isMovingTowardSegmentLedge, isTValueInRange, areTValuesOnOppositeOutsideRange, isWall, 
-    getCollisionTypeForAttachedSegment, areTValuesPairsInRangeForLedge} from "./util";
-import { getEntityJsonData } from "../utils/jsonSchemas";
+    getCollisionTypeForAttachedSegment, areTValuesPairsInRangeForLedge} from "../util";
+import { getEntityJsonData } from "../../utils/jsonSchemas";
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
 import { CollisionType, CollisionFlag } from "./collisionType";
 import { resolveWithExternalDirection, resolveByPath } from "./collisionResolve";
-import { GameEventQueue } from "../events/GameEventQueue";
-import { WorldCollisionEvent } from "../events/GameEvents";
-import { getBehaviorCollision } from "../behaviors/behaviorData";
-import { setPosition } from "./movementData";
+import { GameEventQueue } from "../../events/GameEventQueue";
+import { WorldCollisionEvent } from "../../events/GameEvents";
+import { getBehaviorCollision } from "../../behaviors/behaviorData";
+import { setPosition } from "../integration/movementData";
 
 /**
  * Checks collision against the given collision segment and stores the collision to the tracker.

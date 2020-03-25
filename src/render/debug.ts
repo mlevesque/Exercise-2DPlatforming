@@ -1,6 +1,6 @@
 import { IVector, zeroVector, scale, createVector, add, subtract, vectorSquaredLength, areAreasIntersecting } 
     from "../utils/geometry";
-import { ICollisionSegment } from "../physics/CollisionSegment";
+import { ICollisionSegment } from "../physics/collisions/CollisionSegment";
 import { IEntity, ICamera, IMap } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { isWall } from "../physics/util";

@@ -1,10 +1,10 @@
 import { ICollisionSegment } from "./CollisionSegment";
 import { IRay, IVector, getEndOfRay, createRayPP, isZeroVector, createRayPV, add, createVector, negate,
     createShiftedRay, IArea, buildAreaFromRay, updateBoundsForArea, isBoundsACompletelyInsideBoundsB} 
-    from "../utils/geometry";
+    from "../../utils/geometry";
 import { CollisionType } from "./collisionType";
-import { buildStartLedgeRay, buildEndLedgeRay } from "./util";
-import { WorldPartition, SegmentCollisionsMap } from "./collections/WorldPartition";
+import { buildStartLedgeRay, buildEndLedgeRay } from "../util";
+import { WorldPartition, SegmentCollisionsMap } from "../collections/WorldPartition";
 
 /**
  * Potential collision information to possibly be resolved.

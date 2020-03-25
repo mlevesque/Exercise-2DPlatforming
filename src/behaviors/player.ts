@@ -2,12 +2,12 @@ import { EntityEventHandleMap, updateEntityMove, updateEntityCollisionVelocity, 
 import { GameEventType, InputActionEvent, GameEvent } from "../events/GameEvents";
 import { IEntity, EntityAnimation } from "../redux/state";
 import { changeAnimationOnEntity, MoveDirection } from "./utils";
-import { CollisionType } from "../physics/collisionType";
+import { CollisionType } from "../physics/collisions/collisionType";
 import { getEntityJsonData, IPlayerSchema, IJumpDuration, IJumpSchema } from "../utils/jsonSchemas";
 import { createVector } from "../utils/geometry";
 import { IBehaviorData, setBehaviorCollision, setBehaviorMovement, setBehaviorJump, getBehaviorMovement, 
     getBehaviorJump, getBehaviorCollision} from "./behaviorData";
-import { applyImpulse, ImpulseType, removeImpulse, addImpulseDuration } from "../physics/movementData";
+import { applyImpulse, ImpulseType, removeImpulse, addImpulseDuration } from "../physics/integration/movementData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEHAVIOR CREATION

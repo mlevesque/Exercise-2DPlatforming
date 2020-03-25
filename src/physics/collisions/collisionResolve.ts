@@ -1,7 +1,7 @@
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
-import { IVector, IRay, getEndOfRay, getPositionAlongRay, createRayPP, createRayPV } from "../utils/geometry";
+import { IVector, IRay, getEndOfRay, getPositionAlongRay, createRayPP, createRayPV } from "../../utils/geometry";
 import { calculateTCollisionValues, capT, getPointCollision, isTValueInRange, getLedgeCollisionData, 
-    getConnectedCollisionId, areSegmentsInSameGeneralDirection} from "./util";
+    getConnectedCollisionId, areSegmentsInSameGeneralDirection} from "../util";
 import { CollisionType } from "./collisionType";
 import { ICollisionSegment } from "./CollisionSegment";
 

@@ -1,19 +1,8 @@
 import { AnyAction } from "redux";
-import { GameAction, 
-         CameraAction, 
-         CollisionsAction, 
-         EntitiesAction, 
-         InputAction, 
-         LoadingAction, 
-         MapAction, 
-         ProfileAction,
-         PhysicsConfigAction,
-         ConfigTabAction,
-         RenderConfigAction,
-         LevelNameAction} from "./actionTypes";
-import { ICollisionSegment } from "../physics/CollisionSegment";
+import { GameAction, CameraAction, CollisionsAction, EntitiesAction, InputAction, LoadingAction, MapAction, 
+    ProfileAction, PhysicsConfigAction, ConfigTabAction, RenderConfigAction, LevelNameAction} from "./actionTypes";
 import { IEntity, InputType, IMap, IScrollArea, IProfileData, ConfigTab } from "./state";
-import { IPositionData } from "../physics/movementData";
+import { IPositionData } from "../physics/integration/movementData";
 import { IVector } from "../utils/geometry";
 
 export function createAction(type: string, payload: Object = null): AnyAction {

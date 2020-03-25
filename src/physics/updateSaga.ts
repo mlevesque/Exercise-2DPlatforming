@@ -1,8 +1,8 @@
 import { getGameConfig } from "../utils/jsonSchemas";
 import { IVector, cloneVector } from "../utils/geometry";
 import { IEntity, IPhysicsConfig } from "../redux/state";
-import { integratePositionData, EulerIntegration, VerletIntegration } from "./integration";
-import { updateWorldCollisionsOnEntity } from "./worldCollisionChecks";
+import { integratePositionData, EulerIntegration, VerletIntegration } from "./integration/integration";
+import { updateWorldCollisionsOnEntity } from "./collisions/worldCollisionChecks";
 import { getPhysicsConfig } from "../redux/selectors";
 import { select } from "redux-saga/effects";
 

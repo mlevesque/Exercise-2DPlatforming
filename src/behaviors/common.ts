@@ -1,11 +1,11 @@
 import { IEntity, EntityType } from "../redux/state";
 import { GameEvent, GameEventType, WorldCollisionEvent } from "../events/GameEvents";
 import { MoveDirection } from "./utils";
-import { CollisionType } from "../physics/collisionType";
+import { CollisionType } from "../physics/collisions/collisionType";
 import { createVector } from "../utils/geometry";
 import { isFloor } from "../physics/util";
 import { IBehaviorData, getBehaviorCollision } from "./behaviorData";
-import { ImpulseType, setVelocity, applyPositionShift } from "../physics/movementData";
+import { ImpulseType, setVelocity, applyPositionShift } from "../physics/integration/movementData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEHAVIOR DEFINITIONS

@@ -3,8 +3,8 @@ import { select, put } from "redux-saga/effects";
 import { getCamera, getMap } from "../redux/selectors";
 import { actionCameraSetPosition } from "../redux/actionCreators";
 import { ICamera, IMap } from "../redux/state";
-import { integratePositionData, VerletIntegration, EulerIntegration } from "../physics/integration";
-import { setPosition } from "../physics/movementData";
+import { integratePositionData, VerletIntegration, EulerIntegration } from "../physics/integration/integration";
+import { setPosition } from "../physics/integration/movementData";
 
 /**
  * Calculates the spring force that drives the camera scrolling.

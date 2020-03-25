@@ -2,7 +2,7 @@ import { IMapSchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { EntityType, IEntity, EntityAnimation, ICamera } from "../redux/state";
 import { buildEntity } from "../utils/creation";
 import { cloneVector } from "../utils/geometry";
-import { setPosition } from "../physics/movementData";
+import { setPosition } from "../physics/integration/movementData";
 
 /**
  * Returns a Promise for loading a level json file with the given name.

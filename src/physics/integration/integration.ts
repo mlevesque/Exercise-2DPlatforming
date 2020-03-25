@@ -1,4 +1,4 @@
-import { IVector, add, scale, zeroVector, subtract } from "../utils/geometry";
+import { IVector, add, scale, zeroVector, subtract } from "../../utils/geometry";
 import { IPositionData, IImpulse, IImpulseMap, shiftPosition } from "./movementData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

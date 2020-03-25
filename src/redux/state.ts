@@ -1,5 +1,5 @@
 import { IBehaviorData } from "../behaviors/behaviorData";
-import { IPositionData } from "../physics/movementData";
+import { IPositionData } from "../physics/integration/movementData";
 import { IVector } from "../utils/geometry";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

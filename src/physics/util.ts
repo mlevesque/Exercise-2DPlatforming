@@ -1,7 +1,7 @@
-import { ICollisionSegment } from "./CollisionSegment";
+import { ICollisionSegment } from "./collisions/CollisionSegment";
 import { subtract, cross, IRay, negate, IVector, getPositionAlongRay, dot, createVector, getEndOfRay } 
     from "../utils/geometry";
-import { CollisionType, CollisionFlag } from "./collisionType";
+import { CollisionType, CollisionFlag } from "./collisions/collisionType";
 
 /** Function interface for filtering out types of collision segments. */
 export interface ISurfaceTypeCheck { (segment: ICollisionSegment): boolean }
