@@ -4,12 +4,13 @@ import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap
     from "../redux/actionCreators";
 import { IMapSchema, getGameConfig } from "../utils/jsonSchemas";
 import { IMap, ICamera, IPhysicsConfig } from "../redux/state";
-import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera, loadLevelData} from "./utils";
+import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera, loadLevelData, buildEntityEntriesFromEntityCollection} from "./utils";
 import { getCamera, getLevelName, getPhysicsConfig } from "../redux/selectors";
 import { buildCollisionsCollection } from "./collisionBuilding";
 import { GameAction } from "../redux/actionTypes";
 import { AnyAction } from "redux";
 import { CollisionCollections } from "../physics/collections/CollisionCollections";
+import { EntityCollection } from "../entities/EntityCollection";
 
 /**
  * Generator function for handling level loading, including loading all assets needed for the given level.
@@ -76,7 +77,10 @@ export function* loadLevelSaga(loadAction: AnyAction) {
 
     // populate entities
     let entities = buildEntityCollection(data);
-    yield put(actionSetEntitiesCollection(entities));
+    yield put(actionSetEntitiesCollection(buildEntityEntriesFromEntityCollection(entities)));
+    const entityCollection = EntityCollection.getInstance();
+    entityCollection.clearEntityMap();
+    entities.forEach(entity => entityCollection.addEntity(entity));
 
     // setup partition
     const physicsConfig: IPhysicsConfig = yield select(getPhysicsConfig);

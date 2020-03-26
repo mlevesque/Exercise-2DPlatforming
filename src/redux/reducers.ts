@@ -1,10 +1,10 @@
 import { combineReducers, AnyAction } from "redux";
-import { IMainState, IInputActions, ICamera, IMap, IEntity, IProfileData, IPhysicsConfig, ConfigTab, 
-    IRenderConfig } from "./state";
+import { IMainState, IInputActions, ICamera, IMap, IProfileData, IPhysicsConfig, ConfigTab, IRenderConfig, 
+    IEntityEntry} from "./state";
 import { InitState } from "./InitState";
 import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction, 
     PhysicsConfigAction, ConfigTabAction, RenderConfigAction, LevelNameAction } from "./actionTypes";
-import { copyEntity, copyCamera, deepCopy } from "../utils/creation";
+import { copyCamera, deepCopy } from "../utils/creation";
 import { cloneVector } from "../utils/geometry";
 
 
@@ -129,12 +129,10 @@ export function staticCollisionsReducer( state: string[] = InitState.staticColli
     return state;
 }
 
-export function entitiesReducer(state: IEntity[] = InitState.entities, action: AnyAction): IEntity[] {
+export function entitiesReducer(state: IEntityEntry[] = InitState.entities, action: AnyAction): IEntityEntry[] {
     switch (action.type) {
         case EntitiesAction.SetCollection:
-            return action.payload.map((entity: IEntity) => {
-                return copyEntity(entity);
-            });
+            return action.payload.map((entity: IEntityEntry) => Object.assign({}, entity));
         case EntitiesAction.Clear:
             return [];
     }

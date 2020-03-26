@@ -1,7 +1,7 @@
 import { AnyAction } from "redux";
 import { GameAction, CameraAction, CollisionsAction, EntitiesAction, InputAction, LoadingAction, MapAction, 
     ProfileAction, PhysicsConfigAction, ConfigTabAction, RenderConfigAction, LevelNameAction} from "./actionTypes";
-import { IEntity, InputType, IMap, IScrollArea, IProfileData, ConfigTab } from "./state";
+import { IEntity, InputType, IMap, IScrollArea, IProfileData, ConfigTab, IEntityEntry } from "./state";
 import { IPositionData } from "../physics/integration/movementData";
 import { IVector } from "../utils/geometry";
 
@@ -59,7 +59,7 @@ export function actionClearCollisions(): AnyAction {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Entities
-export function actionSetEntitiesCollection(entities: IEntity[]): AnyAction {
+export function actionSetEntitiesCollection(entities: IEntityEntry[]): AnyAction {
     return createAction(EntitiesAction.SetCollection, entities);
 }
 export function actionClearEntities(): AnyAction {

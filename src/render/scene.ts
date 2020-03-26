@@ -4,6 +4,7 @@ import { renderEntity } from "./entities";
 import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPartition, renderScrollArea, 
     renderScrollVector, renderPartitionCellSegmentHighlight} from "./debug";
 import { CollisionCollections } from "../physics/collections/CollisionCollections";
+import { EntityCollection } from "../entities/EntityCollection";
 
 export function renderLoading(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = "black";
@@ -24,7 +25,9 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
 
     // render scene
     renderTiles(ctx, state.map, state.camera);
-    state.entities.forEach((entity: IEntity) => {
+    const entityCollection = EntityCollection.getInstance();
+    const entities = entityCollection.getAllEntities();
+    entities.forEach((entity: IEntity) => {
         renderEntity(ctx, entity);
     });
 
@@ -44,14 +47,14 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
 
     // render entity collisions
     if (state.renderConfig.enableEntityCollisions) {
-        state.entities.forEach((entity: IEntity) => {
+        entities.forEach((entity: IEntity) => {
             renderEntityCollisions(ctx, entity);
         });
     }
 
     // render camera scroll vector
     if (state.renderConfig.enableCameraScroll) {
-        const player = state.entities.length > 0 ? state.entities[0] : null;
+        const player = entityCollection.getPlayer();
         if (player) {
             renderScrollVector(ctx, state.camera, player.positionData.position);
         }

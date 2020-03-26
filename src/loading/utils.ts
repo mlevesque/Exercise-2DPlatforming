@@ -1,5 +1,5 @@
 import { IMapSchema, getEntityJsonData } from "../utils/jsonSchemas";
-import { EntityType, IEntity, EntityAnimation, ICamera } from "../redux/state";
+import { EntityType, IEntity, EntityAnimation, ICamera, IEntityEntry } from "../redux/state";
 import { buildEntity } from "../utils/creation";
 import { cloneVector } from "../utils/geometry";
 import { setPosition } from "../physics/integration/movementData";
@@ -103,6 +103,14 @@ export function buildEntityCollection(map: IMapSchema): IEntity[] {
         );
     }
     return results;
+}
+
+/**
+ * Builds and returns a list of entity entries from the given entity list. This is used for the redux store.
+ * @param entities 
+ */
+export function buildEntityEntriesFromEntityCollection(entities: IEntity[]): IEntityEntry[] {
+    return entities.map((entity: IEntity) => <IEntityEntry>{id: entity.id, type: entity.type});
 }
 
 /**

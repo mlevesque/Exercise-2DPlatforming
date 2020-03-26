@@ -12,7 +12,7 @@ export interface IMainState {
     map: IMap;
     physics: IPhysicsConfig;
     staticCollisions: string[];
-    entities: IEntity[];
+    entities: IEntityEntry[];
     renderConfig: IRenderConfig;
     configTab: ConfigTab;
     profileData: IProfileData;
@@ -83,6 +83,10 @@ export enum EntityAnimation {
     Fall = "fall",
     JumpFall = "jumpFall",
 }
+export interface IEntityEntry {
+    id: string;
+    type: EntityType;
+}
 export interface IEntity {
     id: string;
     type: EntityType;
@@ -110,7 +114,7 @@ export interface IRenderConfig {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONFIG TAB
+// Config Tab
 export enum ConfigTab {
     Level = 0,
     Physics = 1,
@@ -118,7 +122,7 @@ export enum ConfigTab {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PROFILING
+// Profiling
 export interface IProfileData {
     frameTime: number;
     behaviorActionTime: number;
