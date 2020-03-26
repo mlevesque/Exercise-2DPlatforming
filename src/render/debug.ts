@@ -84,7 +84,7 @@ export function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IE
         entity.positionData.position.x,
         entity.positionData.position.y
     );
-    ctx.scale(entity.flip ? -1 : 1, 1);
+    ctx.scale(entity.spriteAnimation.isFlipped ? -1 : 1, 1);
 
     // draw floor point
     ctx.fillStyle = "blue";

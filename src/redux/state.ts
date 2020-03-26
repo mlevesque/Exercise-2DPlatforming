@@ -1,6 +1,7 @@
 import { IBehaviorData } from "../behaviors/behaviorData";
 import { IPositionData } from "../physics/integration/movementData";
 import { IVector } from "../utils/geometry";
+import { ISpriteAnimation } from "../animation/SpriteAnimation";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main State
@@ -76,13 +77,6 @@ export interface IPhysicsConfig {
 export enum EntityType {
     Player = "player",
 }
-export enum EntityAnimation {
-    Idle = "idle",
-    Walk = "walk",
-    Jump = "jump",
-    Fall = "fall",
-    JumpFall = "jumpFall",
-}
 export interface IEntityEntry {
     id: string;
     type: EntityType;
@@ -93,10 +87,7 @@ export interface IEntity {
 
     behavior: IBehaviorData;
 
-    flip: boolean;
-    currentAnimation: EntityAnimation;
-    currentFrame: number;
-    elapsedTime: number;
+    spriteAnimation: ISpriteAnimation;
 
     positionData: IPositionData;
 }

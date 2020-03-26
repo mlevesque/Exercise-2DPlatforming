@@ -1,17 +1,21 @@
 import { Guid } from "guid-typescript";
-import { IEntity, EntityType, EntityAnimation, ICamera } from "../redux/state";
+import { IEntity, EntityType, ICamera } from "../redux/state";
 import { IVector, zeroVector, cloneVector } from "./geometry";
 import { createEntityBehaviorData } from "../behaviors/utils";
+import { buildSpriteAnimation, EntityAnimation } from "../animation/SpriteAnimation";
+import { getEntityJsonData } from "./jsonSchemas";
 
 export function buildEntity(type: EntityType, flip: boolean, animation: EntityAnimation, position: IVector): IEntity {
+    const id = Guid.create().toString();
+    const jsonData = getEntityJsonData(type);
+    const spriteAnimation = buildSpriteAnimation(id, jsonData.spritesheet, jsonData.animations);
+    spriteAnimation.setAnimation(animation, true);
+    spriteAnimation.setFlip(flip);
     return {
-        id: Guid.create().toString(),
+        id: id,
         type: type,
         behavior: createEntityBehaviorData(type),
-        flip: flip,
-        currentAnimation: animation,
-        currentFrame: 0,
-        elapsedTime: 0,
+        spriteAnimation: spriteAnimation,
         positionData: {
             impulses: {},
             positionShifts: {},
@@ -54,10 +58,6 @@ export function deepCopy(obj: any): any {
         return copy;
     }
     throw new Error("Unable to copy obj! Its type isn't supported.");
-}
-
-export function copyEntity(entity: IEntity): IEntity {
-    return deepCopy(entity);
 }
 
 export function copyCamera(camera: ICamera): ICamera {

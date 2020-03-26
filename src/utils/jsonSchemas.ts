@@ -3,6 +3,7 @@ import levelList from "../assets/json/maps/level_list.json";
 import entityPlayer from "../assets/json/entities/entityPlayer.json";
 import { IVector } from "./geometry";
 import { EntityType } from "../redux/state";
+import { IAnimationMappingSchema } from "../animation/JsonSchema.js";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONFIG
@@ -48,22 +49,9 @@ export interface IMapCollisionSchema {
 // ENTITY
 export interface IEntitySchema {
     spritesheet: string;
-    animations: {
-        [id: string]: IAnimationSchema;
-    };
+    animations: IAnimationMappingSchema;
     speed: number;
     collision: IEntityCollisionSchema;
-}
-export interface IAnimationSchema {
-    loops: boolean;
-    frameCount: number;
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    offX: number;
-    offY: number;
-    intervals: number[];
 }
 export interface IEntityCollisionSchema {
     floorPoint: IVector;

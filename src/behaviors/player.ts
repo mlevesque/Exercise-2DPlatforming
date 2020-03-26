@@ -1,13 +1,14 @@
 import { EntityEventHandleMap, updateEntityMove, updateEntityCollisionVelocity, handleWorldCollision } from "./common";
 import { GameEventType, InputActionEvent, GameEvent } from "../events/GameEvents";
-import { IEntity, EntityAnimation } from "../redux/state";
-import { changeAnimationOnEntity, MoveDirection } from "./utils";
+import { IEntity } from "../redux/state";
+import { MoveDirection } from "./utils";
 import { CollisionType } from "../physics/collisions/collisionType";
 import { getEntityJsonData, IPlayerSchema, IJumpDuration, IJumpSchema } from "../utils/jsonSchemas";
 import { createVector } from "../utils/geometry";
 import { IBehaviorData, setBehaviorCollision, setBehaviorMovement, setBehaviorJump, getBehaviorMovement, 
     getBehaviorJump, getBehaviorCollision} from "./behaviorData";
 import { applyImpulse, ImpulseType, removeImpulse, addImpulseDuration } from "../physics/integration/movementData";
+import { EntityAnimation } from "../animation/SpriteAnimation";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEHAVIOR CREATION
@@ -139,10 +140,10 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
         switch (moveBehavior.moveDirection) {
             case MoveDirection.Left:
             case MoveDirection.Right:
-                changeAnimationOnEntity(player, EntityAnimation.Walk, false);
+                player.spriteAnimation.setAnimation(EntityAnimation.Walk, false);
                 break;
             default:
-                changeAnimationOnEntity(player, EntityAnimation.Idle, false);
+                player.spriteAnimation.setAnimation(EntityAnimation.Idle, false);
                 break;
         }
     }
@@ -164,12 +165,12 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
     
     // handle jump animation
     if (player.positionData.velocity.y < 0 && jumpBehavior.jumping) {
-        changeAnimationOnEntity(player, EntityAnimation.Jump, false);
+        player.spriteAnimation.setAnimation(EntityAnimation.Jump, false);
     }
 
     // handle fall animation
     if (!collisionType.hasFloorCollision() && player.positionData.velocity.y > 0) {
-        if (jumpBehavior.jumping) changeAnimationOnEntity(player, EntityAnimation.JumpFall, false);
-        else changeAnimationOnEntity(player, EntityAnimation.Fall, false);
+        if (jumpBehavior.jumping) player.spriteAnimation.setAnimation(EntityAnimation.JumpFall, false);
+        else player.spriteAnimation.setAnimation(EntityAnimation.Fall, false);
     }
 }

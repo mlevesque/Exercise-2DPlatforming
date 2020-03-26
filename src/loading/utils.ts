@@ -1,8 +1,9 @@
 import { IMapSchema, getEntityJsonData } from "../utils/jsonSchemas";
-import { EntityType, IEntity, EntityAnimation, ICamera, IEntityEntry } from "../redux/state";
+import { EntityType, IEntity, ICamera, IEntityEntry } from "../redux/state";
 import { buildEntity } from "../utils/creation";
 import { cloneVector } from "../utils/geometry";
 import { setPosition } from "../physics/integration/movementData";
+import { EntityAnimation } from "../animation/SpriteAnimation";
 
 /**
  * Returns a Promise for loading a level json file with the given name.

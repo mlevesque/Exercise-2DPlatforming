@@ -39,11 +39,11 @@ export function handleWorldCollision(behavior: IBehaviorData, event: GameEvent):
 export function updateEntityMove(deltaT: number, entity: IEntity, moveDirection: MoveDirection, speed: number): void {
     const movement = entity.positionData;
     if (moveDirection == MoveDirection.Left) {
-        entity.flip = true;
+        entity.spriteAnimation.setFlip(true);
         applyPositionShift(movement, ImpulseType.Walk, createVector(-speed, 0), deltaT);
     }
     else if (moveDirection == MoveDirection.Right) {
-        entity.flip = false;
+        entity.spriteAnimation.setFlip(false);
         applyPositionShift(movement, ImpulseType.Walk, createVector(speed, 0), deltaT);
     }
 }
