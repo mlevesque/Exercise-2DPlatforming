@@ -5,8 +5,8 @@ export function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity): vo
     const slice = entity.spriteAnimation.getSpriteSlice();
     ctx.save();
     ctx.translate(
-        Math.floor(entity.positionData.position.x),
-        Math.floor(entity.positionData.position.y)
+        Math.floor(entity.movementData.position.x),
+        Math.floor(entity.movementData.position.y)
     );
     ctx.scale(entity.spriteAnimation.isFlipped ? -1 : 1, 1);
     ctx.drawImage(

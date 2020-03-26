@@ -1,12 +1,11 @@
 import { IVector, zeroVector, scale, createVector, add, subtract, vectorSquaredLength, areAreasIntersecting } 
     from "../utils/geometry";
 import { ICollisionSegment } from "../physics/collisions/CollisionSegment";
-import { IEntity, ICamera, IMap } from "../redux/state";
+import { IEntity, IMap } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { isWall } from "../physics/util";
 import { WorldPartition } from "../physics/collections/WorldPartition";
-import { getAreaFromCamera } from "../utils/misc";
-import { getCameraArea } from "../camera/utils";
+import { CameraManager } from "../camera/CameraManager";
 
 function renderArrow(ctx: CanvasRenderingContext2D, from: IVector, to: IVector, radius: number): void {
 	let x_center = to.x;
@@ -68,8 +67,9 @@ function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment
     ctx.restore();
 }
 
-export function renderMapCollisions(ctx: CanvasRenderingContext2D, camera: ICamera, highlightSegId: string): void {
-    const collisions = WorldPartition.getInstance().getCollisionsInWorldArea(getAreaFromCamera(camera));
+export function renderMapCollisions(ctx: CanvasRenderingContext2D, highlightSegId: string): void {
+    const cam = CameraManager.getInstance().activeCamera;
+    const collisions = WorldPartition.getInstance().getCollisionsInWorldArea(cam.getViewArea());
     collisions.forEach((segment) => {
         renderSegment(ctx, segment, segment.id === highlightSegId);
     })
@@ -81,8 +81,8 @@ export function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IE
 
     ctx.save();
     ctx.translate(
-        entity.positionData.position.x,
-        entity.positionData.position.y
+        entity.movementData.position.x,
+        entity.movementData.position.y
     );
     ctx.scale(entity.spriteAnimation.isFlipped ? -1 : 1, 1);
 
@@ -110,14 +110,13 @@ export function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IE
     ctx.restore();
 }
 
-export function renderPartitionCellSegmentHighlight(
-                        ctx: CanvasRenderingContext2D, camera: ICamera, map: IMap, segment: ICollisionSegment): void {
+export function renderPartitionCellSegmentHighlight(ctx: CanvasRenderingContext2D, segment: ICollisionSegment): void {
     ctx.fillStyle = "red";
     ctx.globalAlpha = 0.5;
 
     const partition = WorldPartition.getInstance();
     const positions = partition.getCellsTouchingSegment(segment);
-    const camArea = getCameraArea(camera);
+    const camArea = CameraManager.getInstance().activeCamera.getViewArea();
     positions.forEach((pos) => {
         const cellArea = partition.getWorldAreaOfCell(pos);
         if (areAreasIntersecting(camArea, cellArea)) {
@@ -128,7 +127,7 @@ export function renderPartitionCellSegmentHighlight(
     ctx.globalAlpha = 1;
 }
 
-export function renderPartition(ctx: CanvasRenderingContext2D, camera: ICamera, map: IMap): void {
+export function renderPartition(ctx: CanvasRenderingContext2D, map: IMap): void {
     const partition = WorldPartition.getInstance();
     const width = map.width;
     const height = map.height;
@@ -136,14 +135,15 @@ export function renderPartition(ctx: CanvasRenderingContext2D, camera: ICamera, 
     ctx.strokeStyle = "grey";
     ctx.lineWidth = 1;
 
-    const camPos = camera.positionData.position;
+    const camera = CameraManager.getInstance().activeCamera;
+    const camPos = camera.movementData.position;
     const start = createVector(
-        Math.max(0, Math.floor((camPos.x - camera.halfWidth) / partition.cellWidth)),
-        Math.max(0, Math.floor((camPos.y - camera.halfHeight) / partition.cellHeight))
+        Math.max(0, Math.floor((camPos.x - camera.config.halfWidth) / partition.cellWidth)),
+        Math.max(0, Math.floor((camPos.y - camera.config.halfHeight) / partition.cellHeight))
     );
     const end = createVector(
-        Math.min(partition.numColumns, Math.ceil((camPos.x + camera.halfWidth) / partition.cellWidth)),
-        Math.min(partition.numRows, Math.ceil((camPos.y + camera.halfHeight) / partition.cellHeight))
+        Math.min(partition.numColumns, Math.ceil((camPos.x + camera.config.halfWidth) / partition.cellWidth)),
+        Math.min(partition.numRows, Math.ceil((camPos.y + camera.config.halfHeight) / partition.cellHeight))
     );
 
     // draw rows
@@ -173,27 +173,30 @@ export function renderWorldEdge(ctx: CanvasRenderingContext2D, map: IMap): void 
     ctx.stroke();
 }
 
-export function renderScrollVector(ctx: CanvasRenderingContext2D, camera: ICamera, targetPos: IVector): void {
-    const v = subtract(targetPos, camera.positionData.position);
+export function renderScrollVector(ctx: CanvasRenderingContext2D, targetPos: IVector): void {
+    const camera = CameraManager.getInstance().activeCamera;
+    const v = subtract(targetPos, camera.movementData.position);
     const m = vectorSquaredLength(v);
-    const r = camera.scrollArea.radius;
+    const r = camera.config.radius;
     const lineColor = m > r*r+1 ? "red" : "blue";
     ctx.strokeStyle = lineColor;
     ctx.fillStyle = lineColor;
     ctx.lineWidth = 3;
-    renderArrow(ctx, camera.positionData.position, targetPos, 5);
+    renderArrow(ctx, camera.movementData.position, targetPos, 5);
 }
 
-export function renderScrollArea(ctx: CanvasRenderingContext2D, camera: ICamera): void {
+export function renderScrollArea(ctx: CanvasRenderingContext2D): void {
+    const camera = CameraManager.getInstance().activeCamera;
+
     ctx.strokeStyle = "yellow";
     ctx.lineWidth = 3;
 
     ctx.beginPath();
     ctx.ellipse(
-        camera.halfWidth, 
-        camera.halfHeight, 
-        camera.scrollArea.radius, 
-        camera.scrollArea.radius, 
+        camera.config.halfWidth, 
+        camera.config.halfHeight, 
+        camera.config.radius, 
+        camera.config.radius, 
         0, 
         0, 
         2 * Math.PI

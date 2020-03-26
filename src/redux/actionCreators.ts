@@ -1,8 +1,7 @@
 import { AnyAction } from "redux";
 import { GameAction, CameraAction, CollisionsAction, EntitiesAction, InputAction, LoadingAction, MapAction, 
     ProfileAction, PhysicsConfigAction, ConfigTabAction, RenderConfigAction, LevelNameAction} from "./actionTypes";
-import { IEntity, InputType, IMap, IScrollArea, IProfileData, ConfigTab, IEntityEntry } from "./state";
-import { IPositionData } from "../physics/integration/movementData";
+import { InputType, IMap, IProfileData, ConfigTab, IEntityEntry } from "./state";
 import { IVector } from "../utils/geometry";
 
 export function createAction(type: string, payload: Object = null): AnyAction {
@@ -23,14 +22,11 @@ export function actionGameUpdate(deltaTime: number): AnyAction {
 export function actionCameraResize(width: number, height: number): AnyAction {
     return createAction(CameraAction.Resize, {width: width, height: height});
 }
-export function actionCameraSetPosition(positionData: IPositionData): AnyAction {
-    return createAction(CameraAction.SetPositioning, {positionData: positionData});
-}
 export function actionCameraSetLocks(lockX: boolean, lockY: boolean): AnyAction {
     return createAction(CameraAction.SetLocks, {lockX: lockX, lockY: lockY});
 }
-export function actionCameraSetScrollArea(scrollArea: IScrollArea): AnyAction {
-    return createAction(CameraAction.SetScrollArea, {scrollArea: scrollArea});
+export function actionCameraSetScrollArea(radius: number, spring: number, dampen: number): AnyAction {
+    return createAction(CameraAction.SetScrollArea, {radius: radius, spring: spring, dampen: dampen});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

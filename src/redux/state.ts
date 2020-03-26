@@ -1,14 +1,15 @@
 import { IBehaviorData } from "../behaviors/behaviorData";
-import { IPositionData } from "../physics/integration/movementData";
 import { IVector } from "../utils/geometry";
 import { ISpriteAnimation } from "../animation/SpriteAnimation";
+import { IMovementData } from "../physics/integration/MovementData";
+import { ICameraConfig } from "../camera/Camera";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main State
 export interface IMainState {
     loading: boolean;
     input: IInputActions;
-    camera: ICamera;
+    cameraConfig: ICameraConfig;
     levelName: string;
     map: IMap;
     physics: IPhysicsConfig;
@@ -33,22 +34,6 @@ interface IInputSet {
 }
 export interface IInputActions {
     [inputType: string]: IInputSet;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Camera
-export interface IScrollArea {
-    radius: number;
-    spring: number;
-    dampen: number;
-}
-export interface ICamera {
-    halfWidth: number;
-    halfHeight: number;
-    lockX: boolean;
-    lockY: boolean;
-    scrollArea: IScrollArea;
-    positionData: IPositionData;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +74,7 @@ export interface IEntity {
 
     spriteAnimation: ISpriteAnimation;
 
-    positionData: IPositionData;
+    movementData: IMovementData;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

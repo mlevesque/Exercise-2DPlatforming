@@ -1,16 +1,19 @@
-import { put, select, takeEvery, takeLatest } from "redux-saga/effects";
+import { put, select, takeLatest } from "redux-saga/effects";
 import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, 
-    actionSetEntitiesCollection, actionCameraSetLocks, actionCameraSetPosition, actionSetGravity, actionSetLevelName, actionSetPartitionCellSize } 
+    actionSetEntitiesCollection, actionCameraSetLocks, actionSetGravity, actionSetLevelName, actionSetPartitionCellSize } 
     from "../redux/actionCreators";
 import { IMapSchema, getGameConfig } from "../utils/jsonSchemas";
-import { IMap, ICamera, IPhysicsConfig } from "../redux/state";
+import { IMap, IPhysicsConfig } from "../redux/state";
 import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera, loadLevelData, buildEntityEntriesFromEntityCollection} from "./utils";
-import { getCamera, getLevelName, getPhysicsConfig } from "../redux/selectors";
+import { getCameraConfig, getLevelName, getPhysicsConfig } from "../redux/selectors";
 import { buildCollisionsCollection } from "./collisionBuilding";
 import { GameAction } from "../redux/actionTypes";
 import { AnyAction } from "redux";
 import { CollisionCollections } from "../physics/collections/CollisionCollections";
 import { EntityCollection } from "../entities/EntityCollection";
+import { ICameraConfig, buildCamera } from "../camera/Camera";
+import { CameraManager } from "../camera/CameraManager";
+import { zeroVector } from "../utils/geometry";
 
 /**
  * Generator function for handling level loading, including loading all assets needed for the given level.
@@ -59,10 +62,9 @@ export function* loadLevelSaga(loadAction: AnyAction) {
     }
 
     // setup camera
-    let camera: ICamera = yield select(getCamera);
-    setupCamera(camera, mapWidth, mapHeight);
-    yield put(actionCameraSetLocks(camera.lockX, camera.lockY));
-    yield put(actionCameraSetPosition(camera.positionData));
+    let cameraConfig: ICameraConfig = yield select(getCameraConfig);
+    setupCamera(cameraConfig, mapWidth, mapHeight);
+    yield put(actionCameraSetLocks(cameraConfig.lockX, cameraConfig.lockY));
 
     // build collisions
     const collisions = buildCollisionsCollection(data);

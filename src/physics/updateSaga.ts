@@ -1,7 +1,5 @@
-import { getGameConfig } from "../utils/jsonSchemas";
-import { IVector, cloneVector } from "../utils/geometry";
 import { IEntity, IPhysicsConfig } from "../redux/state";
-import { integratePositionData, EulerIntegration, VerletIntegration } from "./integration/integration";
+import { EulerIntegration, VerletIntegration } from "./integration/integration";
 import { updateWorldCollisionsOnEntity } from "./collisions/worldCollisionChecks";
 import { getPhysicsConfig } from "../redux/selectors";
 import { select } from "redux-saga/effects";
@@ -9,7 +7,7 @@ import { select } from "redux-saga/effects";
 export function* updateMovementSaga(deltaT: number, entities: IEntity[]) {
     const physicsConfig: IPhysicsConfig = yield select(getPhysicsConfig);
     entities.forEach((entity) => {
-        integratePositionData(deltaT, entity.positionData, EulerIntegration, physicsConfig.gravity);
+        entity.movementData.update(deltaT, EulerIntegration, physicsConfig.gravity);
     });
 }
 

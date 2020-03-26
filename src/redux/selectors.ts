@@ -1,6 +1,7 @@
-import { IMainState, IInputActions, ICamera, IMap, IProfileData, IPhysicsConfig, IRenderConfig, IEntityEntry} 
+import { IMainState, IInputActions, IMap, IProfileData, IPhysicsConfig, IRenderConfig, IEntityEntry} 
     from "./state";
-import { deepCopy, copyCamera } from "../utils/creation";
+import { deepCopy } from "../utils/creation";
+import { ICameraConfig } from "../camera/Camera";
 
 export function getFullStateSelector(state: IMainState): IMainState {
     return state;
@@ -18,8 +19,8 @@ export function getEntityEntries(state: IMainState): IEntityEntry[] {
     return state.entities;
 }
 
-export function getCamera(state: IMainState): ICamera {
-    return copyCamera(state.camera);
+export function getCameraConfig(state: IMainState): ICameraConfig {
+    return state.cameraConfig;
 }
 
 export function getLevelName(state: IMainState): string {

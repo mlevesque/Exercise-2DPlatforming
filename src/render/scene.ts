@@ -5,6 +5,7 @@ import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPar
     renderScrollVector, renderPartitionCellSegmentHighlight} from "./debug";
 import { CollisionCollections } from "../physics/collections/CollisionCollections";
 import { EntityCollection } from "../entities/EntityCollection";
+import { CameraManager } from "../camera/CameraManager";
 
 export function renderLoading(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = "black";
@@ -17,14 +18,14 @@ export function renderLoading(ctx: CanvasRenderingContext2D): void {
 
 export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMainState): void {
     ctx.save();
-    renderBackground(ctx, state.map, state.camera);
+    renderBackground(ctx, state.map);
 
-    const cam = state.camera;
-    const posData = cam.positionData;
-    ctx.translate(Math.floor(cam.halfWidth - posData.position.x), Math.floor(cam.halfHeight - posData.position.y));
+    const cam = CameraManager.getInstance().activeCamera;
+    const camPos = cam.movementData.position;
+    ctx.translate(Math.floor(cam.config.halfWidth - camPos.x), Math.floor(cam.config.halfHeight - camPos.y));
 
     // render scene
-    renderTiles(ctx, state.map, state.camera);
+    renderTiles(ctx, state.map);
     const entityCollection = EntityCollection.getInstance();
     const entities = entityCollection.getAllEntities();
     entities.forEach((entity: IEntity) => {
@@ -35,14 +36,14 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
     if (state.renderConfig.enablePartition) {
         const segment = CollisionCollections.getInstance().getCollisionSegment(state.renderConfig.partitionSegmentId);
         if (segment) {
-            renderPartitionCellSegmentHighlight(ctx, state.camera, state.map, segment);
+            renderPartitionCellSegmentHighlight(ctx, segment);
         }
-        renderPartition(ctx, state.camera, state.map);
+        renderPartition(ctx, state.map);
     }
 
     // render collision segments
     if (state.renderConfig.enableCollisionSegments) {
-        renderMapCollisions(ctx, state.camera, state.renderConfig.partitionSegmentId);
+        renderMapCollisions(ctx, state.renderConfig.partitionSegmentId);
     }
 
     // render entity collisions
@@ -56,14 +57,14 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
     if (state.renderConfig.enableCameraScroll) {
         const player = entityCollection.getPlayer();
         if (player) {
-            renderScrollVector(ctx, state.camera, player.positionData.position);
+            renderScrollVector(ctx, player.movementData.position);
         }
     }
     ctx.restore();
 
     // render HUD stuff
     if (state.renderConfig.enableCameraScroll) {
-        renderScrollArea(ctx, state.camera);
+        renderScrollArea(ctx);
     }
     if (state.renderConfig.enableFrameRate) {
         renderFrameRate(ctx, deltaT);

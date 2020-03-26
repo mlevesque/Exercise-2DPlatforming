@@ -7,8 +7,8 @@ import { getEntityJsonData, IPlayerSchema, IJumpDuration, IJumpSchema } from "..
 import { createVector } from "../utils/geometry";
 import { IBehaviorData, setBehaviorCollision, setBehaviorMovement, setBehaviorJump, getBehaviorMovement, 
     getBehaviorJump, getBehaviorCollision} from "./behaviorData";
-import { applyImpulse, ImpulseType, removeImpulse, addImpulseDuration } from "../physics/integration/movementData";
 import { EntityAnimation } from "../animation/SpriteAnimation";
+import { ImpulseType } from "../physics/integration/MovementData";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEHAVIOR CREATION
@@ -102,8 +102,7 @@ export function updatePlayerActionBehavior(deltaT: number, player: IEntity): voi
 
         // if we just started jumping, create the impulse
         if (jumpBehavior.jumpDuration == 0) {
-            applyImpulse(
-                player.positionData, 
+            player.movementData.applyImpulse(
                 ImpulseType.Jump, 
                 createVector(0, -entityData.jump.speed), 
                 0
@@ -112,8 +111,7 @@ export function updatePlayerActionBehavior(deltaT: number, player: IEntity): voi
         
         // add to the duration if our new duration is larger
         if (duration > jumpBehavior.jumpDuration) {
-            addImpulseDuration(
-                player.positionData, 
+            player.movementData.addImpulseDuration(
                 ImpulseType.Jump,
                 duration - jumpBehavior.jumpDuration
             );
@@ -160,16 +158,16 @@ export function updatePlayerReactionBehavior(deltaT: number, player: IEntity): v
 
     // remove jump impulse if we hit the ceiling
     if (collisionType.hasCeilingCollision()) {
-        removeImpulse(player.positionData, ImpulseType.Jump);
+        player.movementData.removeImpulse(ImpulseType.Jump);
     }
     
     // handle jump animation
-    if (player.positionData.velocity.y < 0 && jumpBehavior.jumping) {
+    if (player.movementData.velocity.y < 0 && jumpBehavior.jumping) {
         player.spriteAnimation.setAnimation(EntityAnimation.Jump, false);
     }
 
     // handle fall animation
-    if (!collisionType.hasFloorCollision() && player.positionData.velocity.y > 0) {
+    if (!collisionType.hasFloorCollision() && player.movementData.velocity.y > 0) {
         if (jumpBehavior.jumping) player.spriteAnimation.setAnimation(EntityAnimation.JumpFall, false);
         else player.spriteAnimation.setAnimation(EntityAnimation.Fall, false);
     }

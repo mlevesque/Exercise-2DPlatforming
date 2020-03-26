@@ -1,9 +1,10 @@
 import { IMapSchema, getEntityJsonData } from "../utils/jsonSchemas";
-import { EntityType, IEntity, ICamera, IEntityEntry } from "../redux/state";
+import { EntityType, IEntity, IEntityEntry } from "../redux/state";
 import { buildEntity } from "../utils/creation";
-import { cloneVector } from "../utils/geometry";
-import { setPosition } from "../physics/integration/movementData";
+import { cloneVector, zeroVector } from "../utils/geometry";
 import { EntityAnimation } from "../animation/SpriteAnimation";
+import { CameraManager } from "../camera/CameraManager";
+import { buildCamera, ICameraConfig } from "../camera/Camera";
 
 /**
  * Returns a Promise for loading a level json file with the given name.
@@ -116,19 +117,24 @@ export function buildEntityEntriesFromEntityCollection(entities: IEntity[]): IEn
 
 /**
  * Sets up the camera locking if the world is smaller than the camera width or height.
- * @param camera 
+ * @param cameraConfig 
  * @param mapWidth 
  * @param mapHeight 
  */
-export function setupCamera(camera: ICamera, mapWidth: number, mapHeight: number): void {
-    camera.lockX = camera.halfWidth * 2 >= mapWidth;
-    camera.lockY = camera.halfHeight * 2 >= mapHeight;
-    let newPos = cloneVector(camera.positionData.position);
-    if (camera.lockX) {
+export function setupCamera(cameraConfig: ICameraConfig, mapWidth: number, mapHeight: number): void {
+    const cameraManager = CameraManager.getInstance();
+    if (!cameraManager.activeCamera) {
+        cameraManager.setActiveCamera(buildCamera(zeroVector(), cameraConfig));
+    }
+    const camera = cameraManager.activeCamera;
+    cameraConfig.lockX = cameraConfig.halfWidth * 2 >= mapWidth;
+    cameraConfig.lockY = cameraConfig.halfHeight * 2 >= mapHeight;
+    let newPos = cloneVector(camera.movementData.position);
+    if (cameraConfig.lockX) {
         newPos.x = mapWidth / 2;
     }
-    if (camera.lockY) {
+    if (cameraConfig.lockY) {
         newPos.y = mapHeight / 2;
     }
-    setPosition(camera.positionData, newPos);
+    camera.movementData.setPosition(newPos);
 }

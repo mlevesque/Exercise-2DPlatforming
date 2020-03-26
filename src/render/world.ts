@@ -1,9 +1,10 @@
-import { IMap, ICamera } from "../redux/state";
+import { IMap } from "../redux/state";
 import { getImage } from "./utils";
 import { getGameConfig } from "../utils/jsonSchemas";
 import { createVector, subtract, scale } from "../utils/geometry";
+import { CameraManager } from "../camera/CameraManager";
 
-export function renderBackground(ctx: CanvasRenderingContext2D, map: IMap, camera: ICamera): void {
+export function renderBackground(ctx: CanvasRenderingContext2D, map: IMap): void {
     const image = getImage(map.background);
     if (!image) {
         return;
@@ -15,9 +16,10 @@ export function renderBackground(ctx: CanvasRenderingContext2D, map: IMap, camer
     const maxScale = Math.max(widthScale, heightScale);
 
     // determine positioning
+    const camera = CameraManager.getInstance().activeCamera;
     const camPosNormalized = createVector(
-        (camera.positionData.position.x - camera.halfWidth) / (map.width - 2 * camera.halfWidth),
-        (camera.positionData.position.y - camera.halfHeight) / (map.height - 2 * camera.halfHeight)
+        (camera.movementData.position.x - camera.config.halfWidth) / (map.width - 2 * camera.config.halfWidth),
+        (camera.movementData.position.y - camera.config.halfHeight) / (map.height - 2 * camera.config.halfHeight)
     );
     const imageSize = createVector(
         image.width * widthScale,
@@ -34,20 +36,21 @@ export function renderBackground(ctx: CanvasRenderingContext2D, map: IMap, camer
     ctx.drawImage(image, -x, -y, imageMaxScaleSize.x, imageMaxScaleSize.y);
 }
 
-export function renderTiles(ctx: CanvasRenderingContext2D, map: IMap, camera: ICamera): void {
+export function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
     // get tileset image
     const image = getImage(map.tileset);
     if (!image) {
         return;
     }
 
+    const camera = CameraManager.getInstance().activeCamera;
     const config = getGameConfig();
     const size = config.tileSize;
-    const camPos = camera.positionData.position;
-    const x1 = Math.floor((camPos.x - camera.halfWidth) / size);
-    const x2 = Math.ceil((camPos.x + camera.halfWidth) / size);
-    const y1 = Math.floor((camPos.y - camera.halfHeight) / size);
-    const y2 = Math.ceil((camPos.y + camera.halfHeight) / size);
+    const camPos = camera.movementData.position;
+    const x1 = Math.max(0, Math.floor((camPos.x - camera.config.halfWidth) / size));
+    const x2 = Math.min(Math.ceil(map.width / size), Math.ceil((camPos.x + camera.config.halfWidth) / size));
+    const y1 = Math.max(0, Math.floor((camPos.y - camera.config.halfHeight) / size));
+    const y2 = Math.min(Math.ceil(map.height / size), Math.ceil((camPos.y + camera.config.halfHeight) / size));
     for (let indexY = y1; indexY < y2; ++indexY) {
         let y = indexY * size;
         for (let indexX = x1; indexX < x2; ++indexX) {

@@ -1,8 +1,8 @@
-import { IMainState, IScrollArea } from "../../../redux/state";
+import { IMainState } from "../../../redux/state";
 import { Dispatch } from "redux";
 import { actionCameraSetScrollArea, actionShowCameraScroll, actionCameraSetLocks } from "../../../redux/actionCreators";
 import React from "react";
-import { connect, shallowEqual } from "react-redux";
+import { connect } from "react-redux";
 import "../../../assets/styles/config.css";
 import { VectorComponent } from "./VectorComponent";
 import { createVector } from "../../../utils/geometry";
@@ -18,7 +18,7 @@ interface IProps {
 
 interface IDispatchActions {
     actionSetCameraLocks: (x: boolean, y: boolean) => void;
-    actionSetScrollArea: (value: IScrollArea) => void;
+    actionSetScrollArea: (radius: number, spring: number, dampen: number) => void;
     actionShowCameraScroll: (value: boolean) => void;
 }
 
@@ -31,13 +31,12 @@ interface IState {
 }
 
 const mapStateToProps = (state: IMainState): IProps => {
-    const scrollArea = state.camera.scrollArea;
     return {
-        lockX: state.camera.lockX,
-        lockY: state.camera.lockY,
-        radius: scrollArea.radius,
-        spring: scrollArea.spring,
-        dampen: scrollArea.dampen,
+        lockX: state.cameraConfig.lockX,
+        lockY: state.cameraConfig.lockY,
+        radius: state.cameraConfig.radius,
+        spring: state.cameraConfig.spring,
+        dampen: state.cameraConfig.dampen,
         showScroll: state.renderConfig.enableCameraScroll,
     }
 }
@@ -45,7 +44,8 @@ const mapStateToProps = (state: IMainState): IProps => {
 const mapDispatchToProps = (dispatch: Dispatch): IDispatchActions => {
     return {
         actionSetCameraLocks: (x: boolean, y: boolean) => dispatch(actionCameraSetLocks(x, y)),
-        actionSetScrollArea: (value: IScrollArea) => dispatch(actionCameraSetScrollArea(value)),
+        actionSetScrollArea: (radius: number, spring: number, dampen: number) => 
+            dispatch(actionCameraSetScrollArea(radius, spring, dampen)),
         actionShowCameraScroll: (value: boolean) => dispatch(actionShowCameraScroll(value)),
     }
 }
@@ -62,13 +62,8 @@ class ScrollConfigComponent extends React.Component<IFullProps, IState> {
         this.applyScrollArea = this.applyScrollArea.bind(this);
     }
 
-    applyScrollArea(event: React.FormEvent<HTMLButtonElement>) {
-        const scrollArea: IScrollArea = {
-            radius: this.state.radius,
-            spring: this.state.spring,
-            dampen: this.state.dampen,
-        };
-        this.props.actionSetScrollArea(scrollArea);
+    applyScrollArea() {
+        this.props.actionSetScrollArea(this.state.radius, this.state.spring, this.state.dampen);
     }
 
     componentWillUpdate(nextProps: Readonly<IProps>) {

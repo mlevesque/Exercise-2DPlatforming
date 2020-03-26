@@ -9,8 +9,8 @@ interface ICanvasProps {
 
 const mapStateToProps = (state: IMainState): ICanvasProps => {
     return {
-        halfWidth: state.camera.halfWidth,
-        halfHeight: state.camera.halfHeight,
+        halfWidth: state.cameraConfig.halfWidth,
+        halfHeight: state.cameraConfig.halfHeight,
     }
 }
 

@@ -57,7 +57,7 @@ function* updateSaga(deltaT: number) {
     profile.animationTime = performance.now() - t;
 
     // camera
-    yield call(updateCamera, deltaT, player.positionData.position);
+    yield call(updateCamera, deltaT, player.movementData.position);
 
     // perform post update input
     yield call(postUpdateInput, deltaT, inputActions);

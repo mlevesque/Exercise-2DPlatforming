@@ -1,17 +1,18 @@
 import { combineReducers, AnyAction } from "redux";
-import { IMainState, IInputActions, ICamera, IMap, IProfileData, IPhysicsConfig, ConfigTab, IRenderConfig, 
+import { IMainState, IInputActions, IMap, IProfileData, IPhysicsConfig, ConfigTab, IRenderConfig, 
     IEntityEntry} from "./state";
 import { InitState } from "./InitState";
 import { LoadingAction, InputAction, CameraAction, MapAction, CollisionsAction, EntitiesAction, ProfileAction, 
     PhysicsConfigAction, ConfigTabAction, RenderConfigAction, LevelNameAction } from "./actionTypes";
-import { copyCamera, deepCopy } from "../utils/creation";
+import { deepCopy } from "../utils/creation";
 import { cloneVector } from "../utils/geometry";
+import { ICameraConfig } from "../camera/Camera";
 
 
 const allReducers = combineReducers<IMainState>({
     loading: loadingReducer,
     input: inputReducer,
-    camera: cameraReducer,
+    cameraConfig: cameraReducer,
     levelName: levelNameReducer,
     map: mapReducer,
     physics: physicsConfigReducer,
@@ -49,26 +50,24 @@ export function inputReducer(state: IInputActions = InitState.input, action: Any
     return state;
 }
 
-export function cameraReducer(state: ICamera = InitState.camera, action: AnyAction): ICamera {
-    let newState: ICamera;
+export function cameraReducer(state: ICameraConfig = InitState.cameraConfig, action: AnyAction): ICameraConfig {
+    let newState: ICameraConfig;
     switch (action.type) {
         case CameraAction.Resize:
-            newState = copyCamera(state);
+            newState = deepCopy(state);
             newState.halfWidth = action.payload.width / 2;
             newState.halfHeight = action.payload.height / 2;
             return newState;
-        case CameraAction.SetPositioning:
-            newState = copyCamera(state);
-            newState.positionData = deepCopy(action.payload.positionData);
-            return newState;
         case CameraAction.SetLocks:
-            newState = copyCamera(state);
+            newState = deepCopy(state);
             newState.lockX = action.payload.lockX;
             newState.lockY = action.payload.lockY;
             return newState;
         case CameraAction.SetScrollArea:
-            newState = copyCamera(state);
-            newState.scrollArea = deepCopy(action.payload.scrollArea);
+            newState = deepCopy(state);
+            newState.radius = action.payload.radius;
+            newState.spring = action.payload.spring;
+            newState.dampen = action.payload.dampen;
             return newState;
     }
     return state;

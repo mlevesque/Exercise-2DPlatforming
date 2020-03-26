@@ -9,26 +9,14 @@ export const InitState: IMainState = {
         [InputType.Jump]: {previous: false, current: false},
         [InputType.Reset]: {previous: false, current: false},
     },
-    camera: {
+    cameraConfig: {
         halfWidth: 320,
         halfHeight: 240,
         lockX: false,
         lockY: false,
-        scrollArea: {
-            radius: 10,
-            spring: 100,
-            dampen: 20,
-        },
-        positionData: {
-            impulses: {},
-            positionShifts: {},
-            position: zeroVector(),
-            velocity: zeroVector(),
-            acceleration: zeroVector(),
-            previousFramePosition: zeroVector(),
-            previousIntegrationPosition: zeroVector(),
-            previousTimeSlice: 1
-        }
+        radius: 10,
+        spring: 100,
+        dampen: 20,
     },
     levelName: "",
     map: null,
