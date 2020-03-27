@@ -1,4 +1,4 @@
-import { ICollisionSegment } from "./CollisionSegment";
+import { ICollisionSegment } from "./ICollisionSegment";
 import { IRay, IVector, getEndOfRay, createRayPP, isZeroVector, createRayPV, add, createVector, negate,
     createShiftedRay, IArea, buildAreaFromRay, updateBoundsForArea, isBoundsACompletelyInsideBoundsB} 
     from "../../utils/geometry";

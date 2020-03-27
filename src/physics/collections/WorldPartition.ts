@@ -1,4 +1,4 @@
-import { ICollisionSegment } from "../collisions/CollisionSegment";
+import { ICollisionSegment } from "../collisions/ICollisionSegment";
 import { IVector, createVector, IRay, IArea, cloneVector } from "../../utils/geometry";
 
 export type SegmentCollisionsMap = Map<string, ICollisionSegment>;
@@ -249,7 +249,7 @@ export class WorldPartition {
      * @param segment 
      */
     getCellsTouchingSegment(segment: ICollisionSegment): IVector[] {
-        const segmentRay = segment.segment;
+        const segmentRay = segment.segmentRay;
         const xDir = segmentRay.v.x > 0 ? 1 : -1;
         const yDir = segmentRay.v.y > 0 ? 1 : -1;
         const nextXDir = segmentRay.v.x > 0 ? 1 : 0;

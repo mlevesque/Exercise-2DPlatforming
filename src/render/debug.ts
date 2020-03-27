@@ -1,6 +1,6 @@
 import { IVector, zeroVector, scale, createVector, add, subtract, vectorSquaredLength, areAreasIntersecting } 
     from "../utils/geometry";
-import { ICollisionSegment } from "../physics/collisions/CollisionSegment";
+import { ICollisionSegment } from "../physics/collisions/ICollisionSegment";
 import { IMap } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { isWall } from "../physics/util";
@@ -39,14 +39,14 @@ function renderArrow(ctx: CanvasRenderingContext2D, from: IVector, to: IVector, 
 
 function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment, isHighlight: boolean): void {
     ctx.save();
-    ctx.translate(segment.segment.p.x, segment.segment.p.y);
+    ctx.translate(segment.segmentRay.p.x, segment.segmentRay.p.y);
 
     // render segment
     let color = isHighlight ? "yellow" : (isWall(segment) ? "blue" : "red");
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
     ctx.lineWidth = isHighlight ? 3 : 2;
-    renderArrow(ctx, zeroVector(), segment.segment.v, isHighlight ? 7 : 5);
+    renderArrow(ctx, zeroVector(), segment.segmentRay.v, isHighlight ? 7 : 5);
 
     // render normal
     ctx.fillStyle = "green";
@@ -58,12 +58,12 @@ function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment
     ctx.fillStyle = "yellow";
     ctx.strokeStyle = "yellow";
     ctx.lineWidth = 1;
-    let direction = segment.segment.v.x > 0 ? -10 : 10;
+    let direction = segment.segmentRay.v.x > 0 ? -10 : 10;
     if (segment.startLedge) {
         renderArrow(ctx, zeroVector(), createVector(direction, 0), 3);
     }
     if (segment.endLedge) {
-        renderArrow(ctx, segment.segment.v, add(createVector(-direction, 0), segment.segment.v), 3);
+        renderArrow(ctx, segment.segmentRay.v, add(createVector(-direction, 0), segment.segmentRay.v), 3);
     }
     ctx.restore();
 }

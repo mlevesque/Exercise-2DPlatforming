@@ -1,4 +1,4 @@
-import { ICollisionSegment } from "./collisions/CollisionSegment";
+import { ICollisionSegment } from "./collisions/ICollisionSegment";
 import { subtract, cross, IRay, negate, IVector, getPositionAlongRay, dot, createVector, getEndOfRay } 
     from "../utils/geometry";
 import { CollisionType, CollisionFlag } from "./collisions/collisionType";
@@ -180,10 +180,10 @@ export function getLedgeCollisionData(t: number, seg: ICollisionSegment): Collis
  */
 export function getConnectedCollisionId(t: number, seg: ICollisionSegment): string {
     if (t <= 0) {
-        return seg.prevSegment;
+        return seg.prevSegmentId;
     }
     else if (t >= 1) {
-        return seg.nextSegment;
+        return seg.nextSegmentId;
     }
     return "";
 }
@@ -194,5 +194,5 @@ export function getConnectedCollisionId(t: number, seg: ICollisionSegment): stri
  * @param segmentB 
  */
 export function areSegmentsInSameGeneralDirection(segmentA: ICollisionSegment, segmentB: ICollisionSegment): boolean {
-    return dot(segmentA.segment.v, segmentB.segment.v) > 0;
+    return dot(segmentA.segmentRay.v, segmentB.segmentRay.v) > 0;
 }

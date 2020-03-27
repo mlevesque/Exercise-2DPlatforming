@@ -4,7 +4,7 @@ import { IMap } from "../redux/state";
 import { getMap, getLevelName } from "../redux/selectors";
 import { select, put, takeEvery, all } from "redux-saga/effects";
 import { WorldPartition } from "../physics/collections/WorldPartition";
-import { ICollisionSegment } from "../physics/collisions/CollisionSegment";
+import { ICollisionSegment } from "../physics/collisions/ICollisionSegment";
 import { getGameConfig, IMapSchema } from "../utils/jsonSchemas";
 import { loadLevelData } from "./utils";
 import { actionSetGravity } from "../redux/actionCreators";

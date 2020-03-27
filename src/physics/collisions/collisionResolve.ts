@@ -3,7 +3,7 @@ import { IVector, IRay, getEndOfRay, getPositionAlongRay, createRayPP, createRay
 import { calculateTCollisionValues, capT, getPointCollision, isTValueInRange, getLedgeCollisionData, 
     getConnectedCollisionId, areSegmentsInSameGeneralDirection} from "../util";
 import { CollisionType } from "./collisionType";
-import { ICollisionSegment } from "./CollisionSegment";
+import { ICollisionSegment } from "./ICollisionSegment";
 
 /**
  * Returns a resolve path entry with the given information.
@@ -97,7 +97,7 @@ export function resolveToSegment(collisionTracker: WorldCollisionTracker, resolv
     const d = collisionTracker.currentCollisionDetectionData;
     const collisionSegment = d.collisionSegment;
     const collisionType = d.collisionType;
-    const offsetSegment = collisionTracker.getCollisionSegmentWithOffset(collisionSegment.segment, collisionType);
+    const offsetSegment = collisionTracker.getCollisionSegmentWithOffset(collisionSegment.segmentRay, collisionType);
 
     // resolve the collision segment
     // this will return the t value location along the collision segment that can tell us if we resolved off the
@@ -163,7 +163,7 @@ export function resolveToSegmentLedge(collisionTracker: WorldCollisionTracker, r
     // build ledge and offset it by the entity collision offset
     const d = collisionTracker.currentCollisionDetectionData;
     const collisionSegment = d.collisionSegment;
-    const offsetLedgeRay = collisionTracker.getCollisionSegmentWithOffset(d.collisionSegment.segment, d.collisionType);
+    const offsetLedgeRay=collisionTracker.getCollisionSegmentWithOffset(d.collisionSegment.segmentRay, d.collisionType);
 
     // resolve to ledge
     const t = addToResolvePath(
@@ -204,7 +204,7 @@ export function resolveToSegmentLedge(collisionTracker: WorldCollisionTracker, r
 export function resolveToWallSegment(collisionTracker: WorldCollisionTracker): void {
     const d = collisionTracker.currentCollisionDetectionData;
     const movement = collisionTracker.currentMovement;
-    const offsetWall = collisionTracker.getCollisionSegmentWithOffset(d.collisionSegment.segment, d.collisionType);
+    const offsetWall = collisionTracker.getCollisionSegmentWithOffset(d.collisionSegment.segmentRay, d.collisionType);
     collisionTracker.addToResolvePath(
         {
             ray: createRayPV(movement.p.x, movement.p.y, offsetWall.p.x - movement.p.x, movement.v.y),

@@ -1,6 +1,6 @@
 import { IMapSchema, IMapCollisionSchema } from "../utils/jsonSchemas";
-import { ICollisionSegment, createSegment } from "../physics/collisions/CollisionSegment";
-import { areVectorsEqual, getEndOfRay, cloneVector, createVector, IVector, cross, add, createRayPV } 
+import { ICollisionSegment, buildCollisionSegment } from "../physics/collisions/ICollisionSegment";
+import { areVectorsEqual, getEndOfRay, cloneVector, createVector, IVector, cross, add, createRayPV, createRayPP } 
     from "../utils/geometry";
 import { isWall, isFloor, isCeiling, calculateTCollisionValues } from "../physics/util";
 
@@ -10,7 +10,7 @@ import { isWall, isFloor, isCeiling, calculateTCollisionValues } from "../physic
  * @param segment2 
  */
 function areSegmentsConnected(segment1: ICollisionSegment, segment2: ICollisionSegment): boolean {
-    return areVectorsEqual(getEndOfRay(segment1.segment), segment2.segment.p);
+    return areVectorsEqual(getEndOfRay(segment1.segmentRay), segment2.segmentRay.p);
 }
 
 /**
@@ -21,7 +21,7 @@ function areSegmentsConnected(segment1: ICollisionSegment, segment2: ICollisionS
  */
 function needsWallSegmentConnector(segmentA: ICollisionSegment, segmentB: ICollisionSegment): boolean {
     return ((isFloor(segmentA) && isCeiling(segmentB)) || (isFloor(segmentB) && isCeiling(segmentA)))
-        && cross(segmentA.segment.v, segmentB.segment.v) > 0;
+        && cross(segmentA.segmentRay.v, segmentB.segmentRay.v) > 0;
 }
 
 /**
@@ -37,11 +37,11 @@ function buildWallSegmentConnector(segmentA: ICollisionSegment, segmentB: IColli
     // right off the ledge, so we need to find out which segment is the floor one and then adjust the wall to overlap
     // the other one
     const floorA = isFloor(segmentA);
-    let startPos = getEndOfRay(segmentA.segment);
-    let endPos = cloneVector(segmentB.segment.p);
+    let startPos = getEndOfRay(segmentA.segmentRay);
+    let endPos = cloneVector(segmentB.segmentRay.p);
     if (floorA) endPos.y += 0.1;
     else startPos.y += 0.1;
-    return createSegment(startPos, endPos);
+    return buildCollisionSegment(createRayPP(startPos.x, startPos.y, endPos.x, endPos.y));
 }
 
 /**
@@ -50,16 +50,26 @@ function buildWallSegmentConnector(segmentA: ICollisionSegment, segmentB: IColli
  * @param segment2 
  */
 function linkCollisions(segment1: ICollisionSegment, segment2: ICollisionSegment): void {
-    if (segment1) segment1.nextSegment = segment2 ? segment2.id : "";
-    if (segment2) segment2.prevSegment = segment1 ? segment1.id : "";
+    if (segment1) segment1.setLinks(segment1.prevSegmentId, segment2 ? segment2.id : "");
+    if (segment2) segment2.setLinks(segment1 ? segment1.id : "", segment2.nextSegmentId);
 }
 
+/**
+ * Returns true if the two given segments form a convex angle between them. This determines if there should be a ledge
+ * between the two segments.
+ * 
+ * The way it determines this is by treating the two segments as sides of a triangle. If the normals of either segment
+ * would intersect with the missing side of the triangle (ie, the normals would point inward to the triangle), then it
+ * is not convex.
+ * @param segmentA 
+ * @param segmentB 
+ */
 function doesFormConvex(segmentA: ICollisionSegment, segmentB: ICollisionSegment): boolean {
-    const segA = segmentA.nextSegment == segmentB.id ? segmentA : segmentB;
-    const segB = segmentA.nextSegment == segmentB.id ? segmentB : segmentA;
-    const sumVec = add(segA.segment.v, segB.segment.v);
-    const sumRay = createRayPV(segA.segment.p.x, segA.segment.p.y, sumVec.x, sumVec.y);
-    const normRay = createRayPV(segB.segment.p.x, segB.segment.p.y, segB.normal.x, segB.normal.y);
+    const segA = segmentA.nextSegmentId === segmentB.id ? segmentA : segmentB;
+    const segB = segmentA.nextSegmentId === segmentB.id ? segmentB : segmentA;
+    const sumVec = add(segA.segmentRay.v, segB.segmentRay.v);
+    const sumRay = createRayPV(segA.segmentRay.p.x, segA.segmentRay.p.y, sumVec.x, sumVec.y);
+    const normRay = createRayPV(segB.segmentRay.p.x, segB.segmentRay.p.y, segB.normal.x, segB.normal.y);
     return calculateTCollisionValues(normRay, sumRay)[0] < 0;
 }
 
@@ -87,7 +97,7 @@ function isLedgeFromSegmentAToSegmentB(segmentA: ICollisionSegment, segmentB: IC
     }
 
     // make sure that they are connected
-    if (segmentA.nextSegment != segmentB.id && segmentA.prevSegment != segmentB.id) {
+    if (segmentA.nextSegmentId != segmentB.id && segmentA.prevSegmentId != segmentB.id) {
         return false;
     }
 
@@ -110,7 +120,7 @@ function buildCollisionSet(collisionSet: IMapCollisionSchema[]): ICollisionSegme
     let startPos: IVector = createVector(collisionSet[0].x, collisionSet[0].y);
     for (let i = 1; i < collisionSet.length; ++i) {
         let endPos = createVector(collisionSet[i].x, collisionSet[i].y);
-        let segment = createSegment(startPos, endPos);
+        const segment = buildCollisionSegment(createRayPP(startPos.x, startPos.y, endPos.x, endPos.y));
         segmentList.push(segment);
         startPos = endPos;
     }
@@ -140,8 +150,8 @@ function buildCollisionSet(collisionSet: IMapCollisionSchema[]): ICollisionSegme
     for (let i = 1; i < segmentList.length; ++i) {
         let currentSegment = segmentList[i];
         linkCollisions(prevSegment, currentSegment);
-        prevSegment.endLedge = isLedgeFromSegmentAToSegmentB(prevSegment, currentSegment);
-        currentSegment.startLedge = isLedgeFromSegmentAToSegmentB(currentSegment, prevSegment);
+        prevSegment.setLedges(prevSegment.startLedge, isLedgeFromSegmentAToSegmentB(prevSegment, currentSegment));
+        currentSegment.setLedges(isLedgeFromSegmentAToSegmentB(currentSegment, prevSegment), currentSegment.endLedge);
         prevSegment = currentSegment;
     }
 

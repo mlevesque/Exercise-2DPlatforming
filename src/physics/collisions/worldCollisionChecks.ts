@@ -1,6 +1,6 @@
 import { IPhysicsConfig } from "../../redux/state";
 import { IVector, IRay, createVector } from "../../utils/geometry";
-import { ICollisionSegment } from "./CollisionSegment";
+import { ICollisionSegment } from "./ICollisionSegment";
 import { ISurfaceTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMovingTowardSegment, areTValuePairsInRange,
     getStartLedgeCollisionType, getEndLedgeCollisionType, buildStartLedgeRay, buildEndLedgeRay,
     isMovingTowardSegmentLedge, isTValueInRange, areTValuesOnOppositeOutsideRange, isWall, 
@@ -31,14 +31,14 @@ function checkPointCollisionOnSegment( movementRay: IRay,
     let hasCollision = false;
     let type = new CollisionType(collisionType.rawValue);
     if (isMovingTowardSegment(movementRay.v, collisionSegment)) {
-        tValues = calculateTCollisionValues(movementRay, collisionSegment.segment);
+        tValues = calculateTCollisionValues(movementRay, collisionSegment.segmentRay);
         hasCollision = areTValuePairsInRange(tValues[0], tValues[1]);
     }
 
     // if no collision with segment, try collision checks with ledges if the segment has any
     if (!hasCollision && isMovingTowardSegmentLedge(movementRay.v, collisionSegment)) {
         if (collisionSegment.startLedge) {
-            let ledge = buildStartLedgeRay(collisionSegment.segment, collisionTracker.entityHalfWidth);
+            let ledge = buildStartLedgeRay(collisionSegment.segmentRay, collisionTracker.entityHalfWidth);
             tValues = calculateTCollisionValues(movementRay, ledge);
             hasCollision = areTValuesPairsInRangeForLedge(tValues[0], tValues[1]);
             if (hasCollision) {
@@ -47,7 +47,7 @@ function checkPointCollisionOnSegment( movementRay: IRay,
         }
 
         if (!hasCollision && collisionSegment.endLedge) {
-            let ledge = buildEndLedgeRay(collisionSegment.segment, collisionTracker.entityHalfWidth);
+            let ledge = buildEndLedgeRay(collisionSegment.segmentRay, collisionTracker.entityHalfWidth);
             tValues = calculateTCollisionValues(movementRay, ledge);
             hasCollision = areTValuesPairsInRangeForLedge(tValues[0], tValues[1]);
             if (hasCollision) {
@@ -86,7 +86,7 @@ function checkWallCollisionOnSegment( topMovementRay: IRay,
     let hasCollision: boolean = false;
     if (isMovingTowardSegment(topMovementRay.v, collisionSegment)) {
         // check for collision with top edge
-        let tValues = calculateTCollisionValues(topMovementRay, collisionSegment.segment);
+        let tValues = calculateTCollisionValues(topMovementRay, collisionSegment.segmentRay);
         moveT = tValues[0]; // store for potential collision resolve
         let segT1 = tValues[1];
         const mayCollide = isTValueInRange(moveT);
@@ -94,7 +94,7 @@ function checkWallCollisionOnSegment( topMovementRay: IRay,
         // if we have a potential collision but no intersection, we test the bottom movement
         let segT2: number;
         if (mayCollide && !isTValueInRange(segT1)) {
-            tValues = calculateTCollisionValues(bottomMovementRay, collisionSegment.segment);
+            tValues = calculateTCollisionValues(bottomMovementRay, collisionSegment.segmentRay);
             segT2 = tValues[1];
         }
 
