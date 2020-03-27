@@ -1,5 +1,5 @@
 import { select, put } from "redux-saga/effects";
-import { getLoadingSelector } from "../redux/selectors";
+import { getLoadingSelector, getLevelName } from "../redux/selectors";
 import { isKeyPressed, isKeyDown } from "./utils";
 import { InputType, IInputActions } from "../redux/state";
 import { GameEventQueue } from "../events/GameEventQueue";
@@ -46,6 +46,7 @@ export function* updatePlayerActions(deltaT: number, player: IEntity, inputActio
  */
 export function* postUpdateInput(deltaT: number, inputActions: IInputActions) {
     if (isKeyPressed(InputType.Reset, inputActions)) {
-        yield put(actionLoadLevel("map_01"));
+        const level: string = yield select(getLevelName);
+        yield put(actionLoadLevel(level));
     }
 }
