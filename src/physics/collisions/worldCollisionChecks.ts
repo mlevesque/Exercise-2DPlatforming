@@ -1,5 +1,5 @@
 import { IEntity, IPhysicsConfig } from "../../redux/state";
-import { IVector, IRay, createVector, cloneVector, subtract, add } from "../../utils/geometry";
+import { IVector, IRay, createVector } from "../../utils/geometry";
 import { ICollisionSegment } from "./CollisionSegment";
 import { ISurfaceTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMovingTowardSegment, areTValuePairsInRange,
     getStartLedgeCollisionType, getEndLedgeCollisionType, buildStartLedgeRay, buildEndLedgeRay,
@@ -11,7 +11,7 @@ import { CollisionType, CollisionFlag } from "./collisionType";
 import { resolveWithExternalDirection, resolveByPath } from "./collisionResolve";
 import { GameEventQueue } from "../../events/GameEventQueue";
 import { WorldCollisionEvent } from "../../events/GameEvents";
-import { getBehaviorCollision } from "../../behaviors/behaviorData";
+import { BehaviorCollisionComponent } from "../../behaviors/BehaviorComponents";
 
 /**
  * Checks collision against the given collision segment and stores the collision to the tracker.
@@ -376,7 +376,7 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
  * @param collisionTracker 
  */
 function updateAttachedCollisionForEntity(entity: IEntity, collisionTracker: WorldCollisionTracker): void {
-    const collisionBehavior = getBehaviorCollision(entity.behavior)
+    const collisionBehavior = entity.behavior.componentMap.getComponent(BehaviorCollisionComponent);
     if (collisionBehavior) {
         const attachedCollision = collisionTracker.relevantCollisionSegments.get(collisionBehavior.segId);
         if (attachedCollision) {

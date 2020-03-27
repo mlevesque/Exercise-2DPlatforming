@@ -1,8 +1,8 @@
-import { IBehaviorData } from "../behaviors/behaviorData";
 import { IVector } from "../utils/geometry";
 import { ISpriteAnimation } from "../animation/SpriteAnimation";
 import { IMovementData } from "../physics/integration/MovementData";
 import { ICameraConfig } from "../camera/Camera";
+import { IBehavior } from "../behaviors/IBehavior";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main State
@@ -70,7 +70,7 @@ export interface IEntity {
     id: string;
     type: EntityType;
 
-    behavior: IBehaviorData;
+    behavior: IBehavior;
 
     spriteAnimation: ISpriteAnimation;
 

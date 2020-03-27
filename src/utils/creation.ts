@@ -1,10 +1,10 @@
 import { Guid } from "guid-typescript";
 import { IEntity, EntityType } from "../redux/state";
 import { IVector } from "./geometry";
-import { createEntityBehaviorData } from "../behaviors/utils";
 import { buildSpriteAnimation, EntityAnimation } from "../animation/SpriteAnimation";
 import { buildMovementData } from "../physics/integration/MovementData";
 import { getEntityJsonData } from "./jsonSchemas";
+import { buildEntityBehavior } from "../behaviors/factory";
 
 export function buildEntity(type: EntityType, flip: boolean, animation: EntityAnimation, position: IVector): IEntity {
     const id = Guid.create().toString();
@@ -15,7 +15,7 @@ export function buildEntity(type: EntityType, flip: boolean, animation: EntityAn
     return {
         id: id,
         type: type,
-        behavior: createEntityBehaviorData(type),
+        behavior: buildEntityBehavior(type),
         spriteAnimation: spriteAnimation,
         movementData: buildMovementData(position),
     }
