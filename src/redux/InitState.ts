@@ -14,6 +14,7 @@ export const InitState: IMainState = {
         halfHeight: 240,
         lockX: false,
         lockY: false,
+        worldConstraints: true,
         radius: 10,
         spring: 100,
         dampen: 20,

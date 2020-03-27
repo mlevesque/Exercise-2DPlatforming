@@ -7,6 +7,7 @@ export enum CameraAction {
     Resize = "CameraAction.Resize",
     SetLocks = "CameraAction.SetLocks",
     SetScrollArea = "CameraAction.SetScrollArea",
+    SetWorldConstraints = "CameraAction.SetWorldConstraints",
 }
 
 export enum PhysicsConfigAction {

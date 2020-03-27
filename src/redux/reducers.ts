@@ -69,6 +69,10 @@ export function cameraReducer(state: ICameraConfig = InitState.cameraConfig, act
             newState.spring = action.payload.spring;
             newState.dampen = action.payload.dampen;
             return newState;
+        case CameraAction.SetWorldConstraints:
+            newState = deepCopy(state);
+            newState.worldConstraints = action.payload;
+            return newState;
     }
     return state;
 }

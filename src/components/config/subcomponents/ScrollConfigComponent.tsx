@@ -1,6 +1,7 @@
 import { IMainState } from "../../../redux/state";
 import { Dispatch } from "redux";
-import { actionCameraSetScrollArea, actionShowCameraScroll, actionCameraSetLocks } from "../../../redux/actionCreators";
+import { actionCameraSetScrollArea, actionShowCameraScroll, actionCameraSetLocks, 
+    actionCameraSetWorldConstraints } from "../../../redux/actionCreators";
 import React from "react";
 import { connect } from "react-redux";
 import "../../../assets/styles/config.css";
@@ -10,6 +11,7 @@ import { createVector } from "../../../utils/geometry";
 interface IProps {
     lockX: boolean;
     lockY: boolean;
+    constrainToWorld: boolean;
     radius: number;
     spring: number;
     dampen: number;
@@ -20,6 +22,7 @@ interface IDispatchActions {
     actionSetCameraLocks: (x: boolean, y: boolean) => void;
     actionSetScrollArea: (radius: number, spring: number, dampen: number) => void;
     actionShowCameraScroll: (value: boolean) => void;
+    actionSetWorldConstraints: (value: boolean) => void;
 }
 
 type IFullProps = IProps & IDispatchActions;
@@ -34,6 +37,7 @@ const mapStateToProps = (state: IMainState): IProps => {
     return {
         lockX: state.cameraConfig.lockX,
         lockY: state.cameraConfig.lockY,
+        constrainToWorld: state.cameraConfig.worldConstraints,
         radius: state.cameraConfig.radius,
         spring: state.cameraConfig.spring,
         dampen: state.cameraConfig.dampen,
@@ -47,6 +51,7 @@ const mapDispatchToProps = (dispatch: Dispatch): IDispatchActions => {
         actionSetScrollArea: (radius: number, spring: number, dampen: number) => 
             dispatch(actionCameraSetScrollArea(radius, spring, dampen)),
         actionShowCameraScroll: (value: boolean) => dispatch(actionShowCameraScroll(value)),
+        actionSetWorldConstraints: (value: boolean) => dispatch(actionCameraSetWorldConstraints(value)),
     }
 }
 
@@ -95,6 +100,13 @@ class ScrollConfigComponent extends React.Component<IFullProps, IState> {
                     checked={this.props.lockY}
                     onChange={e => this.props.actionSetCameraLocks(this.props.lockX, e.currentTarget.checked)} />
                 <label htmlFor="lockY">Lock Vertical</label>
+                <br />
+                <input 
+                    type="checkbox" 
+                    name="constrainWorld" 
+                    checked={this.props.constrainToWorld}
+                    onChange={e => this.props.actionSetWorldConstraints(e.currentTarget.checked)} />
+                <label htmlFor="constrainWorld">Constrain to World Edges</label>
                 <br />
                 &emsp;
                 <label htmlFor="radius">Radius: </label>

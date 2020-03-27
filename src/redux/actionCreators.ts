@@ -28,6 +28,9 @@ export function actionCameraSetLocks(lockX: boolean, lockY: boolean): AnyAction 
 export function actionCameraSetScrollArea(radius: number, spring: number, dampen: number): AnyAction {
     return createAction(CameraAction.SetScrollArea, {radius: radius, spring: spring, dampen: dampen});
 }
+export function actionCameraSetWorldConstraints(value: boolean): AnyAction {
+    return createAction(CameraAction.SetWorldConstraints, value);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Physics
