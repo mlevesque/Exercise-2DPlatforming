@@ -89,16 +89,24 @@ export function lazyLoadImages(imageNames: string[]): Promise<any> {
 }
 
 /**
+ * Builds and returns the player entity from the given map data.
+ * @param map 
+ */
+export function buildPlayerFromMap(map: IMapSchema): IEntity {
+    if (map && map.player) {
+        const player = buildEntity(EntityType.Player, map.player.position);
+        player.spriteAnimation.setFlip(map.player.flip);
+        return player;
+    }
+    return null;
+}
+
+/**
  * Builds and returns a list of entity states from the given map data.
  * @param map 
  */
 export function buildEntityCollection(map: IMapSchema): IEntity[] {
     let results: IEntity[] = [];
-    if (map && map.player) {
-        const player = buildEntity(EntityType.Player, map.player.position);
-        player.spriteAnimation.setFlip(map.player.flip);
-        results.push(player);
-    }
     if (map && map.entities) {
         results = results.concat(map.entities.map((entry): IEntity => {
                 return buildEntity(entry.type, entry.position);

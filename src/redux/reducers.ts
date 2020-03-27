@@ -73,6 +73,10 @@ export function cameraReducer(state: ICameraConfig = InitState.cameraConfig, act
             newState = deepCopy(state);
             newState.worldConstraints = action.payload;
             return newState;
+        case CameraAction.SetEntityTarget:
+            newState = deepCopy(state);
+            newState.entityTarget = action.payload;
+            return newState;
     }
     return state;
 }

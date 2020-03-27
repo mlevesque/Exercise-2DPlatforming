@@ -31,6 +31,9 @@ export function actionCameraSetScrollArea(radius: number, spring: number, dampen
 export function actionCameraSetWorldConstraints(value: boolean): AnyAction {
     return createAction(CameraAction.SetWorldConstraints, value);
 }
+export function actionCameraSetEntityTarget(id: string): AnyAction {
+    return createAction(CameraAction.SetEntityTarget, id);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Physics

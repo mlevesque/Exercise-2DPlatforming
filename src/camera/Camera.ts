@@ -116,6 +116,7 @@ export interface ICameraConfig {
     radius: number;
     spring: number;
     dampen: number;
+    entityTarget: string;
 }
 
 /**

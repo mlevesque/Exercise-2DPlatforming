@@ -1,10 +1,10 @@
 import { put, select, takeLatest } from "redux-saga/effects";
 import { actionSetLoadingFlag, actionClearMap, actionClearEntities, actionSetMap, actionSetStaticCollisions, 
-    actionSetEntitiesCollection, actionCameraSetLocks, actionSetGravity, actionSetLevelName, actionSetPartitionCellSize } 
+    actionSetEntitiesCollection, actionCameraSetLocks, actionSetGravity, actionSetLevelName, actionSetPartitionCellSize, actionCameraSetEntityTarget } 
     from "../redux/actionCreators";
 import { IMapSchema, getGameConfig } from "../utils/jsonSchemas";
 import { IMap, IPhysicsConfig } from "../redux/state";
-import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera, loadLevelData, buildEntityEntriesFromEntityCollection} from "./utils";
+import { lazyLoadImages, getImagesToLoad, buildEntityCollection, setupCamera, loadLevelData, buildEntityEntriesFromEntityCollection, buildPlayerFromMap} from "./utils";
 import { getCameraConfig, getLevelName, getPhysicsConfig } from "../redux/selectors";
 import { buildCollisionsCollection } from "./collisionBuilding";
 import { GameAction } from "../redux/actionTypes";
@@ -78,11 +78,14 @@ export function* loadLevelSaga(loadAction: AnyAction) {
     yield promise;
 
     // populate entities
-    let entities = buildEntityCollection(data);
-    yield put(actionSetEntitiesCollection(buildEntityEntriesFromEntityCollection(entities)));
+    const player = buildPlayerFromMap(data);
+    const entities = buildEntityCollection(data);
+    yield put(actionCameraSetEntityTarget(player ? player.id : ""));
+    const entityList = player ? [player, ...entities] : entities;
+    yield put(actionSetEntitiesCollection(buildEntityEntriesFromEntityCollection(entityList)));
     const entityCollection = EntityCollection.getInstance();
     entityCollection.clearEntityMap();
-    entities.forEach(entity => entityCollection.addEntity(entity));
+    entityList.forEach(entity => entityCollection.addEntity(entity));
 
     // setup partition
     const physicsConfig: IPhysicsConfig = yield select(getPhysicsConfig);

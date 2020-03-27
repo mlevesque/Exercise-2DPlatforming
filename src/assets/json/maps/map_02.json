@@ -56,7 +56,9 @@
 	],
 	"partition": {"cellWidth": 150, "cellHeight": 150},
 	"player": {"position": {"x":62,"y":1473}, "flip": false},
-	"entities": [],
+	"entities": [
+		{"type": "player", "position": {"x": 500, "y": 1473}}
+	],
 	"collisions": [
 		[
 			{"x":16,"y":0},

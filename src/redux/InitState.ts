@@ -18,6 +18,7 @@ export const InitState: IMainState = {
         radius: 10,
         spring: 100,
         dampen: 20,
+        entityTarget: "",
     },
     levelName: "",
     map: null,
