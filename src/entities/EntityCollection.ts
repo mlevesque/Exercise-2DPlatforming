@@ -1,4 +1,4 @@
-import { IEntity, EntityType } from "../redux/state";
+import { IEntity, EntityType } from "./IEntity";
 
 /**
  * Singleton class container for all entities.

@@ -1,6 +1,6 @@
-import { IEntity } from "../redux/state";
 import { IBehaviorComponent, BehaviorComponentType } from "./BehaviorComponents";
 import { GameEvent } from "../events/GameEvents";
+import { IEntity } from "../entities/IEntity";
 
 /**
  * Interface for a base behavior for an entity.

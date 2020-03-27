@@ -1,5 +1,4 @@
-import { InputType, IInputActions, IEntity } from "../redux/state";
-import { IVector, add } from "../utils/geometry";
+import { InputType, IInputActions } from "../redux/state";
 
 /**
  * Returns if a given input key is currently down.

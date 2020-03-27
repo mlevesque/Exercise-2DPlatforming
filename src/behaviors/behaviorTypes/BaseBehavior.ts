@@ -1,7 +1,7 @@
 import { IBehaviorComponentMap, IBehavior, IHandleGameEvent } from "../IBehavior";
 import { IBehaviorComponent, BehaviorComponentType } from "../BehaviorComponents";
 import { GameEventType, GameEvent } from "../../events/GameEvents";
-import { IEntity } from "../../redux/state";
+import { IEntity } from "../../entities/IEntity";
 
 /**
  * Mapping of behavior components for an entity behavior.

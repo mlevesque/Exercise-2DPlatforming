@@ -1,11 +1,12 @@
 import { select, put } from "redux-saga/effects";
 import { getLoadingSelector } from "../redux/selectors";
 import { isKeyPressed, isKeyDown } from "./utils";
-import { InputType, IEntity, IInputActions } from "../redux/state";
+import { InputType, IInputActions } from "../redux/state";
 import { GameEventQueue } from "../events/GameEventQueue";
 import { InputActionEvent } from "../events/GameEvents";
 import { actionLoadLevel } from "../redux/actionCreators";
 import { MoveDirection } from "../behaviors/BehaviorComponents";
+import { IEntity } from "../entities/IEntity";
 
 /**
  * Generator function for updating player input actions and affecting the player entity.

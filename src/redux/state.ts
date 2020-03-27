@@ -1,8 +1,6 @@
 import { IVector } from "../utils/geometry";
-import { ISpriteAnimation } from "../animation/SpriteAnimation";
-import { IMovementData } from "../physics/integration/MovementData";
 import { ICameraConfig } from "../camera/Camera";
-import { IBehavior } from "../behaviors/IBehavior";
+import { EntityType } from "../entities/IEntity";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main State
@@ -59,22 +57,9 @@ export interface IPhysicsConfig {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Entity
-export enum EntityType {
-    Player = "player",
-}
 export interface IEntityEntry {
     id: string;
     type: EntityType;
-}
-export interface IEntity {
-    id: string;
-    type: EntityType;
-
-    behavior: IBehavior;
-
-    spriteAnimation: ISpriteAnimation;
-
-    movementData: IMovementData;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

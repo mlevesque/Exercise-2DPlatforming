@@ -1,4 +1,4 @@
-import { IMainState, IEntity } from "../redux/state";
+import { IMainState } from "../redux/state";
 import { renderTiles, renderBackground } from "./world";
 import { renderEntity } from "./entities";
 import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPartition, renderScrollArea, 
@@ -6,6 +6,7 @@ import { renderMapCollisions, renderEntityCollisions, renderFrameRate, renderPar
 import { CollisionCollections } from "../physics/collections/CollisionCollections";
 import { EntityCollection } from "../entities/EntityCollection";
 import { CameraManager } from "../camera/CameraManager";
+import { IEntity } from "../entities/IEntity";
 
 export function renderLoading(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = "black";
@@ -57,7 +58,7 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
     if (state.renderConfig.enableCameraScroll) {
         const player = entityCollection.getPlayer();
         if (player) {
-            renderScrollVector(ctx, player.movementData.position);
+            renderScrollVector(ctx, player.movement.position);
         }
     }
     ctx.restore();

@@ -2,8 +2,8 @@ import gameConfig from "../assets/json/gameConfig.json";
 import levelList from "../assets/json/maps/level_list.json";
 import entityPlayer from "../assets/json/entities/entityPlayer.json";
 import { IVector } from "./geometry";
-import { EntityType } from "../redux/state";
 import { IAnimationMappingSchema } from "../animation/JsonSchema.js";
+import { EntityType } from "../entities/IEntity";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONFIG

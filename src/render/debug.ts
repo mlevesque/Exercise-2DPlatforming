@@ -1,11 +1,12 @@
 import { IVector, zeroVector, scale, createVector, add, subtract, vectorSquaredLength, areAreasIntersecting } 
     from "../utils/geometry";
 import { ICollisionSegment } from "../physics/collisions/CollisionSegment";
-import { IEntity, IMap } from "../redux/state";
+import { IMap } from "../redux/state";
 import { IEntitySchema, getEntityJsonData } from "../utils/jsonSchemas";
 import { isWall } from "../physics/util";
 import { WorldPartition } from "../physics/collections/WorldPartition";
 import { CameraManager } from "../camera/CameraManager";
+import { IEntity } from "../entities/IEntity";
 
 function renderArrow(ctx: CanvasRenderingContext2D, from: IVector, to: IVector, radius: number): void {
 	let x_center = to.x;
@@ -81,8 +82,8 @@ export function renderEntityCollisions(ctx: CanvasRenderingContext2D, entity: IE
 
     ctx.save();
     ctx.translate(
-        entity.movementData.position.x,
-        entity.movementData.position.y
+        entity.movement.position.x,
+        entity.movement.position.y
     );
     ctx.scale(entity.spriteAnimation.isFlipped ? -1 : 1, 1);
 

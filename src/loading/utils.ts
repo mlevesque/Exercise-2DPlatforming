@@ -1,10 +1,9 @@
 import { IMapSchema, getEntityJsonData } from "../utils/jsonSchemas";
-import { EntityType, IEntity, IEntityEntry } from "../redux/state";
-import { buildEntity } from "../utils/creation";
+import { IEntityEntry } from "../redux/state";
 import { cloneVector, zeroVector } from "../utils/geometry";
-import { EntityAnimation } from "../animation/SpriteAnimation";
 import { CameraManager } from "../camera/CameraManager";
 import { buildCamera, ICameraConfig } from "../camera/Camera";
+import { EntityType, IEntity, buildEntity } from "../entities/IEntity";
 
 /**
  * Returns a Promise for loading a level json file with the given name.
@@ -96,11 +95,13 @@ export function lazyLoadImages(imageNames: string[]): Promise<any> {
 export function buildEntityCollection(map: IMapSchema): IEntity[] {
     let results: IEntity[] = [];
     if (map && map.player) {
-        results.push(buildEntity(EntityType.Player, map.player.flip, EntityAnimation.Idle, map.player.position));
+        const player = buildEntity(EntityType.Player, map.player.position);
+        player.spriteAnimation.setFlip(map.player.flip);
+        results.push(player);
     }
     if (map && map.entities) {
         results = results.concat(map.entities.map((entry): IEntity => {
-                return buildEntity(entry.type, false, EntityAnimation.Idle, entry.position);
+                return buildEntity(entry.type, entry.position);
             })
         );
     }

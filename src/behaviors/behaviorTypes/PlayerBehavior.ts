@@ -3,7 +3,6 @@ import { IBehaviorComponent, BehaviorCollisionComponent, BehaviorMovementCompone
     MoveDirection } from "../BehaviorComponents";
 import { GameEventType, InputActionEvent } from "../../events/GameEvents";
 import { handleWorldCollision } from "../eventHandlers";
-import { IEntity } from "../../redux/state";
 import { IJumpSchema, IJumpDuration, getEntityJsonData, IPlayerSchema } from "../../utils/jsonSchemas";
 import { updateEntityMove, updateEntityCollisionVelocity } from "../commonBehaviorActions";
 import { ImpulseType } from "../../physics/integration/MovementData";
@@ -11,6 +10,7 @@ import { createVector } from "../../utils/geometry";
 import { CollisionType } from "../../physics/collisions/collisionType";
 import { EntityAnimation } from "../../animation/SpriteAnimation";
 import { BaseBehavior } from "./BaseBehavior";
+import { IEntity } from "../../entities/IEntity";
 
 /**
  * Behavior for a player entity.
@@ -108,7 +108,7 @@ class PlayerBehavor extends BaseBehavior {
 
             // if we just started jumping, create the impulse
             if (jumpBehavior.jumpDuration == 0) {
-                entity.movementData.applyImpulse(
+                entity.movement.applyImpulse(
                     ImpulseType.Jump, 
                     createVector(0, -entityData.jump.speed), 
                     0
@@ -117,7 +117,7 @@ class PlayerBehavor extends BaseBehavior {
             
             // add to the duration if our new duration is larger
             if (duration > jumpBehavior.jumpDuration) {
-                entity.movementData.addImpulseDuration(
+                entity.movement.addImpulseDuration(
                     ImpulseType.Jump,
                     duration - jumpBehavior.jumpDuration
                 );
@@ -166,16 +166,16 @@ class PlayerBehavor extends BaseBehavior {
 
         // remove jump impulse if we hit the ceiling
         if (collisionType.hasCeilingCollision()) {
-            entity.movementData.removeImpulse(ImpulseType.Jump);
+            entity.movement.removeImpulse(ImpulseType.Jump);
         }
         
         // handle jump animation
-        if (entity.movementData.velocity.y < 0 && jumpBehavior.jumping) {
+        if (entity.movement.velocity.y < 0 && jumpBehavior.jumping) {
             entity.spriteAnimation.setAnimation(EntityAnimation.Jump, false);
         }
 
         // handle fall animation
-        if (!collisionType.hasFloorCollision() && entity.movementData.velocity.y > 0) {
+        if (!collisionType.hasFloorCollision() && entity.movement.velocity.y > 0) {
             if (jumpBehavior.jumping) entity.spriteAnimation.setAnimation(EntityAnimation.JumpFall, false);
             else entity.spriteAnimation.setAnimation(EntityAnimation.Fall, false);
         }

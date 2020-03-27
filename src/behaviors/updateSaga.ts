@@ -1,5 +1,5 @@
-import { IEntity } from "../redux/state";
 import { GameEventQueue } from "../events/GameEventQueue";
+import { IEntity } from "../entities/IEntity";
 
 /**
  * Handles all events for all entities in the given collection.

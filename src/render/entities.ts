@@ -1,12 +1,12 @@
-import { IEntity } from "../redux/state";
+import { IEntity } from "../entities/IEntity";
 
 export function renderEntity(ctx: CanvasRenderingContext2D, entity: IEntity): void {
     const spriteSheet = document.getElementById(entity.spriteAnimation.spritesheet) as HTMLImageElement;
     const slice = entity.spriteAnimation.getSpriteSlice();
     ctx.save();
     ctx.translate(
-        Math.floor(entity.movementData.position.x),
-        Math.floor(entity.movementData.position.y)
+        Math.floor(entity.movement.position.x),
+        Math.floor(entity.movement.position.y)
     );
     ctx.scale(entity.spriteAnimation.isFlipped ? -1 : 1, 1);
     ctx.drawImage(

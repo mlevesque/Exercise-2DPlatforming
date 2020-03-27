@@ -1,6 +1,5 @@
 import { Store, AnyAction } from "redux";
-import { actionGameUpdate, actionUpdateInput, actionSetEntitiesCollection, actionSetProfile } 
-    from "./redux/actionCreators";
+import { actionGameUpdate, actionUpdateInput, actionSetProfile } from "./redux/actionCreators";
 import { select, call, put, takeEvery } from "redux-saga/effects";
 import { getLoadingSelector, getInputActionsSelector, getProfile } from "./redux/selectors";
 import { GameAction } from "./redux/actionTypes";
@@ -11,7 +10,7 @@ import { renderSaga, renderLoadingSaga } from "./render/updateSaga";
 import { GameEventQueue } from "./events/GameEventQueue";
 import { updateReactionBehaviors, updateActionBehaviors } from "./behaviors/updateSaga";
 import { updateCamera } from "./camera/updateSaga";
-import { IProfileData, IEntity } from "./redux/state";
+import { IProfileData } from "./redux/state";
 import { EntityCollection } from "./entities/EntityCollection";
 
 /**
@@ -57,7 +56,7 @@ function* updateSaga(deltaT: number) {
     profile.animationTime = performance.now() - t;
 
     // camera
-    yield call(updateCamera, deltaT, player.movementData.position);
+    yield call(updateCamera, deltaT, player.movement.position);
 
     // perform post update input
     yield call(postUpdateInput, deltaT, inputActions);
