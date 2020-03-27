@@ -14,19 +14,6 @@ export interface BehaviorComponentType<T extends IBehaviorComponent> { new(...ar
 export interface IBehaviorComponent {}
 
 /**
- * Component for collisions.
- */
-export class BehaviorCollisionComponent implements IBehaviorComponent {
-    collisionType: number;
-    segId: string;
-
-    constructor() {
-        this.collisionType = 0,
-        this.segId = "";
-    }
-}
-
-/**
  * Component for entity movement.
  */
 export class BehaviorMovementComponent implements IBehaviorComponent {

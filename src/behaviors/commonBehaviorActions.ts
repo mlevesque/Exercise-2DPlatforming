@@ -27,7 +27,8 @@ export function updateEntityMove(deltaT: number, entity: IEntity, moveDirection:
  * @param entity 
  * @param collisionType 
  */
-export function updateEntityCollisionVelocity(entity: IEntity, collisionType: CollisionType): void {
+export function updateEntityCollisionVelocity(entity: IEntity): void {
+    const collisionType = entity.collisions.currentCollisions;
     if ((collisionType.hasCeilingCollision() && entity.movement.velocity.y < 0) 
         || (collisionType.hasFloorCollision()) && entity.movement.velocity.y > 0) {
         entity.movement.setVelocity(createVector(entity.movement.velocity.x, 0));

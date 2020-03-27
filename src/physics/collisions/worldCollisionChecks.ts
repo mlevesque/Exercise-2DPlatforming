@@ -4,15 +4,13 @@ import { ICollisionSegment } from "./CollisionSegment";
 import { ISurfaceTypeCheck, isFloor, isCeiling, calculateTCollisionValues, isMovingTowardSegment, areTValuePairsInRange,
     getStartLedgeCollisionType, getEndLedgeCollisionType, buildStartLedgeRay, buildEndLedgeRay,
     isMovingTowardSegmentLedge, isTValueInRange, areTValuesOnOppositeOutsideRange, isWall, 
-    getCollisionTypeForAttachedSegment, areTValuesPairsInRangeForLedge} from "../util";
+    areTValuesPairsInRangeForLedge} from "../util";
 import { getEntityJsonData } from "../../utils/jsonSchemas";
 import { WorldCollisionTracker, IResolvePathEntry } from "./WorldCollisionTracker";
 import { CollisionType, CollisionFlag } from "./collisionType";
 import { resolveWithExternalDirection, resolveByPath } from "./collisionResolve";
-import { GameEventQueue } from "../../events/GameEventQueue";
-import { WorldCollisionEvent } from "../../events/GameEvents";
-import { BehaviorCollisionComponent } from "../../behaviors/BehaviorComponents";
 import { IEntity } from "../../entities/IEntity";
+import { CollisionCollections } from "../collections/CollisionCollections";
 
 /**
  * Checks collision against the given collision segment and stores the collision to the tracker.
@@ -377,19 +375,17 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
  * @param collisionTracker 
  */
 function updateAttachedCollisionForEntity(entity: IEntity, collisionTracker: WorldCollisionTracker): void {
-    const collisionBehavior = entity.behavior.componentMap.getComponent(BehaviorCollisionComponent);
-    if (collisionBehavior) {
-        const attachedCollision = collisionTracker.relevantCollisionSegments.get(collisionBehavior.segId);
-        if (attachedCollision) {
-            const behaviorCollisionType = new CollisionType(collisionBehavior.collisionType);
-            collisionTracker.setPotentialCollision({
-                movementT: 0,
-                collisionSegment: attachedCollision,
-                collisionType: getCollisionTypeForAttachedSegment(attachedCollision, behaviorCollisionType),
-                pathIndex: -1
-            });
-            resolveWithExternalDirection(collisionTracker, createVector(0, -1));
-        }
+    const collisionCollections = CollisionCollections.getInstance();
+    const collisionCom = entity.collisions;
+    const attachedCollision = collisionCollections.getCollisionSegment(collisionCom.attachedSegmentId);
+    if (attachedCollision) {
+        collisionTracker.setPotentialCollision({
+            movementT: 0,
+            collisionSegment: attachedCollision,
+            collisionType: collisionCom.attachedCollisionType,
+            pathIndex: -1
+        });
+        resolveWithExternalDirection(collisionTracker, createVector(0, -1));
     }
 }
 
@@ -417,16 +413,22 @@ export function updateWorldCollisionsOnEntity(entity: IEntity, physicsConfig: IP
     performWorldCollisionsForEntity(collisionTracker);
 
     // update the entity with the collision resolve results
-    const eventQueue = GameEventQueue.getInstance();
-    let collisionType = new CollisionType(CollisionFlag.None);
-    let collisionSegments: ICollisionSegment[] = [];
     if (collisionTracker.hasResolvePath()) {
         const resolveData = collisionTracker.getFinalResolvePosition();
-        entity.movement.setPosition(resolveData.position);
-        collisionType = resolveData.collisionType;
-        collisionSegments = resolveData.collisionSegments;
-    }
 
-    // queue event
-    eventQueue.addToQueue(entity.id, new WorldCollisionEvent(collisionType, collisionSegments));
+        // set position
+        entity.movement.setPosition(resolveData.position);
+
+        // set collision type
+        entity.collisions.setCurrentCollisions(resolveData.collisionType);
+
+        // set attachment
+        const floorSegment = resolveData.collisionSegments.find(isFloor);
+        if (floorSegment) {
+            entity.collisions.setAttachedSegment(floorSegment.id, new CollisionType(CollisionFlag.Floor));
+        }
+        else {
+            entity.collisions.clearAttachedSegment();
+        }
+    }
 }

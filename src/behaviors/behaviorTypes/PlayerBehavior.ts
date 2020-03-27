@@ -1,13 +1,11 @@
 import { IHandleGameEvent, IBehaviorComponentMap } from "../IBehavior";
-import { IBehaviorComponent, BehaviorCollisionComponent, BehaviorMovementComponent, BehaviorJumpComponent, 
-    MoveDirection } from "../BehaviorComponents";
+import { IBehaviorComponent, BehaviorMovementComponent, BehaviorJumpComponent, MoveDirection } 
+    from "../BehaviorComponents";
 import { GameEventType, InputActionEvent } from "../../events/GameEvents";
-import { handleWorldCollision } from "../eventHandlers";
 import { IJumpSchema, IJumpDuration, getEntityJsonData, IPlayerSchema } from "../../utils/jsonSchemas";
 import { updateEntityMove, updateEntityCollisionVelocity } from "../commonBehaviorActions";
 import { ImpulseType } from "../../physics/integration/MovementData";
 import { createVector } from "../../utils/geometry";
-import { CollisionType } from "../../physics/collisions/collisionType";
 import { EntityAnimation } from "../../animation/SpriteAnimation";
 import { BaseBehavior } from "./BaseBehavior";
 import { IEntity } from "../../entities/IEntity";
@@ -21,7 +19,6 @@ class PlayerBehavor extends BaseBehavior {
      */
     protected buildBehaviorComponents(): IBehaviorComponent[] {
         return [
-            new BehaviorCollisionComponent(),
             new BehaviorMovementComponent(),
             new BehaviorJumpComponent()
         ];
@@ -32,7 +29,6 @@ class PlayerBehavor extends BaseBehavior {
      */
     protected buildEventHandlerLinks(): [GameEventType, IHandleGameEvent][] {
         return [
-            [GameEventType.WorldCollision, handleWorldCollision],
             [GameEventType.InputAction, this.handleInputAction],
         ]
     }
@@ -97,9 +93,8 @@ class PlayerBehavor extends BaseBehavior {
 
         // detach any segment if we are jumping
         const jumpBehavior = this.componentMap.getComponent(BehaviorJumpComponent);
-        const collisionBehavior = this.componentMap.getComponent(BehaviorCollisionComponent);
         if (jumpBehavior.jumping) {
-            collisionBehavior.segId = "";
+            entity.collisions.clearAttachedSegment();
         }
 
         // apply jump impulse if we are jumping and the jump key is still pressed
@@ -136,12 +131,11 @@ class PlayerBehavor extends BaseBehavior {
      */
     public handleBehaviorReaction(deltaT: number, entity: IEntity): void {
         // update velocity upon collisions
-        const collisionBehavior = this.componentMap.getComponent(BehaviorCollisionComponent);
-        const collisionType = new CollisionType(collisionBehavior.collisionType);
-        updateEntityCollisionVelocity(entity, collisionType);
+        updateEntityCollisionVelocity(entity);
 
         // handle move and jump animations
         const moveBehavior = this.componentMap.getComponent(BehaviorMovementComponent);
+        const collisionType = entity.collisions.currentCollisions;
         if (collisionType.hasFloorCollision()) {
             switch (moveBehavior.moveDirection) {
                 case MoveDirection.Left:
