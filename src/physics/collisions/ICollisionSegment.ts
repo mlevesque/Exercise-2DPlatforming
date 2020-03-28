@@ -1,7 +1,7 @@
 import { IVector, IRay, normalize } from "../../utils/geometry";
 import { Guid } from "guid-typescript";
 import { CollisionType, CollisionFlag } from "./collisionType";
-import { isFloor, isCeiling, isRightWall, isLeftWall } from "../util";
+import { isFloor, isCeiling, isRightWall, isLeftWall, isWall } from "../util";
 
 /**
  * Interface for a collision segment.
@@ -35,8 +35,8 @@ class CollisionSegment implements ICollisionSegment {
         this._id = Guid.create().toString();
         this._segmentRay = segmentRay;
         this._normal = normalize({x: segmentRay.v.y, y: -segmentRay.v.x});
-        this._startLedge = true;
-        this._endLedge = true;
+        this._startLedge = !isWall(this);
+        this._endLedge = !isWall(this);
         this._prevSegment = "";
         this._nextSegment = "";
     }
