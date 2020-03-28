@@ -425,7 +425,11 @@ export function updateWorldCollisionsOnEntity(entity: IEntity, physicsConfig: IP
         // set attachment
         const floorSegment = resolveData.collisionSegments.find(isFloor);
         if (floorSegment) {
-            entity.collisions.setAttachedSegment(floorSegment.id, new CollisionType(CollisionFlag.Floor));
+            const rct = resolveData.collisionType;
+            const collisionType = new CollisionType(CollisionFlag.Floor);
+            collisionType.setFlag(rct.rawValue & CollisionFlag.FloorStartLedge);
+            collisionType.setFlag(rct.rawValue & CollisionFlag.FloorEndLedge);
+            entity.collisions.setAttachedSegment(floorSegment.id, collisionType);
         }
         else {
             entity.collisions.clearAttachedSegment();

@@ -13,17 +13,17 @@
  */
 export enum CollisionFlag {
     // individual classifications
-    None                = 0x00,
-    Floor               = 0x10,
-    Ceiling             = 0x20,
-    LeftWall            = 0x40,
-    RightWall           = 0x80,
-    FloorStartLedge     = 0x11,
-    FloorEndLedge       = 0x12,
-    CeilingStartLedge   = 0x24,
-    CeilingEndLedge     = 0x28,
+    None                = 0x00, // 0000 0000
+    Floor               = 0x10, // 0001 0000
+    Ceiling             = 0x20, // 0010 0000
+    LeftWall            = 0x40, // 0100 0000
+    RightWall           = 0x80, // 1000 0000
+    FloorStartLedge     = 0x11, // 0001 0001
+    FloorEndLedge       = 0x12, // 0001 0010
+    CeilingStartLedge   = 0x24, // 0010 0100
+    CeilingEndLedge     = 0x28, // 0010 1000
 
-    AllLedges           = 0x0F
+    AllLedges           = 0x0F, // 0000 1111
 }
 
 /**
@@ -59,10 +59,10 @@ export class CollisionType {
             if (this.hasCeilingCollision()) elements.push("Ceiling");
             if (this.hasLeftWallCollision()) elements.push("LeftWall");
             if (this.hasRightWallCollision()) elements.push("RightWall");
-            if (this.includesFlag(CollisionFlag.FloorStartLedge)) elements.push("FloorStartLedge");
-            if (this.includesFlag(CollisionFlag.FloorEndLedge)) elements.push("FloorEndLedge");
-            if (this.includesFlag(CollisionFlag.CeilingStartLedge)) elements.push("CeilingStartLedge");
-            if (this.includesFlag(CollisionFlag.CeilingEndLedge)) elements.push("CeilingEndLedge");
+            if (this.hasFloorStartLedgeCollision()) elements.push("FloorStartLedge");
+            if (this.hasFloorEndLedgeCollision()) elements.push("FloorEndLedge");
+            if (this.hasCeilingStartLedgeCollision()) elements.push("CeilingStartLedge");
+            if (this.hasCeilingEndLedgeCollision()) elements.push("CeilingEndLedge");
         }
         return "{" + elements.join(",") + "}";
     }
@@ -93,6 +93,14 @@ export class CollisionType {
     hasLeftWallCollision(): boolean {return this.includesFlag(CollisionFlag.LeftWall)}
     /** Returns true if the right wall bit is set. */
     hasRightWallCollision(): boolean {return this.includesFlag(CollisionFlag.RightWall)}
+    /** Returns true if the bits for floor and start ledge bits. */
+    hasFloorStartLedgeCollision(): boolean {return this.includesFlag(CollisionFlag.FloorStartLedge)}
+    /** Returns true if the bits for floor and end ledge bits. */
+    hasFloorEndLedgeCollision(): boolean {return this.includesFlag(CollisionFlag.FloorEndLedge)}
+    /** Returns true if the bits for ceiling and start ledge bits. */
+    hasCeilingStartLedgeCollision(): boolean {return this.includesFlag(CollisionFlag.CeilingStartLedge)}
+    /** Returns true if the bits for ceiling and end ledge bits. */
+    hasCeilingEndLedgeCollision(): boolean {return this.includesFlag(CollisionFlag.CeilingEndLedge)}
     /** Returns true if the wall bit is set. */
     hasWallCollision(): boolean {
         return this.includesFlag(CollisionFlag.LeftWall)
