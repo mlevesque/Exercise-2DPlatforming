@@ -121,6 +121,9 @@ export function actionShowEntityCollisions(val: boolean): AnyAction {
 export function actionSetPartitionSegmentId(id: string): AnyAction {
     return createAction(RenderConfigAction.SetPartitionSegmentId, id);
 }
+export function actionHighlightAttachSegment(val: boolean): AnyAction {
+    return createAction(RenderConfigAction.SetAttachSegment, val);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Config Tab

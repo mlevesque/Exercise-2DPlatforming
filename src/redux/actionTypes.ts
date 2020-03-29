@@ -53,6 +53,7 @@ export enum RenderConfigAction {
     SetFrameRate = "RenderConfigAction.SetFrameRate",
     SetCameraScroll = "RenderConfigAction.SetCameraScroll",
     SetEntityCollisions = "RenderConfigAction.SetEntityCollisions",
+    SetAttachSegment = "RenderConfigAction.SetAttachSegment",
     SetPartitionSegmentId = "RenderConfigAction.SetPartitionSegmentId",
 }
 

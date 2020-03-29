@@ -37,12 +37,15 @@ function renderArrow(ctx: CanvasRenderingContext2D, from: IVector, to: IVector, 
 	ctx.fill();
 }
 
-function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment, isHighlight: boolean): void {
+function renderSegment( ctx: CanvasRenderingContext2D, 
+                        segment: ICollisionSegment, 
+                        isHighlight: boolean, 
+                        isAttachHighlight: boolean): void {
     ctx.save();
     ctx.translate(segment.segmentRay.p.x, segment.segmentRay.p.y);
 
     // render segment
-    let color = isHighlight ? "yellow" : (isWall(segment) ? "blue" : "red");
+    let color = isAttachHighlight ? "white" : isHighlight ? "yellow" : (isWall(segment) ? "blue" : "red");
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
     ctx.lineWidth = isHighlight ? 3 : 2;
@@ -68,11 +71,11 @@ function renderSegment(ctx: CanvasRenderingContext2D, segment: ICollisionSegment
     ctx.restore();
 }
 
-export function renderMapCollisions(ctx: CanvasRenderingContext2D, highlightSegId: string): void {
+export function renderMapCollisions(ctx: CanvasRenderingContext2D, highlightSegId: string, playerSegId: string): void {
     const cam = CameraManager.getInstance().activeCamera;
     const collisions = WorldPartition.getInstance().getCollisionsInWorldArea(cam.getViewArea());
     collisions.forEach((segment) => {
-        renderSegment(ctx, segment, segment.id === highlightSegId);
+        renderSegment(ctx, segment, segment.id === highlightSegId, segment.id === playerSegId);
     })
 }
 

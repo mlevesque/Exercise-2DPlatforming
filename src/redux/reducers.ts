@@ -177,6 +177,10 @@ export function renderConfigReducer(state: IRenderConfig = InitState.renderConfi
             newState = deepCopy(state);
             newState.partitionSegmentId = action.payload;
             return newState;
+        case RenderConfigAction.SetAttachSegment:
+            newState = deepCopy(state);
+            newState.enableAttachCollision = action.payload;
+            return newState;
     }
     return state;
 }

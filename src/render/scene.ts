@@ -43,8 +43,9 @@ export function render(ctx: CanvasRenderingContext2D, deltaT: number, state: IMa
     }
 
     // render collision segments
+    const player = EntityCollection.getInstance().getPlayer();
     if (state.renderConfig.enableCollisionSegments) {
-        renderMapCollisions(ctx, state.renderConfig.partitionSegmentId);
+        renderMapCollisions(ctx, state.renderConfig.partitionSegmentId, player.collisions.attachedSegmentId);
     }
 
     // render entity collisions

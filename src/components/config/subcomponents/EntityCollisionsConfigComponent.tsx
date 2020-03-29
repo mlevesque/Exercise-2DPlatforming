@@ -1,17 +1,19 @@
 import { IMainState } from "../../../redux/state";
 import { Dispatch } from "redux";
-import { actionShowEntityCollisions, actionSetAttachSegmentEnabled } from "../../../redux/actionCreators";
+import { actionShowEntityCollisions, actionSetAttachSegmentEnabled, actionHighlightAttachSegment } from "../../../redux/actionCreators";
 import React from "react";
 import { connect } from "react-redux";
 import "../../../assets/styles/config.css";
 
 interface IProps {
     enableSegAttach: boolean;
+    highlightAttachSegment: boolean;
     showEntityCollisions: boolean;
 }
 
 interface IDispatchActions {
     actionSetEnableSegAttach: (value: boolean) => void;
+    actionHighlightAttachSegment: (value: boolean) => void;
     actionShowEntityCollisions: (value: boolean) => void;
 }
 
@@ -23,6 +25,7 @@ interface IState {
 const mapStateToProps = (state: IMainState): IProps => {
     return {
         enableSegAttach: state.physics.segmentAttachEnabled,
+        highlightAttachSegment: state.renderConfig.enableAttachCollision,
         showEntityCollisions: state.renderConfig.enableEntityCollisions,
     }
 }
@@ -30,6 +33,7 @@ const mapStateToProps = (state: IMainState): IProps => {
 const mapDispatchToProps = (dispatch: Dispatch): IDispatchActions => {
     return {
         actionSetEnableSegAttach: (value: boolean) => dispatch(actionSetAttachSegmentEnabled(value)),
+        actionHighlightAttachSegment: (value: boolean) => dispatch(actionHighlightAttachSegment(value)),
         actionShowEntityCollisions: (value: boolean) => dispatch(actionShowEntityCollisions(value)),
     }
 }
@@ -51,6 +55,14 @@ class EntityCollisionsConfigComponent extends React.Component<IFullProps, IState
                     checked={this.props.enableSegAttach}
                     onChange={e => this.props.actionSetEnableSegAttach(e.currentTarget.checked)} />
                 <label htmlFor="enableSegmentAttachment">Enable Entities Attach to Segments</label>
+                <br/>
+                &emsp;
+                <input 
+                    type="checkbox" 
+                    name="highlightAttachSegment" 
+                    checked={this.props.highlightAttachSegment}
+                    onChange={e => this.props.actionHighlightAttachSegment(e.currentTarget.checked)} />
+                <label htmlFor="highlightAttachSegment">Highlight Player Attached Segment</label>
                 <br/>
                 <input 
                     type="checkbox" 
