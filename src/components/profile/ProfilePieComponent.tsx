@@ -1,10 +1,7 @@
 import React, { createRef } from "react";
 import { createVector } from "../../utils/geometry";
-
-export interface IPieEntry {
-    percentage: number;
-    color: string;
-}
+import "../../assets/styles/profile.css";
+import { IPieEntry } from "./shared";
 
 interface IProps {
     width: number;
@@ -44,7 +41,7 @@ export class ProfilePieComponent extends React.Component<IProps> {
 
     render() {
         return (
-            <div>
+            <div className="pie" >
                 <canvas width={this.props.width} height={this.props.height} ref={this._canvas} />
             </div>
         );

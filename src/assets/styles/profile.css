@@ -1,0 +1,54 @@
+.profile {
+    padding: 0 10px 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: left;
+    font-size: 14px;
+    background-color: white;
+    width: 550px;
+}
+
+.profile h1 {
+    font-size: 17px;
+    line-height: 17px;
+}
+
+.profile span {
+    display: inline-block;
+    vertical-align: top;
+    text-align: left;
+    padding: 0;
+    margin: 0;
+}
+
+.profile .note {
+    font-size: 10px;
+    float: right;
+    position: relative;
+    margin-top: 5px;
+}
+
+.legend {
+    -webkit-columns: 2;
+    -moz-columns: 2;
+    columns: 2;
+    list-style: none;
+    list-style-type: none;
+}
+
+.legend li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    font-size: 12px;
+    padding: 0;
+}
+
+.legend .box {
+    width: 10px;
+    height: 10px;
+    border: 1px solid #111;
+    vertical-align: middle;
+    display: inline-block;
+    margin: 3px;
+}

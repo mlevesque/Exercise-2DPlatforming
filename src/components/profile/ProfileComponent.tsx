@@ -1,7 +1,10 @@
-import { IMainState } from "../redux/state";
+import { IMainState } from "../../redux/state";
 import React from "react";
 import { connect } from "react-redux";
-import { ProfilePieComponent, IPieEntry } from "./profile/ProfilePieComponent";
+import { ProfilePieComponent } from "./ProfilePieComponent";
+import "../../assets/styles/profile.css";
+import { IPieEntry } from "./shared";
+import { ProfileLegendComponent } from "./ProfileLegendComponent";
 
 interface IProfileProps {
     frameTime: number;
@@ -14,9 +17,9 @@ interface IProfileProps {
 
 enum TimingIndex {
     FrameTime = 0,
-    BehaviorActionTime = 1,
+    ActionTime = 1,
     PhysicsTime = 2,
-    BehaviorReactionTime = 3,
+    ReactionTime = 3,
     AnimationTime = 4,
     RenderTime = 5,
 }
@@ -34,7 +37,7 @@ const mapStateToProps = (state: IMainState): IProfileProps => {
 }
 
 class ProfileComponent extends React.PureComponent<IProfileProps> {
-    numberOfTimings: number = 5;
+    numberOfTimings: number = 10;
 
     highest: number = 0;
     timings: number[][];
@@ -67,23 +70,35 @@ class ProfileComponent extends React.PureComponent<IProfileProps> {
     render() {
         // update timings and averages
         this.updateTiming(TimingIndex.FrameTime, this.props.frameTime);
-        this.updateTiming(TimingIndex.BehaviorActionTime, this.props.behaviorActionTime);
+        this.updateTiming(TimingIndex.ActionTime, this.props.behaviorActionTime);
         this.updateTiming(TimingIndex.PhysicsTime, this.props.physicsTime);
-        this.updateTiming(TimingIndex.BehaviorReactionTime, this.props.behaviorReactionTime);
+        this.updateTiming(TimingIndex.ReactionTime, this.props.behaviorReactionTime);
         this.updateTiming(TimingIndex.AnimationTime, this.props.animationTime);
         this.updateTiming(TimingIndex.RenderTime, this.props.renderTime);
 
         const pieData: IPieEntry[] = [
-            {percentage: this.getPercentage(TimingIndex.BehaviorActionTime), color: "blue"},
-            {percentage: this.getPercentage(TimingIndex.PhysicsTime), color: "red"},
-            {percentage: this.getPercentage(TimingIndex.BehaviorReactionTime), color: "purple"},
-            {percentage: this.getPercentage(TimingIndex.AnimationTime), color: "yellow"},
-            {percentage: this.getPercentage(TimingIndex.RenderTime), color: "green"},
+            {name: "Behavior Actions", percentage: this.getPercentage(TimingIndex.ActionTime), color: "blue"},
+            {name: "Physics", percentage: this.getPercentage(TimingIndex.PhysicsTime), color: "red"},
+            {name: "Behavior Reactions", percentage: this.getPercentage(TimingIndex.ReactionTime), color: "purple"},
+            {name: "Animation", percentage: this.getPercentage(TimingIndex.AnimationTime), color: "yellow"},
+            {name: "Render", percentage: this.getPercentage(TimingIndex.RenderTime), color: "green"},
         ];
 
+        const frameRate = 1000 / this.getAverage(TimingIndex.FrameTime);
+
         return (
-            <div>
-                <ProfilePieComponent width={50} height={50} pie={pieData} />
+            <div className="profile">
+                <label className="note">(Note: all values are averages over {this.numberOfTimings} frames.)</label>
+                <h1>Profiling</h1>
+                <label>Frame Rate: {frameRate.toFixed(2)} fps</label>
+                <br/>
+                <span>
+                    <ProfilePieComponent width={60} height={60} pie={pieData} />
+                </span>
+                <span>
+                    <ProfileLegendComponent entries={pieData} />
+                </span>
+
             </div>
         )
     }

@@ -1,6 +1,6 @@
 import React from "react";
 import { GameCanvas } from "./GameCanvasComponent";
-import { Profile } from "./ProfileComponent";
+import { Profile } from "./profile/ProfileComponent";
 import { ConfigCom } from "./config/ConfigComponent";
 import "../assets/styles/main.css";
 
@@ -12,7 +12,9 @@ export class MainComponent extends React.Component {
                     <span className="one"><GameCanvas/></span>
                     <span className="two"><ConfigCom/></span>
                 </div>
-                <Profile/>
+                <div className="container" >
+                    <Profile/>
+                </div>
             </div>
         )
     }
