@@ -52,13 +52,15 @@ export function renderTiles(ctx: CanvasRenderingContext2D, map: IMap): void {
     const y1 = Math.max(0, Math.floor((camPos.y - camera.config.halfHeight) / size));
     const y2 = Math.min(Math.ceil(map.height / size), Math.ceil((camPos.y + camera.config.halfHeight) / size));
     for (let indexY = y1; indexY < y2; ++indexY) {
-        let y = indexY * size;
+        const y = indexY * size;
         for (let indexX = x1; indexX < x2; ++indexX) {
             const value = map.tiles[indexY][indexX];
-            let tileX = (value % 16) * size;
-            let tileY = Math.floor(value / 16) * size;
-            let x = indexX * size;
-            ctx.drawImage(image, tileX, tileY, size, size, x, y, size, size);
+            if (value < 256) {
+                const tileX = (value % 16) * size;
+                const tileY = Math.floor(value / 16) * size;
+                const x = indexX * size;
+                ctx.drawImage(image, tileX, tileY, size, size, x, y, size, size);
+            }
         }
     }
 }
