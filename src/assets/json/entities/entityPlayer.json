@@ -30,7 +30,7 @@
     "speed": 300,
     "jump": {
         "speed": 3100,
-        "initialDuration": 90,
+        "initialDuration": 120,
         "additionalDurations": [
             {"keyDuration": 80, "impulseDuration": 180}
         ]
