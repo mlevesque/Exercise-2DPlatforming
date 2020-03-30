@@ -298,9 +298,20 @@ function performWallCollisionPathResolve( collisionTracker: WorldCollisionTracke
  * @param collisionTracker 
  */
 function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker): void {
-    // try to build resolve path on floors
+    // first perform wall collisions and form a resolve path, but only if we don't already have a resolve path due to
+    // resolving to an attached segment
     let hasFloorCollision = collisionTracker.hasResolvePath();
+    let hasWallCollision = false;
     if (!hasFloorCollision) {
+        const wallMovementRays = collisionTracker.getRemainingMovementWithWallOffsets();
+        hasWallCollision = buildWallCollisionResolvePath(
+            collisionTracker,
+            createVector(wallMovementRays[0].v.x > 0 ? -1 : 1, 0)
+        );
+    }
+    
+    // try to build resolve path on floors if there is no resolve path yet
+    if (!hasFloorCollision && !hasWallCollision) {
         hasFloorCollision = buildPointCollisionResolvePath(
             collisionTracker,
             new CollisionType(CollisionFlag.Floor),
@@ -310,25 +321,15 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
         );
     }
 
-    // if no floor collisions, try to build resolve path on ceiling
+    // if no floor or wall collisions, try to build resolve path on ceiling
     let hasCeilingCollision = false;
-    if (!hasFloorCollision) {
+    if (!hasFloorCollision && !hasWallCollision) {
         hasCeilingCollision = buildPointCollisionResolvePath(
             collisionTracker,
             new CollisionType(CollisionFlag.Ceiling),
             () => {return collisionTracker.getRemainingMovementWithCeilingOffset()},
             isCeiling,
             createVector(0, 1)
-        );
-    }
-
-    // if no floor and no ceiling collisions, try to build resolve path on walls
-    let hasWallCollision = false;
-    if (!hasFloorCollision && !hasCeilingCollision) {
-        const wallMovementRays = collisionTracker.getRemainingMovementWithWallOffsets();
-        hasWallCollision = buildWallCollisionResolvePath(
-            collisionTracker,
-            createVector(wallMovementRays[0].v.x > 0 ? -1 : 1, 0)
         );
     }
 
@@ -340,8 +341,12 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
         return;
     }
 
-    // if we had collisions and they weren't floor collisions, then perform floor collision checks again and resolve to
-    // resolve path
+    // if we haven't resolved to walls earlier, then perform wall collisions
+    if (!hasWallCollision) {
+        performWallCollisionPathResolve(collisionTracker);
+    }
+
+    // if we haven't resolved to floors earlier, then perform floor collisions
     if (!hasFloorCollision) {
         performPointCollisionPathResolve(
             collisionTracker, 
@@ -351,8 +356,7 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
         );
     }
 
-    // if we had collisions and they weren't ceiling collisions, then perform ceiling collision checks again and resolve
-    // to resolve path
+    // if we haven't resolved to ceilings earlier, then perform ceiling collisions
     if (!hasCeilingCollision) {
         performPointCollisionPathResolve(
             collisionTracker, 
@@ -360,12 +364,6 @@ function performWorldCollisionsForEntity(collisionTracker: WorldCollisionTracker
             new CollisionType(CollisionFlag.Ceiling),
             isCeiling
         );
-    }
-
-    // if we had collisions and they weren't wall collisions, then perform wall collision checks again and resolve to
-    // resolve path
-    if (!hasWallCollision) {
-        performWallCollisionPathResolve(collisionTracker);
     }
 }
 
