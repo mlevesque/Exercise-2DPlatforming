@@ -1,0 +1,12 @@
+{
+    "tilesets": [
+        {"name": "grass", "file": "tileset_grass.png"},
+        {"name": "desert", "file": "tileset_desert.png"},
+        {"name": "snow", "file": "tileset_snow.png"}
+    ],
+    "backgrounds": [
+        {"name": "grass", "file": "background_grass.jpg"},
+        {"name": "desert", "file": "background_desert.jpg"},
+        {"name": "snow", "file": "background_snow.jpg"}
+    ]
+}

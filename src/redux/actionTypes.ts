@@ -44,6 +44,7 @@ export enum LevelNameAction {
 export enum MapAction {
     Set = "MapAction.Set",
     Clear = "MapAction.Clear",
+    SetTextures = "MapAction.SetTextures",
 }
 
 export enum RenderConfigAction {

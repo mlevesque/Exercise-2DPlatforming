@@ -1,5 +1,6 @@
 import gameConfig from "../assets/json/gameConfig.json";
 import levelList from "../assets/json/maps/level_list.json";
+import mapTextures from "../assets/json/map_textures.json";
 import entityPlayer from "../assets/json/entities/entityPlayer.json";
 import { IVector } from "./geometry";
 import { IAnimationMappingSchema } from "../animation/JsonSchema.js";
@@ -16,6 +17,15 @@ export interface IGameConfigSchema {
 // LEVEL LIST
 export interface ILevelListSchema {
     levels: string[];
+}
+
+export interface IMapTexture {
+    name: string;
+    file: string;
+}
+export interface IMapTexturesSchema {
+    tilesets: IMapTexture[];
+    backgrounds: IMapTexture[];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +91,9 @@ export function getGameConfig(): IGameConfigSchema {
 }
 export function getLevelList(): ILevelListSchema {
     return levelList as ILevelListSchema;
+}
+export function getMapTextures(): IMapTexturesSchema {
+    return mapTextures as IMapTexturesSchema;
 }
 export function getEntityJsonData(type: EntityType): IEntitySchema {
     switch (type) {

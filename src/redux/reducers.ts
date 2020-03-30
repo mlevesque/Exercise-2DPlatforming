@@ -92,9 +92,19 @@ export function levelNameReducer(state: string = InitState.levelName, action: An
 export function mapReducer(state: IMap = InitState.map, action: AnyAction): IMap {
     switch (action.type) {
         case MapAction.Set:
-            return Object.assign({}, action.payload);
+            return deepCopy(action.payload);
         case MapAction.Clear:
             return null
+        case MapAction.SetTextures:
+            if (state) {
+                const newState: IMap = deepCopy(state);
+                newState.tileset = action.payload.tileset;
+                newState.background = action.payload.background;
+                return newState;
+            }
+            else {
+                return null;
+            }
     }
     return state;
 }

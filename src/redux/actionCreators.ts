@@ -97,6 +97,9 @@ export function actionSetMap(map: IMap): AnyAction {
 export function actionClearMap(): AnyAction {
     return createAction(MapAction.Clear);
 }
+export function actionSetMapTextures(tileset: string, background: string): AnyAction {
+    return createAction(MapAction.SetTextures, {tileset: tileset, background: background});
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Render Config

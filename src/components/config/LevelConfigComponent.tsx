@@ -2,6 +2,7 @@ import React from "react";
 import "../../assets/styles/config.css";
 import { getLevelList } from "../../utils/jsonSchemas";
 import { LoadLevelConfigCom } from "./subcomponents/LoadLevelConfigComponent";
+import { LevelTexturesConfigCom } from "./subcomponents/LevelTexturesConfigComponent";
 
 export class LevelConfigComponent extends React.Component {
     render() {
@@ -13,6 +14,8 @@ export class LevelConfigComponent extends React.Component {
         return (
             <div>
                 <LoadLevelConfigCom/>
+                <hr/>
+                <LevelTexturesConfigCom/>
             </div>
         )
     }

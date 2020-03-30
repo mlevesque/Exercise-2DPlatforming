@@ -1,13 +1,13 @@
 import { AnyAction } from "redux";
-import { PhysicsConfigAction } from "../redux/actionTypes";
+import { PhysicsConfigAction, MapAction } from "../redux/actionTypes";
 import { IMap } from "../redux/state";
 import { getMap, getLevelName } from "../redux/selectors";
-import { select, put, takeEvery, all } from "redux-saga/effects";
+import { select, put, takeEvery, all, takeLatest } from "redux-saga/effects";
 import { WorldPartition } from "../physics/collections/WorldPartition";
 import { ICollisionSegment } from "../physics/collisions/ICollisionSegment";
 import { getGameConfig, IMapSchema } from "../utils/jsonSchemas";
-import { loadLevelData } from "./utils";
-import { actionSetGravity } from "../redux/actionCreators";
+import { loadLevelData, isImageAlreadyLoaded, lazyLoadImages } from "./utils";
+import { actionSetGravity, actionSetLoadingFlag } from "../redux/actionCreators";
 import { CollisionCollections } from "../physics/collections/CollisionCollections";
 
 function* resetPartition(action: AnyAction) {
@@ -34,9 +34,29 @@ function* resetGravity() {
     yield put(actionSetGravity(gravity));
 }
 
+function* loadImages(action: AnyAction) {
+    const imageList: string[] = [];
+    const tileset = action.payload.tileset;
+    if (!isImageAlreadyLoaded(tileset)) {
+        imageList.push(tileset);
+    }
+    const background = action.payload.background;
+    if (!isImageAlreadyLoaded(background)) {
+        imageList.push(background);
+    }
+
+    if (imageList.length > 0) {
+        yield put(actionSetLoadingFlag(true));
+        const promise = lazyLoadImages(imageList);
+        yield promise;
+        yield put(actionSetLoadingFlag(false));
+    }
+}
+
 export function* resetSagas() {
     yield all([
         takeEvery(PhysicsConfigAction.SetPartitionCellSize, resetPartition),
         takeEvery(PhysicsConfigAction.ResetGravity, resetGravity),
+        takeLatest(MapAction.SetTextures, loadImages),
     ]);
 }
